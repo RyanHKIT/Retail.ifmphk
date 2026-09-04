@@ -4,12 +4,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from 'recharts';
-import { api } from '@/api/retail';
+import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { KpiItem, FootfallHourly, PeopleSummary, HeatmapData, ZonesData, AlertItem, EnergyData } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
 import { KpiCard } from '@/components/retail/KpiCard';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
 import { AlertList } from '@/components/retail/AlertList';
+import { SourceChip, type SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
@@ -18,6 +19,20 @@ import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 import type { MessageKey } from '@/i18n/messages';
 
 const PIE_COLORS = [CHART[2], CHART[1], CHART[4]];
+
+const HINT_ORDER: SourceChipSource[] = ['counter', 'camera'];
+
+function sourceForKpi(id: string): SourceChipSource | undefined {
+  if (id === 'passby' || id === 'enter' || id === 'enter_rate') return 'counter';
+  if (id === 'in_store' || id === 'service_gap') return 'camera';
+  return undefined;
+}
+
+function orderedHintSources(raw: Array<SourceChipSource | null>): SourceChipSource[] {
+  const set = new Set(raw.filter((s): s is SourceChipSource => s != null));
+  const ordered = HINT_ORDER.filter((s) => set.has(s));
+  return ordered.length === HINT_ORDER.length ? ordered : [...HINT_ORDER];
+}
 
 export function OverviewPage() {
   const { storeId } = useRetailFilter();
@@ -32,26 +47,31 @@ export function OverviewPage() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [energy, setEnergy] = useState<EnergyData | null>(null);
   const [pendingDispatch, setPendingDispatch] = useState(0);
+  const [hintSources, setHintSources] = useState<SourceChipSource[]>(HINT_ORDER);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      api.kpi(),
+      fetchMockWithMeta<{ kpis: KpiItem[] }>('kpi.json'),
       api.footfallHourly(),
-      api.peopleSummary(),
+      fetchMockWithMeta<PeopleSummary>('people-summary.json'),
       api.heatmap(),
       api.zones(),
       api.alerts(),
       api.gapEvents(),
       api.energy(),
     ]).then(([k, h, p, hm, z, a, gaps, en]) => {
-      setKpis(k.kpis);
+      setKpis(k.data.kpis);
       setHourly(h);
-      setPeople(p);
+      setPeople(p.data);
       setHeatmap(hm);
       setZones(z);
       setAlerts(a.items.slice(0, 5));
       setPendingDispatch(countPending(gaps.items.map((g) => g.gap_id)));
+      setHintSources(orderedHintSources([
+        toChipSource(k.meta?.source),
+        toChipSource(p.meta?.source),
+      ]));
       setEnergy(en);
       setLoading(false);
     });
@@ -79,9 +99,18 @@ export function OverviewPage() {
       <h1 className="page-title">{t('overview.title')}</h1>
       <p className="page-subtitle">{storeLabel} · {t('overview.subtitle')}</p>
 
+      <div className="source-hint-strip" role="note">
+        <span className="source-hint-label">{t('overview.sourceHint')}</span>
+        {hintSources.map((source) => (
+          <SourceChip key={source} source={source} />
+        ))}
+        <span className="source-hint-copy">{t('overview.sourceHintCopy')}</span>
+      </div>
+
       {pendingDispatch > 0 && (
-        <div className="dispatch-banner">
+        <div className="overview-next-action dispatch-banner">
           <div>
+            <div className="overview-kicker">{t('overview.nextAction')}</div>
             <strong>{t('overview.dispatchTitle')}</strong>
             <span> {t('overview.dispatchPending', { n: pendingDispatch })}</span>
           </div>
@@ -93,68 +122,72 @@ export function OverviewPage() {
         </div>
       )}
 
-      <div className="grid-kpi">
-        {kpis.map((k) => <KpiCard key={k.id} kpi={k} />)}
-      </div>
+      <section className="overview-situation" aria-label={t('overview.situation')}>
+        <div className="grid-kpi">
+          {kpis.map((k) => (
+            <KpiCard key={k.id} kpi={k} source={sourceForKpi(k.id)} />
+          ))}
+        </div>
 
-      {energy && (
-        <Link to="/retail/energy" className="energy-strip">
-          <div className="energy-strip-main">
-            <strong>{t('overview.energyStrip')}</strong>
-            <span>
-              {t('overview.avgTemp')} {energy.summary.avg_temp_c}°C · {t('overview.humidity')} {energy.summary.avg_humidity_pct}% · {t('overview.todayKwh')} {energy.summary.today_kwh} kWh
-              （{t('common.vsYesterday')} {energy.summary.change_pct}%）
-            </span>
-          </div>
-          <span className="energy-strip-cta">{t('overview.energyDetail')}</span>
-        </Link>
-      )}
-
-      <div className="grid-2">
-        <ChartPanel title={t('overview.footfallChart')}>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-              <XAxis dataKey="hour" stroke={chart.axis} />
-              <YAxis stroke={chart.axis} />
-              <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Line type="monotone" dataKey={passbyKey} stroke={CHART[4]} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey={enterKey} stroke={CHART[1]} strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartPanel>
-        <ChartPanel title={t('overview.roles')}>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" label>
-                {pieData.map((_, i) => (
-                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={chartTooltipStyle(chart)} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="legend-row">
-            {people?.role_distribution.map((r, i) => (
-              <span key={r.role}>
-                <span className="legend-dot" style={{ background: PIE_COLORS[i] }} />
-                {r.label} {r.percentage}%
+        {energy && (
+          <Link to="/retail/energy" className="energy-strip">
+            <div className="energy-strip-main">
+              <strong>{t('overview.energyStrip')}</strong>
+              <span>
+                {t('overview.avgTemp')} {energy.summary.avg_temp_c}°C · {t('overview.humidity')} {energy.summary.avg_humidity_pct}% · {t('overview.todayKwh')} {energy.summary.today_kwh} kWh
+                （{t('common.vsYesterday')} {energy.summary.change_pct}%）
               </span>
-            ))}
-          </div>
-        </ChartPanel>
-      </div>
+            </div>
+            <span className="energy-strip-cta">{t('overview.energyDetail')}</span>
+          </Link>
+        )}
 
-      <div className="grid-2-1">
-        <div className="card">
-          <div className="card-title">{t('overview.heatmap')}</div>
-          {zones && heatmap && <FloorHeatmap zones={zones.zones} heat={heatmap.zones} compact />}
+        <div className="grid-2">
+          <ChartPanel title={t('overview.footfallChart')}>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="hour" stroke={chart.axis} />
+                <YAxis stroke={chart.axis} />
+                <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                <Line type="monotone" dataKey={passbyKey} stroke={CHART[4]} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey={enterKey} stroke={CHART[1]} strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+          <ChartPanel title={t('overview.roles')}>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" label>
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={chartTooltipStyle(chart)} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="legend-row">
+              {people?.role_distribution.map((r, i) => (
+                <span key={r.role}>
+                  <span className="legend-dot" style={{ background: PIE_COLORS[i] }} />
+                  {r.label} {r.percentage}%
+                </span>
+              ))}
+            </div>
+          </ChartPanel>
         </div>
-        <div className="card">
-          <div className="card-title">{t('overview.alerts')}</div>
-          <AlertList items={alerts} />
+
+        <div className="grid-2-1">
+          <div className="card">
+            <div className="card-title">{t('overview.heatmap')}</div>
+            {zones && heatmap && <FloorHeatmap zones={zones.zones} heat={heatmap.zones} compact />}
+          </div>
+          <div className="card">
+            <div className="card-title">{t('overview.alerts')}</div>
+            <AlertList items={alerts} />
+          </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }

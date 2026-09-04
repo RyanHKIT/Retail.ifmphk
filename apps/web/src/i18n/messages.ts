@@ -48,6 +48,10 @@ const zhHant = {
 
   'overview.title': '總覽看板',
   'overview.subtitle': '今日營運概況',
+  'overview.sourceHint': '雙源證據',
+  'overview.sourceHintCopy': '客流來自門禁計數；缺口與動線來自店內攝像',
+  'overview.situation': '今日狀況',
+  'overview.nextAction': '下一步',
   'overview.dispatchTitle': '待調度服務缺口',
   'overview.dispatchPending': '尚有 {n} 則未標記調度',
   'overview.toGap': '去服務缺口',
@@ -247,6 +251,10 @@ const zhHans: Dict = {
 
   'overview.title': '总览看板',
   'overview.subtitle': '今日营运概况',
+  'overview.sourceHint': '双源证据',
+  'overview.sourceHintCopy': '客流来自门禁计数；缺口与动线来自店内摄像',
+  'overview.situation': '今日状况',
+  'overview.nextAction': '下一步',
   'overview.dispatchTitle': '待调度服务缺口',
   'overview.dispatchPending': '尚有 {n} 则未标记调度',
   'overview.toGap': '去服务缺口',
@@ -444,6 +452,10 @@ const en: Dict = {
 
   'overview.title': 'Overview',
   'overview.subtitle': "Today's operations",
+  'overview.sourceHint': 'Dual-source evidence',
+  'overview.sourceHintCopy': 'Footfall from the door counter; gaps and journey from in-store cameras',
+  'overview.situation': "Today's picture",
+  'overview.nextAction': 'Next action',
   'overview.dispatchTitle': 'Pending dispatches',
   'overview.dispatchPending': '{n} gap(s) not yet dispatched',
   'overview.toGap': 'Service gaps',

@@ -1,12 +1,16 @@
 import type { KpiItem } from '@/api/retail';
+import { SourceChip, type SourceChipSource } from './SourceChip';
 
-export function KpiCard({ kpi }: { kpi: KpiItem }) {
+export function KpiCard({ kpi, source }: { kpi: KpiItem; source?: SourceChipSource }) {
   const changeClass = kpi.change_direction === 'up' ? 'up' : kpi.change_direction === 'down' ? 'down' : '';
   const displayValue = kpi.format === 'percent' ? kpi.value.toFixed(1) : kpi.value.toLocaleString();
 
   return (
     <div className="kpi-card chart-enter">
-      <div className="kpi-label">{kpi.label}</div>
+      <div className="kpi-head">
+        <div className="kpi-label">{kpi.label}</div>
+        {source && <SourceChip source={source} />}
+      </div>
       <div>
         <span className="kpi-value">{displayValue}</span>
         <span className="kpi-unit">{kpi.unit}</span>
