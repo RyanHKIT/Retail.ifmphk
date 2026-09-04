@@ -65,3 +65,18 @@ test('bump plus/minus, save, and reset persist via rosterStore', async () => {
   expect(loadSuggestedOverride()).toBeNull()
   expect(within(firstRow!).getAllByRole('cell')[4]).toHaveTextContent('5')
 })
+
+test('shows 需求 and 週更表 section tabs', async () => {
+  renderRoster()
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '排班建議' })).toBeInTheDocument()
+  })
+  expect(screen.getByRole('tab', { name: '需求' })).toBeInTheDocument()
+  expect(screen.getByRole('tab', { name: '週更表' })).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('tab', { name: '週更表' }))
+  expect(screen.getByText(/週起 2026-09-01/)).toBeInTheDocument()
+  expect(screen.getByText('樓面')).toBeInTheDocument()
+  expect(screen.getByText('試衣')).toBeInTheDocument()
+  expect(screen.getByText('收銀')).toBeInTheDocument()
+})

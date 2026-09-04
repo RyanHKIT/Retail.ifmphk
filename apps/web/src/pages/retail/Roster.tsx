@@ -6,6 +6,7 @@ import { fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { RosterPlanData } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
 import { PageStatus } from '@/components/retail/PageStatus';
+import { RosterWeekBoard } from '@/components/retail/RosterWeekBoard';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
@@ -14,6 +15,8 @@ import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 import type { MessageKey } from '@/i18n/messages';
+
+type RosterSection = 'demand' | 'board';
 
 export function RosterPage() {
   const { storeId } = useRetailFilter();
@@ -27,6 +30,7 @@ export function RosterPage() {
   const [error, setError] = useState(false);
   const [reload, setReload] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [section, setSection] = useState<RosterSection>('demand');
 
   useEffect(() => {
     let cancelled = false;
@@ -105,83 +109,110 @@ export function RosterPage() {
             <span className="source-hint-copy">{t('roster.story')}</span>
           </div>
 
-          <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-            <div className="kpi-card chart-enter">
-              <div className="kpi-label">{t('roster.peak')}</div>
-              <div><span className="kpi-value" style={{ fontSize: '1.4rem' }}>{plan.summary.peak_hour}</span></div>
-            </div>
-            <div className="kpi-card chart-enter">
-              <div className="kpi-label">{t('roster.maxGap')}</div>
-              <div><span className="kpi-value">{plan.summary.max_gap}</span><span className="kpi-unit">{t('roster.people')}</span></div>
-            </div>
-            <div className="kpi-card chart-enter">
-              <div className="kpi-label">{t('roster.underHours')}</div>
-              <div><span className="kpi-value">{plan.summary.under_hours}</span><span className="kpi-unit">h</span></div>
-            </div>
-            <div className="kpi-card chart-enter">
-              <div className="kpi-label">{t('roster.overHours')}</div>
-              <div><span className="kpi-value">{plan.summary.over_hours}</span><span className="kpi-unit">h</span></div>
-            </div>
+          <div className="roster-section-tabs" role="tablist" aria-label={t('roster.title')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={section === 'demand'}
+              className={section === 'demand' ? 'roster-section-tab is-active' : 'roster-section-tab'}
+              onClick={() => setSection('demand')}
+            >
+              {t('roster.sectionDemand')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={section === 'board'}
+              className={section === 'board' ? 'roster-section-tab is-active' : 'roster-section-tab'}
+              onClick={() => setSection('board')}
+            >
+              {t('roster.sectionBoard')}
+            </button>
           </div>
 
-          <ChartPanel title={t('roster.chart')} style={{ marginBottom: 20 }}>
-            <ResponsiveContainer width="100%" height={280}>
-              <ComposedChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-                <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
-                <YAxis yAxisId="left" stroke={chart.axis} fontSize={11} />
-                <YAxis yAxisId="right" orientation="right" stroke={chart.axis} fontSize={11} />
-                <Tooltip contentStyle={chartTooltipStyle(chart)} />
-                <Legend />
-                <Bar yAxisId="left" dataKey={det} fill={CHART[4]} radius={[4, 4, 0, 0]} />
-                <Line yAxisId="left" type="monotone" dataKey={exp} stroke={CHART[2]} strokeWidth={2} dot={false} />
-                <Line yAxisId="left" type="monotone" dataKey={sug} stroke={CHART[1]} strokeWidth={2} />
-                <Line yAxisId="right" type="monotone" dataKey={ent} stroke={CHART[3]} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-              </ComposedChart>
-            </ResponsiveContainer>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 8 }}>{plan.note}</p>
-          </ChartPanel>
-
-          <div className="card">
-            <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{t('roster.tune')}</span>
-              <div className="btn-row">
-                <button type="button" className="btn btn-ghost" onClick={reset}>{t('common.reset')}</button>
-                <button type="button" className="btn btn-primary" onClick={persist}>
-                  {saved ? t('common.saved') : t('common.saveLocal')}
-                </button>
+          {section === 'demand' && (
+            <>
+              <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                <div className="kpi-card chart-enter">
+                  <div className="kpi-label">{t('roster.peak')}</div>
+                  <div><span className="kpi-value" style={{ fontSize: '1.4rem' }}>{plan.summary.peak_hour}</span></div>
+                </div>
+                <div className="kpi-card chart-enter">
+                  <div className="kpi-label">{t('roster.maxGap')}</div>
+                  <div><span className="kpi-value">{plan.summary.max_gap}</span><span className="kpi-unit">{t('roster.people')}</span></div>
+                </div>
+                <div className="kpi-card chart-enter">
+                  <div className="kpi-label">{t('roster.underHours')}</div>
+                  <div><span className="kpi-value">{plan.summary.under_hours}</span><span className="kpi-unit">h</span></div>
+                </div>
+                <div className="kpi-card chart-enter">
+                  <div className="kpi-label">{t('roster.overHours')}</div>
+                  <div><span className="kpi-value">{plan.summary.over_hours}</span><span className="kpi-unit">h</span></div>
+                </div>
               </div>
-            </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>{t('roster.hour')}</th>
-                  <th>{t('roster.enter')}</th>
-                  <th>{t('roster.expected')}</th>
-                  <th>{t('roster.detected')}</th>
-                  <th>{t('roster.suggested')}</th>
-                  <th>{t('roster.adjust')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {plan.hours.map((h, i) => (
-                  <tr key={h}>
-                    <td style={{ fontFamily: 'var(--mono)' }}>{h}</td>
-                    <td>{plan.enter_by_hour[i]}</td>
-                    <td>{plan.expected[i]}</td>
-                    <td>{plan.detected[i]}</td>
-                    <td style={{ fontWeight: 600, color: 'var(--accent)' }}>{suggested[i]}</td>
-                    <td>
-                      <div className="btn-row">
-                        <button type="button" className="btn btn-sm" onClick={() => bump(i, -1)}>−</button>
-                        <button type="button" className="btn btn-sm" onClick={() => bump(i, 1)}>+</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+              <ChartPanel title={t('roster.chart')} style={{ marginBottom: 20 }}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <ComposedChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                    <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
+                    <YAxis yAxisId="left" stroke={chart.axis} fontSize={11} />
+                    <YAxis yAxisId="right" orientation="right" stroke={chart.axis} fontSize={11} />
+                    <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey={det} fill={CHART[4]} radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="left" type="monotone" dataKey={exp} stroke={CHART[2]} strokeWidth={2} dot={false} />
+                    <Line yAxisId="left" type="monotone" dataKey={sug} stroke={CHART[1]} strokeWidth={2} />
+                    <Line yAxisId="right" type="monotone" dataKey={ent} stroke={CHART[3]} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 8 }}>{plan.note}</p>
+              </ChartPanel>
+
+              <div className="card">
+                <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{t('roster.tune')}</span>
+                  <div className="btn-row">
+                    <button type="button" className="btn btn-ghost" onClick={reset}>{t('common.reset')}</button>
+                    <button type="button" className="btn btn-primary" onClick={persist}>
+                      {saved ? t('common.saved') : t('common.saveLocal')}
+                    </button>
+                  </div>
+                </div>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>{t('roster.hour')}</th>
+                      <th>{t('roster.enter')}</th>
+                      <th>{t('roster.expected')}</th>
+                      <th>{t('roster.detected')}</th>
+                      <th>{t('roster.suggested')}</th>
+                      <th>{t('roster.adjust')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {plan.hours.map((h, i) => (
+                      <tr key={h}>
+                        <td style={{ fontFamily: 'var(--mono)' }}>{h}</td>
+                        <td>{plan.enter_by_hour[i]}</td>
+                        <td>{plan.expected[i]}</td>
+                        <td>{plan.detected[i]}</td>
+                        <td style={{ fontWeight: 600, color: 'var(--accent)' }}>{suggested[i]}</td>
+                        <td>
+                          <div className="btn-row">
+                            <button type="button" className="btn btn-sm" onClick={() => bump(i, -1)}>−</button>
+                            <button type="button" className="btn btn-sm" onClick={() => bump(i, 1)}>+</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {section === 'board' && <RosterWeekBoard />}
         </>
       )}
     </PageStatus>

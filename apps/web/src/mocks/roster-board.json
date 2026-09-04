@@ -1,0 +1,53 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "weekStart": "2026-09-01",
+    "demandSuggested": [5, 6, 7, 7, 8, 8, 8, 8, 9, 9, 8, 6],
+    "employees": [
+      { "id": "emp-mei", "nameZh": "陳美玲", "station": "樓面", "minHoursPerWeek": 32, "maxHoursPerWeek": 48 },
+      { "id": "emp-kei", "nameZh": "李嘉輝", "station": "樓面", "minHoursPerWeek": 24, "maxHoursPerWeek": 40 },
+      { "id": "emp-yan", "nameZh": "黃欣怡", "station": "試衣", "minHoursPerWeek": 20, "maxHoursPerWeek": 36 },
+      { "id": "emp-ho", "nameZh": "張浩然", "station": "收銀", "minHoursPerWeek": 32, "maxHoursPerWeek": 48 },
+      { "id": "emp-sum", "nameZh": "林心悅", "station": "樓面", "minHoursPerWeek": 16, "maxHoursPerWeek": 28 },
+      { "id": "emp-wai", "nameZh": "周偉傑", "station": "收銀", "minHoursPerWeek": 24, "maxHoursPerWeek": 40 }
+    ],
+    "templates": [
+      { "id": "tmpl-am", "name": "早更", "station": "樓面", "startTime": "10:00", "endTime": "15:00", "color": "#0c6f6a" },
+      { "id": "tmpl-mid", "name": "中更", "station": "樓面", "startTime": "13:00", "endTime": "18:00", "color": "#14a39c" },
+      { "id": "tmpl-pm", "name": "晚更", "station": "樓面", "startTime": "16:00", "endTime": "22:00", "color": "#2a6f97" },
+      { "id": "tmpl-fit-am", "name": "試衣早", "station": "試衣", "startTime": "10:00", "endTime": "16:00", "color": "#0a5c58" },
+      { "id": "tmpl-fit-pm", "name": "試衣晚", "station": "試衣", "startTime": "15:00", "endTime": "21:00", "color": "#084845" },
+      { "id": "tmpl-cash-am", "name": "收銀早", "station": "收銀", "startTime": "10:00", "endTime": "16:00", "color": "#0c6f6a" },
+      { "id": "tmpl-cash-pm", "name": "收銀晚", "station": "收銀", "startTime": "15:00", "endTime": "22:00", "color": "#14a39c" }
+    ],
+    "assignments": [
+      { "id": "asg-1", "employeeId": "emp-mei", "station": "樓面", "workDate": "2026-09-01", "templateId": "tmpl-am" },
+      { "id": "asg-2", "employeeId": "emp-kei", "station": "樓面", "workDate": "2026-09-01", "templateId": "tmpl-pm" },
+      { "id": "asg-3", "employeeId": "emp-yan", "station": "試衣", "workDate": "2026-09-01", "templateId": "tmpl-fit-am" },
+      { "id": "asg-4", "employeeId": "emp-ho", "station": "收銀", "workDate": "2026-09-01", "templateId": "tmpl-cash-am" },
+      { "id": "asg-5", "employeeId": "emp-mei", "station": "樓面", "workDate": "2026-09-02", "templateId": "tmpl-mid" },
+      { "id": "asg-6", "employeeId": "emp-sum", "station": "樓面", "workDate": "2026-09-02", "templateId": "tmpl-am" },
+      { "id": "asg-7", "employeeId": "emp-kei", "station": "樓面", "workDate": "2026-09-02", "templateId": "tmpl-pm" },
+      { "id": "asg-8", "employeeId": "emp-yan", "station": "試衣", "workDate": "2026-09-02", "templateId": "tmpl-fit-pm" },
+      { "id": "asg-9", "employeeId": "emp-ho", "station": "收銀", "workDate": "2026-09-02", "templateId": "tmpl-cash-pm" },
+      { "id": "asg-10", "employeeId": "emp-wai", "station": "收銀", "workDate": "2026-09-02", "templateId": "tmpl-cash-am" },
+      { "id": "asg-11", "employeeId": "emp-mei", "station": "樓面", "workDate": "2026-09-03", "templateId": "tmpl-am" },
+      { "id": "asg-12", "employeeId": "emp-kei", "station": "樓面", "workDate": "2026-09-03", "templateId": "tmpl-mid" },
+      { "id": "asg-13", "employeeId": "emp-yan", "station": "試衣", "workDate": "2026-09-03", "templateId": "tmpl-fit-am" },
+      { "id": "asg-14", "employeeId": "emp-ho", "station": "收銀", "workDate": "2026-09-03", "templateId": "tmpl-cash-am" },
+      { "id": "asg-15", "employeeId": "emp-sum", "station": "樓面", "workDate": "2026-09-04", "templateId": "tmpl-pm" },
+      { "id": "asg-16", "employeeId": "emp-wai", "station": "收銀", "workDate": "2026-09-04", "templateId": "tmpl-cash-pm" },
+      { "id": "asg-17", "employeeId": "emp-mei", "station": "樓面", "workDate": "2026-09-05", "templateId": "tmpl-am" },
+      { "id": "asg-18", "employeeId": "emp-yan", "station": "試衣", "workDate": "2026-09-05", "templateId": "tmpl-fit-pm" },
+      { "id": "asg-19", "employeeId": "emp-ho", "station": "收銀", "workDate": "2026-09-05", "templateId": "tmpl-cash-am" },
+      { "id": "asg-20", "employeeId": "emp-kei", "station": "樓面", "workDate": "2026-09-06", "templateId": "tmpl-pm" }
+    ]
+  },
+  "meta": {
+    "store_id": "it-cwb",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

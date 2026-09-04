@@ -175,6 +175,8 @@ const zhHant = {
   'roster.detectedSeries': '實測',
   'roster.enterSeries': '進店',
   'roster.people': '人',
+  'roster.sectionDemand': '需求',
+  'roster.sectionBoard': '週更表',
 
   'coach.title': '服務教練',
   'coach.subtitle': '缺口回放案例（≥{sec}s）· VL 摘要 · 週會素材（套餐 B）',
@@ -407,6 +409,8 @@ const zhHans: Dict = {
   'roster.detectedSeries': '实测',
   'roster.enterSeries': '进店',
   'roster.people': '人',
+  'roster.sectionDemand': '需求',
+  'roster.sectionBoard': '周更表',
 
   'coach.title': '服务教练',
   'coach.subtitle': '缺口回放案例（≥{sec}s）· VL 摘要 · 周会素材（套餐 B）',
@@ -637,6 +641,8 @@ const en: Dict = {
   'roster.detectedSeries': 'Detected',
   'roster.enterSeries': 'Enter',
   'roster.people': 'ppl',
+  'roster.sectionDemand': 'Demand',
+  'roster.sectionBoard': 'Week board',
 
   'coach.title': 'Service coach',
   'coach.subtitle': 'Gap replay cases (≥{sec}s) · VL summary · weekly review (Package B)',
