@@ -1,3 +1,9 @@
+import rosterPlanJson from '@/mocks/roster-plan.json';
+import settingsJson from '@/mocks/settings.json';
+import energyJson from '@/mocks/energy.json';
+
+export type DataSource = 'counter' | 'camera' | 'iot' | 'mock';
+
 export interface ApiResponse<T> {
   code: number;
   message: string;
@@ -6,20 +12,34 @@ export interface ApiResponse<T> {
     store_id: string;
     date: string;
     generated_at: string;
-    source: string;
+    source: DataSource;
   };
 }
 
-async function fetchMock<T>(file: string): Promise<T> {
+const importedMocks: Record<string, ApiResponse<unknown>> = {
+  'energy.json': energyJson as ApiResponse<unknown>,
+};
+
+export async function fetchMockWithMeta<T>(file: string): Promise<{ data: T; meta?: ApiResponse<T>['meta'] }> {
+  const imported = importedMocks[file];
+  if (imported) {
+    return { data: imported.data as T, meta: imported.meta };
+  }
   const res = await fetch(`/mock/retail/${file}`);
   if (!res.ok) throw new Error(`Failed to load ${file}`);
   const json: ApiResponse<T> = await res.json();
-  return json.data;
+  return { data: json.data, meta: json.meta };
 }
 
-import rosterPlanJson from '@/mocks/roster-plan.json';
-import settingsJson from '@/mocks/settings.json';
-import energyJson from '@/mocks/energy.json';
+async function fetchMock<T>(file: string): Promise<T> {
+  const { data } = await fetchMockWithMeta<T>(file);
+  return data;
+}
+
+export function toChipSource(source?: string): Exclude<DataSource, 'mock'> | null {
+  if (source === 'counter' || source === 'camera' || source === 'iot') return source;
+  return null;
+}
 
 export const api = {
   kpi: () => fetchMock<{ kpis: KpiItem[] }>('kpi.json'),
@@ -48,7 +68,7 @@ export const api = {
   settings: async (): Promise<SettingsData> =>
     (settingsJson as ApiResponse<SettingsData>).data,
   energy: async (): Promise<EnergyData> =>
-    (energyJson as ApiResponse<EnergyData>).data,
+    (await fetchMockWithMeta<EnergyData>('energy.json')).data,
 };
 
 export interface KpiItem {

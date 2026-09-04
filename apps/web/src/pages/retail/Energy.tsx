@@ -3,8 +3,10 @@ import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, ComposedChart, Legend, Line,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
-import { api } from '@/api/retail';
+import { fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { EnergyData } from '@/api/retail';
+import { SourceChip } from '@/components/retail/SourceChip';
+import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
@@ -17,11 +19,13 @@ export function EnergyPage() {
   const { t } = useRetailLocale();
   const storeLabel = t(`filter.store.${storeId}` as MessageKey);
   const [data, setData] = useState<EnergyData | null>(null);
+  const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.energy().then((d) => {
+    fetchMockWithMeta<EnergyData>('energy.json').then(({ data: d, meta }) => {
       setData(d);
+      setSource(toChipSource(meta?.source));
       setLoading(false);
     });
   }, []);
@@ -70,7 +74,10 @@ export function EnergyPage() {
   return (
     <>
       <div className="demo-banner">{t('energy.banner')}</div>
-      <h1 className="page-title">{t('energy.title')}</h1>
+      <div className="page-title-row">
+        <h1 className="page-title">{t('energy.title')}</h1>
+        {source && <SourceChip source={source} />}
+      </div>
       <p className="page-subtitle">
         {storeLabel} · {t('energy.subtitle', { time: data.as_of.slice(11, 16) })} · {data.platform_note}
       </p>

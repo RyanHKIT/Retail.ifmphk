@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
-import { api } from '@/api/retail';
+import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { HeatmapData, ZonesData, ZoneDwell, DwellTrend, JourneyPath } from '@/api/retail';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
+import { SourceChip } from '@/components/retail/SourceChip';
+import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { chartTooltipStyle } from '@/lib/chartStyle';
@@ -16,17 +18,19 @@ export function JourneyPage() {
   const [trend, setTrend] = useState<DwellTrend | null>(null);
   const [paths, setPaths] = useState<JourneyPath[]>([]);
   const [metric, setMetric] = useState<'visits' | 'dwell' | 'composite'>('composite');
+  const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      api.heatmap(),
+      fetchMockWithMeta<HeatmapData>('heatmap.json'),
       api.zones(),
       api.zoneDwell(),
       api.dwellTrend(),
       api.journeyPaths(),
     ]).then(([hm, z, d, t, p]) => {
-      setHeatmap(hm);
+      setHeatmap(hm.data);
+      setSource(toChipSource(hm.meta?.source));
       setZones(z);
       setDwell(d.zones);
       setTrend(t);
@@ -55,7 +59,10 @@ export function JourneyPage() {
 
   return (
     <>
-      <h1 className="page-title">{t('journey.title')}</h1>
+      <div className="page-title-row">
+        <h1 className="page-title">{t('journey.title')}</h1>
+        {source && <SourceChip source={source} />}
+      </div>
       <p className="page-subtitle">{t('journey.subtitle')}</p>
 
       <div className="card" style={{ marginBottom: 20 }}>

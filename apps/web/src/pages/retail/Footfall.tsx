@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { api } from '@/api/retail';
+import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { FunnelStage, FootfallHourly, PassbyHourly, FootfallEvent, CameraSnapshot } from '@/api/retail';
+import { SourceChip } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { chartTooltipStyle } from '@/lib/chartStyle';
+import type { SourceChipSource } from '@/components/retail/SourceChip';
 
 export function FootfallPage() {
   const { chart } = useRetailTheme();
@@ -14,18 +16,20 @@ export function FootfallPage() {
   const [passby, setPassby] = useState<PassbyHourly | null>(null);
   const [events, setEvents] = useState<FootfallEvent[]>([]);
   const [cameras, setCameras] = useState<CameraSnapshot[]>([]);
+  const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       api.footfallFunnel(),
-      api.footfallHourly(),
+      fetchMockWithMeta<FootfallHourly>('footfall-hourly.json'),
       api.passbyHourly(),
       api.footfallEvents(),
       api.cameraSnapshot(),
     ]).then(([f, h, p, e, c]) => {
       setFunnel(f.stages);
-      setHourly(h);
+      setHourly(h.data);
+      setSource(toChipSource(h.meta?.source));
       setPassby(p);
       setEvents(e.items);
       setCameras(c.cameras);
@@ -65,7 +69,10 @@ export function FootfallPage() {
 
   return (
     <>
-      <h1 className="page-title">{t('footfall.title')}</h1>
+      <div className="page-title-row">
+        <h1 className="page-title">{t('footfall.title')}</h1>
+        {source && <SourceChip source={source} />}
+      </div>
       <p className="page-subtitle">{t('footfall.subtitle')}</p>
 
       <div className="card" style={{ marginBottom: 20 }}>

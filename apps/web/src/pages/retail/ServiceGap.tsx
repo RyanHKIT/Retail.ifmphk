@@ -1,7 +1,9 @@
 import { Fragment, useEffect, useState, type MouseEvent } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { api } from '@/api/retail';
+import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { GapSummary, GapEvent, GapByZone, StaffingMatrix } from '@/api/retail';
+import { SourceChip } from '@/components/retail/SourceChip';
+import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { getDispatches, markDispatched, type DispatchRecord } from '@/lib/dispatchStore';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { loadRuleOverrides } from '@/lib/settingsStore';
@@ -21,17 +23,19 @@ export function ServiceGapPage() {
   const [matrix, setMatrix] = useState<StaffingMatrix | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [dispatches, setDispatches] = useState<Record<string, DispatchRecord>>({});
+  const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
   const dwellSec = loadRuleOverrides()?.dwell_threshold_sec ?? 120;
 
   useEffect(() => {
     Promise.all([
-      api.gapSummary(),
+      fetchMockWithMeta<GapSummary>('gap-summary.json'),
       api.gapEvents(),
       api.gapByZone(),
       api.staffingMatrix(),
     ]).then(([s, e, z, m]) => {
-      setSummary(s);
+      setSummary(s.data);
+      setSource(toChipSource(s.meta?.source));
       setEvents(e.items);
       setByZone(z.zones);
       setMatrix(m);
@@ -62,7 +66,10 @@ export function ServiceGapPage() {
 
   return (
     <>
-      <h1 className="page-title">{t('gap.title')}</h1>
+      <div className="page-title-row">
+        <h1 className="page-title">{t('gap.title')}</h1>
+        {source && <SourceChip source={source} />}
+      </div>
       <p className="page-subtitle">
         {storeLabel} · {t('gap.subtitle', { sec: dwellSec })}
       </p>
