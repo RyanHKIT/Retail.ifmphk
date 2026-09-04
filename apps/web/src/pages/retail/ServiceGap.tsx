@@ -3,9 +3,12 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { GapSummary, GapEvent, GapByZone, StaffingMatrix } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
-import { getDispatches, markDispatched, type DispatchRecord } from '@/lib/dispatchStore';
+import {
+  getDispatches, isDispatched, listDispatched, markDispatched, type DispatchRecord,
+} from '@/lib/dispatchStore';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { loadRuleOverrides } from '@/lib/settingsStore';
 import { useRetailTheme } from '@/context/RetailThemeContext';
@@ -26,15 +29,22 @@ export function ServiceGapPage() {
   const [dispatches, setDispatches] = useState<Record<string, DispatchRecord>>({});
   const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
   const dwellSec = loadRuleOverrides()?.dwell_threshold_sec ?? 120;
+  const dwellMin = Math.max(1, Math.round(dwellSec / 60));
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     Promise.all([
       fetchMockWithMeta<GapSummary>('gap-summary.json'),
       api.gapEvents(),
       api.gapByZone(),
       api.staffingMatrix(),
     ]).then(([s, e, z, m]) => {
+      if (cancelled) return;
       setSummary(s.data);
       setSource(toChipSource(s.meta?.source));
       setEvents(e.items);
@@ -42,10 +52,13 @@ export function ServiceGapPage() {
       setMatrix(m);
       setDispatches(getDispatches());
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
-
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const zoneBarData = byZone.map((z) => ({
     name: z.name,
@@ -59,21 +72,32 @@ export function ServiceGapPage() {
     return <span className="badge">{s}</span>;
   };
 
+  const refreshDispatch = () => setDispatches(getDispatches());
+
   const onDispatch = (e: GapEvent, ev: MouseEvent) => {
     ev.stopPropagation();
     markDispatched(e.gap_id, e.zone_name);
-    setDispatches(getDispatches());
+    refreshDispatch();
   };
 
+  const dispatchedIds = listDispatched();
+
   return (
-    <>
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
       <div className="page-title-row">
         <h1 className="page-title">{t('gap.title')}</h1>
         {source && <SourceChip source={source} />}
       </div>
       <p className="page-subtitle">
-        {storeLabel} · {t('gap.subtitle', { sec: dwellSec })}
+        {storeLabel} · {t('gap.subtitle', { min: dwellMin })}
       </p>
+
+      <div className="source-hint-strip" role="note">
+        <span className="rule-chip">{t('gap.rule', { min: dwellMin })}</span>
+        <span className="source-hint-copy">
+          {t('common.dispatched')} {dispatchedIds.length}
+        </span>
+      </div>
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         <div className="kpi-card chart-enter">
@@ -186,62 +210,66 @@ export function ServiceGapPage() {
 
       <div className="card">
         <div className="card-title">{t('gap.detail')}</div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('gap.time')}</th>
-              <th>{t('common.zone')}</th>
-              <th>{t('gap.customers')}</th>
-              <th>{t('gap.staff')}</th>
-              <th>{t('gap.dwell')}</th>
-              <th>VL</th>
-              <th>{t('common.dispatch')}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((e) => {
-              const done = Boolean(dispatches[e.gap_id]);
-              return (
-                <Fragment key={e.gap_id}>
-                  <tr style={{ cursor: 'pointer' }} onClick={() => setExpanded(expanded === e.gap_id ? null : e.gap_id)}>
-                    <td style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem' }}>{e.started_at.slice(11, 16)}</td>
-                    <td>{e.zone_name}</td>
-                    <td>{e.customer_count}</td>
-                    <td>{e.staff_count}</td>
-                    <td>{e.duration_display}</td>
-                    <td>{vlBadge(e.vl_review_status)}</td>
-                    <td onClick={(ev) => ev.stopPropagation()}>
-                      <button
-                        type="button"
-                        className={`btn btn-sm ${done ? 'btn-ghost' : 'btn-primary'}`}
-                        disabled={done}
-                        onClick={(ev) => onDispatch(e, ev)}
-                      >
-                        {done ? t('common.dispatched') : t('common.dispatch')}
-                      </button>
-                    </td>
-                    <td style={{ color: 'var(--accent)', fontSize: '0.75rem' }}>{expanded === e.gap_id ? '▲' : '▼'}</td>
-                  </tr>
-                  {expanded === e.gap_id && (
-                    <tr key={`${e.gap_id}-detail`}>
-                      <td colSpan={8}>
-                        <div className="vl-box">{e.vl_summary ?? t('gap.noVl')}</div>
-                        <div style={{ marginTop: 8, fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                          {t('gap.clip')}: {e.clip_url} · {e.started_at} → {e.ended_at}
-                          {done && dispatches[e.gap_id] && (
-                            <> · {t('gap.at')} {dispatches[e.gap_id].dispatched_at}</>
-                          )}
-                        </div>
+        {events.length === 0 ? (
+          <div className="empty-state">{t('gap.empty')}</div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('gap.time')}</th>
+                <th>{t('common.zone')}</th>
+                <th>{t('gap.customers')}</th>
+                <th>{t('gap.staff')}</th>
+                <th>{t('gap.dwell')}</th>
+                <th>VL</th>
+                <th>{t('common.dispatch')}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((e) => {
+                const done = isDispatched(e.gap_id);
+                return (
+                  <Fragment key={e.gap_id}>
+                    <tr style={{ cursor: 'pointer' }} onClick={() => setExpanded(expanded === e.gap_id ? null : e.gap_id)}>
+                      <td style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem' }}>{e.started_at.slice(11, 16)}</td>
+                      <td>{e.zone_name}</td>
+                      <td>{e.customer_count}</td>
+                      <td>{e.staff_count}</td>
+                      <td>{e.duration_display}</td>
+                      <td>{vlBadge(e.vl_review_status)}</td>
+                      <td onClick={(ev) => ev.stopPropagation()}>
+                        <button
+                          type="button"
+                          className={`btn btn-sm ${done ? 'btn-ghost' : 'btn-primary'}`}
+                          disabled={done}
+                          onClick={(ev) => onDispatch(e, ev)}
+                        >
+                          {done ? t('common.dispatched') : t('common.dispatch')}
+                        </button>
                       </td>
+                      <td style={{ color: 'var(--accent)', fontSize: '0.75rem' }}>{expanded === e.gap_id ? '▲' : '▼'}</td>
                     </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                    {expanded === e.gap_id && (
+                      <tr key={`${e.gap_id}-detail`}>
+                        <td colSpan={8}>
+                          <div className="vl-box">{e.vl_summary ?? t('gap.noVl')}</div>
+                          <div style={{ marginTop: 8, fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                            {t('gap.clip')}: {e.clip_url} · {e.started_at} → {e.ended_at}
+                            {done && dispatches[e.gap_id] && (
+                              <> · {t('gap.at')} {dispatches[e.gap_id].dispatched_at}</>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
-    </>
+    </PageStatus>
   );
 }

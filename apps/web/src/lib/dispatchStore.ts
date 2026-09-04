@@ -29,17 +29,19 @@ export function isDispatched(gapId: string): boolean {
   return Boolean(readAll()[gapId]);
 }
 
-export function markDispatched(gapId: string, zoneName: string, note?: string): DispatchRecord {
+export function markDispatched(eventId: string, zoneName?: string, note?: string): void {
   const map = readAll();
-  const rec: DispatchRecord = {
-    gap_id: gapId,
-    zone_name: zoneName,
+  map[eventId] = {
+    gap_id: eventId,
+    zone_name: zoneName ?? map[eventId]?.zone_name ?? '',
     dispatched_at: new Date().toISOString(),
     note,
   };
-  map[gapId] = rec;
   writeAll(map);
-  return rec;
+}
+
+export function listDispatched(): string[] {
+  return Object.keys(readAll());
 }
 
 export function clearDispatch(gapId: string) {

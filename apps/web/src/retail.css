@@ -1066,6 +1066,29 @@ button {
   border-radius: var(--radius);
 }
 
+.page-load-error p {
+  margin: 0;
+}
+
+.page-load-error .btn {
+  margin-top: 12px;
+}
+
+.rule-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--paper-elevated);
+  color: var(--ink-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .sensor-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

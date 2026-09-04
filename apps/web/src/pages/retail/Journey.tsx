@@ -4,11 +4,21 @@ import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { HeatmapData, ZonesData, ZoneDwell, DwellTrend, JourneyPath } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
+
+type HeatMetric = 'visits' | 'dwell' | 'composite';
+
+function heatForMetric(zones: HeatmapData['zones'], metric: HeatMetric): HeatmapData['zones'] {
+  if (metric === 'composite') return zones;
+  const key = metric === 'visits' ? 'visit_count' : 'avg_dwell_sec';
+  const max = Math.max(...zones.map((z) => z[key]), 1);
+  return zones.map((z) => ({ ...z, intensity: z[key] / max }));
+}
 
 export function JourneyPage() {
   const { chart } = useRetailTheme();
@@ -18,29 +28,38 @@ export function JourneyPage() {
   const [dwell, setDwell] = useState<ZoneDwell[]>([]);
   const [trend, setTrend] = useState<DwellTrend | null>(null);
   const [paths, setPaths] = useState<JourneyPath[]>([]);
-  const [metric, setMetric] = useState<'visits' | 'dwell' | 'composite'>('composite');
+  const [metric, setMetric] = useState<HeatMetric>('composite');
   const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     Promise.all([
       fetchMockWithMeta<HeatmapData>('heatmap.json'),
       api.zones(),
       api.zoneDwell(),
       api.dwellTrend(),
       api.journeyPaths(),
-    ]).then(([hm, z, d, t, p]) => {
+    ]).then(([hm, z, d, tr, p]) => {
+      if (cancelled) return;
       setHeatmap(hm.data);
       setSource(toChipSource(hm.meta?.source));
       setZones(z);
       setDwell(d.zones);
-      setTrend(t);
+      setTrend(tr);
       setPaths(p.paths);
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
-
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const dwellBarData = dwell.map((z) => ({
     name: z.name,
@@ -57,22 +76,30 @@ export function JourneyPage() {
   }) ?? [];
 
   const TREND_COLORS = [CHART[1], CHART[2], CHART[3], CHART[4]];
+  const heatZones = heatmap ? heatForMetric(heatmap.zones, metric) : [];
 
   return (
-    <>
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
       <div className="page-title-row">
         <h1 className="page-title">{t('journey.title')}</h1>
         {source && <SourceChip source={source} />}
       </div>
       <p className="page-subtitle">{t('journey.subtitle')}</p>
 
+      <div className="source-hint-strip" role="note">
+        <span className="source-hint-label">{t('journey.heatmap')}</span>
+        <SourceChip source="camera" />
+        <span className="source-hint-copy">{t('journey.story')}</span>
+      </div>
+
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div className="card-title" style={{ marginBottom: 0 }}>全店熱力圖</div>
+          <div className="card-title" style={{ marginBottom: 0 }}>{t('journey.heatmap')}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {(['composite', 'visits', 'dwell'] as const).map((m) => (
               <button
                 key={m}
+                type="button"
                 className="filter-select"
                 style={{
                   background: metric === m ? 'var(--accent-soft)' : undefined,
@@ -85,16 +112,20 @@ export function JourneyPage() {
             ))}
           </div>
         </div>
-        {zones && heatmap && <FloorHeatmap zones={zones.zones} heat={heatmap.zones} />}
+        {zones && heatmap ? (
+          <FloorHeatmap zones={zones.zones} heat={heatZones} />
+        ) : (
+          <div className="empty-state">{t('journey.empty')}</div>
+        )}
         <div className="legend-row">
-          <span><span className="legend-dot" style={{ background: 'color-mix(in srgb, var(--chart-1) 25%, transparent)' }} />低</span>
-          <span><span className="legend-dot" style={{ background: 'var(--chart-3)' }} />高</span>
-          <span style={{ marginLeft: 'auto' }}>懸停區域查看人次與停留</span>
+          <span><span className="legend-dot" style={{ background: 'color-mix(in srgb, var(--chart-1) 25%, transparent)' }} />{t('journey.low')}</span>
+          <span><span className="legend-dot" style={{ background: 'var(--chart-3)' }} />{t('journey.high')}</span>
+          <span style={{ marginLeft: 'auto' }}>{t('journey.hover')}</span>
         </div>
       </div>
 
       <div className="grid-2">
-        <ChartPanel title="區域停留排行">
+        <ChartPanel title={t('journey.dwellRank')}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dwellBarData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -102,13 +133,13 @@ export function JourneyPage() {
               <YAxis type="category" dataKey="name" stroke={chart.axis} fontSize={11} width={70} />
               <Tooltip
                 contentStyle={chartTooltipStyle(chart)}
-                formatter={(_v: number, _n, p) => [(p.payload as { display: string }).display, '平均停留']}
+                formatter={(_v: number, _n, p) => [(p.payload as { display: string }).display, t('journey.dwell')]}
               />
               <Bar dataKey="秒" fill={CHART[1]} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
-        <ChartPanel title="7 日停留趨勢">
+        <ChartPanel title={t('journey.dwellTrend')}>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -125,16 +156,20 @@ export function JourneyPage() {
       </div>
 
       <div className="card" style={{ marginTop: 20 }}>
-        <div className="card-title">典型動線 Top 5</div>
-        {paths.map((p) => (
-          <div key={p.rank} className="path-item">
-            <span className="path-rank">{p.rank}</span>
-            <span className="path-flow">{p.path_labels.join(' → ')}</span>
-            <span className="path-pct">{p.percentage}%</span>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>({p.count} 人)</span>
-          </div>
-        ))}
+        <div className="card-title">{t('journey.paths')}</div>
+        {paths.length === 0 ? (
+          <div className="empty-state">{t('journey.empty')}</div>
+        ) : (
+          paths.map((p) => (
+            <div key={p.rank} className="path-item">
+              <span className="path-rank">{p.rank}</span>
+              <span className="path-flow">{p.path_labels.join(' → ')}</span>
+              <span className="path-pct">{p.percentage}%</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>({p.count} 人)</span>
+            </div>
+          ))
+        )}
       </div>
-    </>
+    </PageStatus>
   );
 }

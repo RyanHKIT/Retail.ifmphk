@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
-import { api } from '@/api/retail';
+import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { PeopleSummary, PeopleHourly, StaffHourly, ZonePeople, RosterData } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
+import { PageStatus } from '@/components/retail/PageStatus';
+import { SourceChip } from '@/components/retail/SourceChip';
+import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
@@ -15,29 +18,41 @@ export function PeoplePage() {
   const [staffHourly, setStaffHourly] = useState<StaffHourly | null>(null);
   const [byZone, setByZone] = useState<ZonePeople[]>([]);
   const [roster, setRoster] = useState<RosterData | null>(null);
+  const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     Promise.all([
-      api.peopleSummary(),
+      fetchMockWithMeta<PeopleSummary>('people-summary.json'),
       api.peopleHourly(),
       api.staffHourly(),
       api.peopleByZone(),
       api.roster(),
     ]).then(([s, h, sh, z, r]) => {
-      setSummary(s);
+      if (cancelled) return;
+      setSummary(s.data);
+      setSource(toChipSource(s.meta?.source));
       setHourly(h);
       setStaffHourly(sh);
       setByZone(z.zones);
       setRoster(r);
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
-
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const staffKey = t('people.staff');
   const customerKey = t('people.customer');
+  const pedestrianKey = t('people.pedestrian');
   const detectedKey = t('people.detected');
   const expectedKey = t('people.expected');
   const areaData = hourly?.hours.map((hour, i) => ({
@@ -53,35 +68,46 @@ export function PeoplePage() {
   })) ?? [];
 
   const statusBadge = (s: string) => {
-    if (s === 'understaffed') return <span className="badge badge-understaffed">不足</span>;
-    if (s === 'normal') return <span className="badge badge-normal">正常</span>;
+    if (s === 'understaffed') return <span className="badge badge-understaffed">{t('people.understaffed')}</span>;
+    if (s === 'normal') return <span className="badge badge-normal">{t('people.normal')}</span>;
     return <span className="badge">{s}</span>;
   };
 
   return (
-    <>
-      <h1 className="page-title">{t('people.title')}</h1>
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
+      <div className="page-title-row">
+        <h1 className="page-title">{t('people.title')}</h1>
+        {source && <SourceChip source={source} />}
+      </div>
       <p className="page-subtitle">{t('people.subtitle')}</p>
+
+      <div className="source-hint-strip" role="note">
+        <span className="source-hint-label">{t('people.roles')}</span>
+        <span className="badge badge-staff">{staffKey}</span>
+        <span className="badge badge-customer">{customerKey}</span>
+        <span className="badge badge-passby">{pedestrianKey}</span>
+        <span className="source-hint-copy">{t('people.story')}</span>
+      </div>
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <div className="kpi-card chart-enter">
-          <div className="kpi-label">在店員工</div>
-          <div><span className="kpi-value">{summary?.in_store.staff}</span><span className="kpi-unit">人</span></div>
+          <div className="kpi-label">{t('people.staffInStore')}</div>
+          <div><span className="kpi-value">{summary?.in_store.staff}</span><span className="kpi-unit">{t('people.unit')}</span></div>
           <div className="kpi-realtime">● 實時</div>
         </div>
         <div className="kpi-card chart-enter">
-          <div className="kpi-label">在店顧客</div>
-          <div><span className="kpi-value">{summary?.in_store.customer}</span><span className="kpi-unit">人</span></div>
+          <div className="kpi-label">{t('people.customerInStore')}</div>
+          <div><span className="kpi-value">{summary?.in_store.customer}</span><span className="kpi-unit">{t('people.unit')}</span></div>
           <div className="kpi-realtime">● 實時</div>
         </div>
         <div className="kpi-card chart-enter">
-          <div className="kpi-label">今日過店路人</div>
-          <div><span className="kpi-value">{summary?.today_totals.pedestrian_passby.toLocaleString()}</span><span className="kpi-unit">人</span></div>
+          <div className="kpi-label">{t('people.passbyToday')}</div>
+          <div><span className="kpi-value">{summary?.today_totals.pedestrian_passby.toLocaleString()}</span><span className="kpi-unit">{t('people.unit')}</span></div>
         </div>
       </div>
 
       <div className="grid-2">
-        <ChartPanel title="人員時段分佈">
+        <ChartPanel title={t('people.roleTimeline')}>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={areaData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -94,7 +120,7 @@ export function PeoplePage() {
             </AreaChart>
           </ResponsiveContainer>
         </ChartPanel>
-        <ChartPanel title="員工分時段 · 排班對照">
+        <ChartPanel title={t('people.staffHourly')}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={staffCompareData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -111,33 +137,37 @@ export function PeoplePage() {
 
       <div className="grid-2" style={{ marginTop: 20 }}>
         <div className="card">
-          <div className="card-title">各區域人員明細</div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>區域</th>
-                <th>員工</th>
-                <th>顧客</th>
-                <th>人效比</th>
-                <th>狀態</th>
-              </tr>
-            </thead>
-            <tbody>
-              {byZone.map((z) => (
-                <tr key={z.zone_id}>
-                  <td>{z.name}</td>
-                  <td>{z.staff_count}</td>
-                  <td>{z.customer_count}</td>
-                  <td>{z.staffing_ratio?.toFixed(1) ?? '—'}</td>
-                  <td>{statusBadge(z.status)}</td>
+          <div className="card-title">{t('people.byZone')}</div>
+          {byZone.length === 0 ? (
+            <div className="empty-state">{t('people.empty')}</div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t('common.zone')}</th>
+                  <th>{t('people.staff')}</th>
+                  <th>{t('people.customer')}</th>
+                  <th>人效比</th>
+                  <th>狀態</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {byZone.map((z) => (
+                  <tr key={z.zone_id}>
+                    <td>{z.name}</td>
+                    <td>{z.staff_count}</td>
+                    <td>{z.customer_count}</td>
+                    <td>{z.staffing_ratio?.toFixed(1) ?? '—'}</td>
+                    <td>{statusBadge(z.status)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
         <div className="card">
-          <div className="card-title">排班對照</div>
-          {roster && (
+          <div className="card-title">{t('people.roster')}</div>
+          {roster ? (
             <>
               <div style={{
                 background: 'var(--bg-elevated)',
@@ -145,13 +175,13 @@ export function PeoplePage() {
                 borderRadius: 8,
                 marginBottom: 16,
               }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>當前班次</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('people.shiftCurrent')}</div>
                 <div style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: 4 }}>
-                  應到 {roster.current_shift.expected_staff} 人
+                  {t('people.expectedStaff')} {roster.current_shift.expected_staff} {t('people.unit')}
                   <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}> / </span>
-                  實測 <span style={{ color: roster.current_shift.detected_staff < roster.current_shift.expected_staff ? 'var(--warning)' : 'var(--success)' }}>
+                  {t('people.detectedStaff')} <span style={{ color: roster.current_shift.detected_staff < roster.current_shift.expected_staff ? 'var(--warning)' : 'var(--success)' }}>
                     {roster.current_shift.detected_staff}
-                  </span> 人
+                  </span> {t('people.unit')}
                 </div>
               </div>
               <table className="data-table">
@@ -159,8 +189,8 @@ export function PeoplePage() {
                   <tr>
                     <th>班次</th>
                     <th>時段</th>
-                    <th>應到</th>
-                    <th>實測均</th>
+                    <th>{t('people.expectedStaff')}</th>
+                    <th>{t('people.detectedStaff')}</th>
                     <th>差異</th>
                   </tr>
                 </thead>
@@ -179,9 +209,11 @@ export function PeoplePage() {
                 </tbody>
               </table>
             </>
+          ) : (
+            <div className="empty-state">{t('people.empty')}</div>
           )}
         </div>
       </div>
-    </>
+    </PageStatus>
   );
 }

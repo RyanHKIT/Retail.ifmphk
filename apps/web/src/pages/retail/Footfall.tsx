@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { FunnelStage, FootfallHourly, PassbyHourly, FootfallEvent, CameraSnapshot } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
@@ -19,8 +20,13 @@ export function FootfallPage() {
   const [cameras, setCameras] = useState<CameraSnapshot[]>([]);
   const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     Promise.all([
       api.footfallFunnel(),
       fetchMockWithMeta<FootfallHourly>('footfall-hourly.json'),
@@ -28,6 +34,7 @@ export function FootfallPage() {
       api.footfallEvents(),
       api.cameraSnapshot(),
     ]).then(([f, h, p, e, c]) => {
+      if (cancelled) return;
       setFunnel(f.stages);
       setHourly(h.data);
       setSource(toChipSource(h.meta?.source));
@@ -35,12 +42,15 @@ export function FootfallPage() {
       setEvents(e.items);
       setCameras(c.cameras);
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
+    return () => { cancelled = true; };
+  }, [reload]);
 
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
-
-  const maxFunnel = Math.max(...funnel.map((s) => s.value));
+  const maxFunnel = Math.max(0, ...funnel.map((s) => s.value));
   const enterKey = t('footfall.enter');
   const exitKey = t('footfall.exit');
   const notEnteredKey = t('footfall.notEntered');
@@ -56,6 +66,8 @@ export function FootfallPage() {
     [notEnteredKey]: passby.not_entered_by_hour[i],
   })) ?? [];
 
+  const enterStage = funnel.find((s) => s.id === 'enter');
+
   const dirBadge = (d: string) => {
     if (d === 'enter') return <span className="badge badge-enter">{t('footfall.enter')}</span>;
     if (d === 'exit') return <span className="badge badge-exit">{t('footfall.exit')}</span>;
@@ -65,16 +77,27 @@ export function FootfallPage() {
   const roleBadge = (r: string) => {
     if (r === 'staff') return <span className="badge badge-staff">{t('people.staff')}</span>;
     if (r === 'customer') return <span className="badge badge-customer">{t('people.customer')}</span>;
-    return <span className="badge badge-passby">{passbyKey}</span>;
+    return <span className="badge badge-passby">{t('people.pedestrian')}</span>;
   };
 
   return (
-    <>
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
       <div className="page-title-row">
         <h1 className="page-title">{t('footfall.title')}</h1>
         {source && <SourceChip source={source} />}
       </div>
       <p className="page-subtitle">{t('footfall.subtitle')}</p>
+
+      <div className="source-hint-strip" role="note">
+        <span className="source-hint-label">{t('footfall.storyLabel')}</span>
+        <SourceChip source="counter" />
+        <span className="source-hint-copy">{t('footfall.story')}</span>
+        {enterStage && (
+          <span className="rule-chip">
+            {t('footfall.enterRate')} {enterStage.rate}%
+          </span>
+        )}
+      </div>
 
       <ChartPanel title={t('footfall.funnel')} style={{ marginBottom: 20 }}>
         <div className="funnel">
@@ -84,7 +107,7 @@ export function FootfallPage() {
               <div className="funnel-bar-wrap">
                 <div
                   className="funnel-bar"
-                  style={{ width: `${(stage.value / maxFunnel) * 100}%` }}
+                  style={{ width: `${maxFunnel ? (stage.value / maxFunnel) * 100 : 0}%` }}
                 >
                   {stage.value.toLocaleString()}
                 </div>
@@ -150,31 +173,35 @@ export function FootfallPage() {
 
       <div className="card">
         <div className="card-title">{t('footfall.events')}</div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>時間</th>
-              <th>方向</th>
-              <th>Track ID</th>
-              <th>角色</th>
-              <th>置信度</th>
-              <th>攝像頭</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((e) => (
-              <tr key={e.event_id}>
-                <td style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem' }}>{e.timestamp.slice(11, 19)}</td>
-                <td>{dirBadge(e.direction)}</td>
-                <td style={{ fontFamily: 'var(--mono)', fontSize: '0.7rem' }}>{e.track_id}</td>
-                <td>{roleBadge(e.role)}</td>
-                <td>{(e.role_confidence * 100).toFixed(0)}%</td>
-                <td>{e.camera_id}</td>
+        {events.length === 0 ? (
+          <div className="empty-state">{t('footfall.empty')}</div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>時間</th>
+                <th>方向</th>
+                <th>Track ID</th>
+                <th>角色</th>
+                <th>置信度</th>
+                <th>攝像頭</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {events.map((e) => (
+                <tr key={e.event_id}>
+                  <td style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem' }}>{e.timestamp.slice(11, 19)}</td>
+                  <td>{dirBadge(e.direction)}</td>
+                  <td style={{ fontFamily: 'var(--mono)', fontSize: '0.7rem' }}>{e.track_id}</td>
+                  <td>{roleBadge(e.role)}</td>
+                  <td>{(e.role_confidence * 100).toFixed(0)}%</td>
+                  <td>{e.camera_id}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-    </>
+    </PageStatus>
   );
 }
