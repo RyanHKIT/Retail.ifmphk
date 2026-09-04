@@ -311,6 +311,7 @@ export interface EnergyData {
   power_kw: { hvac: number[]; lighting: number[]; other: number[] };
   kwh_by_hour: number[];
   rules: EnergyRule[];
+  has_control: boolean;
   control_note: string;
   platform_note: string;
 }

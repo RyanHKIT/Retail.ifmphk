@@ -10,7 +10,7 @@ import {
   getDispatches, isDispatched, listDispatched, markDispatched, type DispatchRecord,
 } from '@/lib/dispatchStore';
 import { useRetailFilter } from '@/context/RetailFilterContext';
-import { loadRuleOverrides } from '@/lib/settingsStore';
+import { getDisplayRules } from '@/lib/settingsStore';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
@@ -31,7 +31,9 @@ export function ServiceGapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reload, setReload] = useState(0);
-  const dwellSec = loadRuleOverrides()?.dwell_threshold_sec ?? 120;
+  const rules = getDisplayRules();
+  const dwellSec = rules.dwell_threshold_sec;
+  const slaSec = rules.first_contact_sec;
   const dwellMin = Math.max(1, Math.round(dwellSec / 60));
 
   useEffect(() => {
@@ -94,6 +96,7 @@ export function ServiceGapPage() {
 
       <div className="source-hint-strip" role="note">
         <span className="rule-chip">{t('gap.rule', { min: dwellMin })}</span>
+        <span className="rule-chip">{t('gap.sla', { sec: slaSec })}</span>
         <span className="source-hint-copy">
           {t('common.dispatched')} {dispatchedIds.length}
         </span>

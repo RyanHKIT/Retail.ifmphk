@@ -7,6 +7,7 @@ import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
 import { isDispatched, listDispatched } from '@/lib/dispatchStore'
+import { saveRuleOverrides } from '@/lib/settingsStore'
 import { ServiceGapPage } from './ServiceGap'
 
 const mockDir = resolve(
@@ -67,4 +68,19 @@ test('shows ≥2 min rule and one-click 已調度', async () => {
     .data.items[0].gap_id as string
   expect(isDispatched(firstId)).toBe(true)
   expect(listDispatched()).toContain(firstId)
+})
+
+test('reads dwell and first_contact display copy from settingsStore', async () => {
+  saveRuleOverrides({
+    dwell_threshold_sec: 180,
+    staff_proximity_m: 3,
+    first_contact_sec: 45,
+    overstaff_multiplier: 1.5,
+  })
+  renderGap()
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務缺口' })).toBeInTheDocument()
+  })
+  expect(screen.getByText(/規則：等候 ≥ 3 分鐘/)).toBeInTheDocument()
+  expect(screen.getByText(/首次接觸 SLA 45s/)).toBeInTheDocument()
 })

@@ -827,6 +827,31 @@ button {
   margin-top: 8px;
 }
 
+.vl-box-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.vl-summary-list {
+  margin: 0;
+  padding-left: 1.15em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vl-summary-list li {
+  line-height: 1.45;
+}
+
+.vl-empty {
+  margin: 0;
+  color: var(--text-muted);
+}
+
 .demo-banner {
   background: var(--accent-soft);
   border: 1px solid var(--line);

@@ -62,6 +62,7 @@ export function EnergyPage() {
   if (loading || !data) return <div className="loading">{t('common.loading')}</div>;
 
   const { summary } = data;
+  const hasControl = Boolean(data.has_control);
   const tempSensors = data.sensors.filter((s) => s.temp_c != null);
   const meter = data.sensors.find((s) => s.type === 'meter');
   const tempKey = t('energy.temp');
@@ -74,7 +75,11 @@ export function EnergyPage() {
 
   return (
     <>
-      <div className="demo-banner">{t('energy.banner')}</div>
+      <div className="demo-banner" data-control={hasControl ? 'execute' : 'suggest'}>
+        <strong>{t('energy.bannerStrong')}</strong>
+        {' — '}
+        <span>{t(hasControl ? 'energy.controlExecute' : 'energy.controlSuggest')}</span>
+      </div>
       <div className="page-title-row">
         <h1 className="page-title">{t('energy.title')}</h1>
         {source && <SourceChip source={source} />}

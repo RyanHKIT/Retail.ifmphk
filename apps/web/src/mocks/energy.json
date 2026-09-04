@@ -123,6 +123,7 @@
         "fired_today": 1
       }
     ],
+    "has_control": false,
     "control_note": "Demo：商場租戶常無法直接控中央空調。無控制權時僅監測 + 報表；有閘道控制權才啟用聯動執行。",
     "platform_note": "感測可走 LoRa / NB-IoT → ThingsBoard 或 IFMP IoT（MQTT/REST）"
   },

@@ -3,9 +3,17 @@ import { api } from '@/api/retail';
 import type { GapEvent } from '@/api/retail';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { getDispatches, isDispatched, markDispatched, type DispatchRecord } from '@/lib/dispatchStore';
-import { loadRuleOverrides } from '@/lib/settingsStore';
+import { getDisplayRules } from '@/lib/settingsStore';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import type { MessageKey } from '@/i18n/messages';
+
+function vlItems(summary: string | null): string[] {
+  if (!summary) return [];
+  return summary
+    .split(/[。\n]+/)
+    .map((s) => s.replace(/[；;]+$/g, '').trim())
+    .filter(Boolean);
+}
 
 export function CoachPage() {
   const { storeId } = useRetailFilter();
@@ -15,7 +23,9 @@ export function CoachPage() {
   const [zoneFilter, setZoneFilter] = useState('all');
   const [dispatches, setDispatches] = useState<Record<string, DispatchRecord>>({});
   const [loading, setLoading] = useState(true);
-  const dwellSec = loadRuleOverrides()?.dwell_threshold_sec ?? 120;
+  const rules = getDisplayRules();
+  const dwellSec = rules.dwell_threshold_sec;
+  const slaSec = rules.first_contact_sec;
 
   useEffect(() => {
     api.gapEvents().then((data) => {
@@ -49,7 +59,7 @@ export function CoachPage() {
     <>
       <h1 className="page-title">{t('coach.title')}</h1>
       <p className="page-subtitle">
-        {storeLabel} · {t('coach.subtitle', { sec: dwellSec })}
+        {storeLabel} · {t('coach.subtitle', { sec: dwellSec, sla: slaSec })}
       </p>
 
       <div className="toolbar-row">
@@ -77,6 +87,7 @@ export function CoachPage() {
       <div className="coach-list">
         {filtered.map((e) => {
           const done = Boolean(dispatches[e.gap_id]);
+          const items = vlItems(e.vl_summary);
           return (
             <div key={e.gap_id} className="coach-card card">
               <div className="coach-card-head">
@@ -91,7 +102,16 @@ export function CoachPage() {
                 </div>
               </div>
               <div className="vl-box" style={{ marginTop: 12 }}>
-                {e.vl_summary ?? t('coach.noVl')}
+                <div className="vl-box-label">{t('coach.vlLabel')}</div>
+                {items.length === 0 ? (
+                  <p className="vl-empty">{t('coach.noVl')}</p>
+                ) : (
+                  <ul className="vl-summary-list">
+                    {items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <div className="coach-meta">
                 {t('coach.customers')} {e.customer_count} · {t('coach.staff')} {e.staff_count} · {t('coach.clip')} {e.clip_url}
