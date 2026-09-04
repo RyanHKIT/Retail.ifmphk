@@ -2,7 +2,7 @@
   "code": 0,
   "message": "ok",
   "data": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "as_of": "2026-09-02T15:30:00+08:00",
     "summary": {
       "avg_temp_c": 24.6,
@@ -30,7 +30,7 @@
       {
         "sensor_id": "TH-02",
         "zone_id": "shelf_a",
-        "zone_name": "貨架區 A",
+        "zone_name": "貨架 A",
         "temp_c": 24.2,
         "humidity_pct": 56,
         "status": "ok",
@@ -40,7 +40,7 @@
       {
         "sensor_id": "TH-03",
         "zone_id": "shelf_b",
-        "zone_name": "貨架區 B",
+        "zone_name": "貨架 B",
         "temp_c": 24.8,
         "humidity_pct": 57,
         "status": "ok",
@@ -127,7 +127,7 @@
     "platform_note": "感測可走 LoRa / NB-IoT → ThingsBoard 或 IFMP IoT（MQTT/REST）"
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "iot"

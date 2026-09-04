@@ -6,14 +6,14 @@
     "zones": [
       {
         "zone_id": "shelf_a",
-        "name": "貨架區 A",
+        "name": "貨架 A",
         "visit_count": 186,
         "avg_dwell_sec": 198,
         "intensity": 0.72
       },
       {
         "zone_id": "shelf_b",
-        "name": "貨架區 B",
+        "name": "貨架 B",
         "visit_count": 224,
         "avg_dwell_sec": 272,
         "intensity": 0.91
@@ -47,7 +47,7 @@
     }
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "camera"

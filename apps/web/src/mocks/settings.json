@@ -2,8 +2,8 @@
   "code": 0,
   "message": "ok",
   "data": {
-    "store_id": "IT-001",
-    "store_name": "I.T 銅鑼灣時代廣場",
+    "store_id": "it-cwb",
+    "store_name": "I.T. 銅鑼灣（示範）",
     "business_hours": "10:00–22:00",
     "rules": {
       "dwell_threshold_sec": 120,
@@ -12,15 +12,15 @@
       "overstaff_multiplier": 1.5
     },
     "zones": [
-      { "zone_id": "shelf_a", "name": "貨架區 A", "min_staff": 1, "area_sqm": 45 },
-      { "zone_id": "shelf_b", "name": "貨架區 B", "min_staff": 1, "area_sqm": 38 },
+      { "zone_id": "shelf_a", "name": "貨架 A", "min_staff": 1, "area_sqm": 45 },
+      { "zone_id": "shelf_b", "name": "貨架 B", "min_staff": 1, "area_sqm": 38 },
       { "zone_id": "fitting_room", "name": "試衣間", "min_staff": 1, "area_sqm": 12 },
       { "zone_id": "cashier", "name": "收銀台", "min_staff": 1, "area_sqm": 15 }
     ],
     "note": "Demo：變更僅存於瀏覽器 session，不會寫回伺服器"
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "mock"

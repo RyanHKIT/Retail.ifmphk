@@ -5,8 +5,8 @@
     "hours": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00"],
     "zones": ["shelf_a", "shelf_b", "fitting_room", "cashier"],
     "zone_labels": {
-      "shelf_a": "貨架A",
-      "shelf_b": "貨架B",
+      "shelf_a": "貨架 A",
+      "shelf_b": "貨架 B",
       "fitting_room": "試衣間",
       "cashier": "收銀台"
     },
@@ -79,7 +79,7 @@
     }
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "mock"

@@ -27,7 +27,7 @@
         "duration_sec": 130,
         "duration_display": "2m 10s",
         "zone_id": "shelf_b",
-        "zone_name": "貨架區 B",
+        "zone_name": "貨架 B",
         "customer_count": 3,
         "staff_count": 0,
         "track_ids": ["T-20260902-03888"],
@@ -59,7 +59,7 @@
         "duration_sec": 140,
         "duration_display": "2m 20s",
         "zone_id": "shelf_b",
-        "zone_name": "貨架區 B",
+        "zone_name": "貨架 B",
         "customer_count": 2,
         "staff_count": 0,
         "track_ids": ["T-20260902-03201", "T-20260902-03203"],
@@ -107,7 +107,7 @@
         "duration_sec": 120,
         "duration_display": "2m 0s",
         "zone_id": "shelf_a",
-        "zone_name": "貨架區 A",
+        "zone_name": "貨架 A",
         "customer_count": 1,
         "staff_count": 0,
         "track_ids": ["T-20260902-02510"],
@@ -119,7 +119,7 @@
     ]
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "camera"

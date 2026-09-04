@@ -13,7 +13,7 @@
       },
       {
         "zone_id": "shelf_b",
-        "name": "貨架區 B",
+        "name": "貨架 B",
         "gap_count": 2,
         "total_duration_sec": 270,
         "avg_duration_sec": 135,
@@ -29,7 +29,7 @@
       },
       {
         "zone_id": "shelf_a",
-        "name": "貨架區 A",
+        "name": "貨架 A",
         "gap_count": 1,
         "total_duration_sec": 120,
         "avg_duration_sec": 120,
@@ -38,7 +38,7 @@
     ]
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "camera"

@@ -2,9 +2,9 @@
   "code": 0,
   "message": "ok",
   "data": {
-    "store_id": "IT-001",
-    "store_name": "I.T 銅鑼灣時代廣場",
-    "floor_plan_url": "/assets/floor-plans/IT-001.svg",
+    "store_id": "it-cwb",
+    "store_name": "I.T. 銅鑼灣（示範）",
+    "floor_plan_url": "/assets/floor-plans/it-cwb.svg",
     "zones": [
       {
         "zone_id": "entrance",
@@ -17,8 +17,8 @@
       },
       {
         "zone_id": "shelf_a",
-        "name": "貨架區 A",
-        "name_en": "Shelf Area A",
+        "name": "貨架 A",
+        "name_en": "Shelves A",
         "type": "shelf",
         "bbox": { "x": 10, "y": 20, "w": 30, "h": 40 },
         "area_sqm": 45,
@@ -26,8 +26,8 @@
       },
       {
         "zone_id": "shelf_b",
-        "name": "貨架區 B",
-        "name_en": "Shelf Area B",
+        "name": "貨架 B",
+        "name_en": "Shelves B",
         "type": "shelf",
         "bbox": { "x": 45, "y": 15, "w": 25, "h": 45 },
         "area_sqm": 38,
@@ -36,7 +36,7 @@
       {
         "zone_id": "fitting_room",
         "name": "試衣間",
-        "name_en": "Fitting Room",
+        "name_en": "Fitting room",
         "type": "fitting",
         "bbox": { "x": 75, "y": 25, "w": 20, "h": 30 },
         "area_sqm": 12,
@@ -55,13 +55,13 @@
     "cameras": [
       { "camera_id": "CAM-01", "name": "門外過店", "zone_id": "entrance", "role": "passby" },
       { "camera_id": "CAM-02", "name": "玻璃門入口", "zone_id": "entrance", "role": "crossing" },
-      { "camera_id": "CAM-03", "name": "貨架區 A", "zone_id": "shelf_a", "role": "zone" },
-      { "camera_id": "CAM-04", "name": "貨架區 B + 試衣間", "zone_id": "shelf_b", "role": "zone" },
+      { "camera_id": "CAM-03", "name": "貨架 A", "zone_id": "shelf_a", "role": "zone" },
+      { "camera_id": "CAM-04", "name": "貨架 B + 試衣間", "zone_id": "shelf_b", "role": "zone" },
       { "camera_id": "CAM-05", "name": "收銀台", "zone_id": "cashier", "role": "zone" }
     ]
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "mock"

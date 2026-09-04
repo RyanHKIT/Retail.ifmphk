@@ -13,16 +13,16 @@
       "pedestrian_passby": 862
     },
     "role_distribution": [
-      { "role": "customer", "label": "顧客", "count": 358, "percentage": 72.0 },
-      { "role": "staff", "label": "員工", "count": 28, "percentage": 5.6 },
-      { "role": "pedestrian", "label": "路人", "count": 862, "percentage": 22.4 }
+      { "role": "customer", "label": "顧客", "count": 358, "percentage": 28.7 },
+      { "role": "staff", "label": "員工", "count": 28, "percentage": 2.2 },
+      { "role": "pedestrian", "label": "路人", "count": 862, "percentage": 69.1 }
     ],
     "note": "路人為過店未進店人數，不計入在店"
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
-    "source": "mock"
+    "source": "camera"
   }
 }

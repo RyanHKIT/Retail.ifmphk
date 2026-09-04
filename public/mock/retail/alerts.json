@@ -30,7 +30,7 @@
         "alert_id": "alert_20260902_135510_003",
         "type": "service_gap",
         "severity": "high",
-        "title": "貨架區 B 服務缺口",
+        "title": "貨架 B 服務缺口",
         "message": "顧客停留 2m10s 無人服務",
         "zone_id": "shelf_b",
         "timestamp": "2026-09-02T13:55:10+08:00",
@@ -40,7 +40,7 @@
     ]
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
     "source": "mock"

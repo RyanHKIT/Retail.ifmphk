@@ -6,7 +6,7 @@
     "zones": [
       {
         "zone_id": "shelf_a",
-        "name": "貨架區 A",
+        "name": "貨架 A",
         "staff_count": 1,
         "customer_count": 12,
         "staffing_ratio": 12.0,
@@ -15,7 +15,7 @@
       },
       {
         "zone_id": "shelf_b",
-        "name": "貨架區 B",
+        "name": "貨架 B",
         "staff_count": 1,
         "customer_count": 15,
         "staffing_ratio": 15.0,
@@ -43,9 +43,9 @@
     ]
   },
   "meta": {
-    "store_id": "IT-001",
+    "store_id": "it-cwb",
     "date": "2026-09-02",
     "generated_at": "2026-09-02T15:30:00+08:00",
-    "source": "mock"
+    "source": "camera"
   }
 }
