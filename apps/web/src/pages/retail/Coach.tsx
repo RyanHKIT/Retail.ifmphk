@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '@/api/retail';
 import type { GapEvent } from '@/api/retail';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { getDispatches, isDispatched, markDispatched, type DispatchRecord } from '@/lib/dispatchStore';
 import { getDisplayRules } from '@/lib/settingsStore';
@@ -23,17 +24,28 @@ export function CoachPage() {
   const [zoneFilter, setZoneFilter] = useState('all');
   const [dispatches, setDispatches] = useState<Record<string, DispatchRecord>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
   const rules = getDisplayRules();
   const dwellSec = rules.dwell_threshold_sec;
   const slaSec = rules.first_contact_sec;
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     api.gapEvents().then((data) => {
+      if (cancelled) return;
       setEvents(data.items);
       setDispatches(getDispatches());
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const zones = useMemo(() => {
     const set = new Map<string, string>();
@@ -53,10 +65,8 @@ export function CoachPage() {
     refresh();
   };
 
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
-
   return (
-    <>
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
       <h1 className="page-title">{t('coach.title')}</h1>
       <p className="page-subtitle">
         {storeLabel} · {t('coach.subtitle', { sec: dwellSec, sla: slaSec })}
@@ -131,6 +141,6 @@ export function CoachPage() {
         })}
         {filtered.length === 0 && <div className="empty-state">{t('coach.empty')}</div>}
       </div>
-    </>
+    </PageStatus>
   );
 }

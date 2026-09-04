@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import {
   DATE_OPTIONS,
   PERIOD_OPTIONS,
+  PRIMARY_DEMO_STORE_ID,
   STORE_OPTIONS,
   useRetailFilter,
 } from '@/context/RetailFilterContext';
@@ -113,6 +114,11 @@ export function RetailShell() {
           </div>
         </header>
         <main className="page-content">
+          {storeId !== PRIMARY_DEMO_STORE_ID && (
+            <div className="demo-banner" role="note" data-store-sample="shared">
+              {t('filter.storeSharedSample')}
+            </div>
+          )}
           <Outlet />
         </main>
       </div>

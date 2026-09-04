@@ -16,5 +16,5 @@
 ## Constraints
 
 - No CSS rewrite outside tokens/shell until DESIGN.md gate (this doc + parent DESIGN).
-- SourceChip labels: 計數器 / 攝像頭 / IoT.
+- SourceChip labels: 門禁計數 / 店內攝像 / IoT.
 - Case line: `I.T. 示範 · 樣本數據`.

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
@@ -93,4 +93,23 @@ test('hides dispatch CTA when every gap is already dispatched', async () => {
   })
   expect(screen.queryByRole('link', { name: '去服務缺口' })).not.toBeInTheDocument()
   expect(document.querySelector('.overview-next-action')).toBeNull()
+})
+
+test('failed fetch shows 繁中 retry and recovers on click', async () => {
+  let fail = true
+  vi.stubGlobal('fetch', async (input: RequestInfo) => {
+    if (fail) throw new Error('network')
+    const file = String(input).split('/').pop() ?? ''
+    const body = readFileSync(resolve(mockDir, file), 'utf-8')
+    return { ok: true, json: async () => JSON.parse(body) } as Response
+  })
+  renderOverview()
+  expect(await screen.findByRole('button', { name: '重試' })).toBeInTheDocument()
+  expect(screen.getByText('暫時無法載入，請稍後再試')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: '總覽看板' })).not.toBeInTheDocument()
+  fail = false
+  fireEvent.click(screen.getByRole('button', { name: '重試' }))
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '總覽看板' })).toBeInTheDocument()
+  })
 })

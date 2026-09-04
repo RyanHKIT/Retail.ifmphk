@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/api/retail';
 import type { SettingsData } from '@/api/retail';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import {
   clearRuleOverrides,
@@ -19,17 +20,26 @@ export function SettingsPage() {
   const [rules, setRules] = useState<RetailRules | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     api.settings().then((data) => {
+      if (cancelled) return;
       setBase(data);
       const override = loadRuleOverrides();
       setRules({ ...data.rules, ...override });
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
-
-  if (loading || !base || !rules) return <div className="loading">{t('common.loading')}</div>;
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const setNum = (key: keyof RetailRules, value: number) => {
     setRules((prev) => (prev ? { ...prev, [key]: value } : prev));
@@ -37,17 +47,21 @@ export function SettingsPage() {
   };
 
   const persist = () => {
+    if (!rules) return;
     saveRuleOverrides(rules);
     setSaved(true);
   };
 
   const reset = () => {
+    if (!base) return;
     clearRuleOverrides();
     setRules({ ...base.rules });
     setSaved(false);
   };
 
   return (
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
+      {!base || !rules ? null : (
     <>
       <h1 className="page-title">{t('settings.title')}</h1>
       <p className="page-subtitle">{storeLabel} · {t('settings.subtitle')}</p>
@@ -142,5 +156,7 @@ export function SettingsPage() {
         </table>
       </div>
     </>
+      )}
+    </PageStatus>
   );
 }

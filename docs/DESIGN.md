@@ -247,8 +247,8 @@ Component: `SourceChip({ source: 'counter' | 'camera' | 'iot' })`
 
 | Prop | Label 繁中 | Label EN |
 |------|------------|----------|
-| `counter` | 計數器 | Counter |
-| `camera` | 攝像頭 | Camera |
+| `counter` | 門禁計數 | Counter |
+| `camera` | 店內攝像 | Camera |
 | `iot` | IoT | IoT |
 
 Styles:

@@ -72,3 +72,13 @@ test('subtitle reads dwell and first_contact from settingsStore', async () => {
   expect(screen.getByText(/≥180s/)).toBeInTheDocument()
   expect(screen.getByText(/首次接觸 45s/)).toBeInTheDocument()
 })
+
+test('failed fetch shows 繁中 retry instead of hanging', async () => {
+  vi.stubGlobal('fetch', async () => {
+    throw new Error('network')
+  })
+  renderCoach()
+  expect(await screen.findByRole('button', { name: '重試' })).toBeInTheDocument()
+  expect(screen.getByText('暫時無法載入，請稍後再試')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: '服務教練' })).not.toBeInTheDocument()
+})

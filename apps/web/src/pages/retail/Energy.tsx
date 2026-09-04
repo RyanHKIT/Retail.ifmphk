@@ -6,6 +6,7 @@ import {
 import { fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { EnergyData } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
@@ -22,14 +23,25 @@ export function EnergyPage() {
   const [data, setData] = useState<EnergyData | null>(null);
   const [source, setSource] = useState<SourceChipSource | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     fetchMockWithMeta<EnergyData>('energy.json').then(({ data: d, meta }) => {
+      if (cancelled) return;
       setData(d);
       setSource(toChipSource(meta?.source));
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const climateData = useMemo(() => {
     if (!data) return [];
@@ -59,12 +71,10 @@ export function EnergyPage() {
     }));
   }, [data, t]);
 
-  if (loading || !data) return <div className="loading">{t('common.loading')}</div>;
-
-  const { summary } = data;
-  const hasControl = Boolean(data.has_control);
-  const tempSensors = data.sensors.filter((s) => s.temp_c != null);
-  const meter = data.sensors.find((s) => s.type === 'meter');
+  const summary = data?.summary;
+  const hasControl = Boolean(data?.has_control);
+  const tempSensors = data?.sensors.filter((s) => s.temp_c != null) ?? [];
+  const meter = data?.sensors.find((s) => s.type === 'meter');
   const tempKey = t('energy.temp');
   const humKey = t('energy.humidity');
   const occKey = t('energy.occ');
@@ -74,6 +84,8 @@ export function EnergyPage() {
   const kwhKey = t('energy.kwh');
 
   return (
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
+      {!data || !summary ? null : (
     <>
       <div className="demo-banner" data-control={hasControl ? 'execute' : 'suggest'}>
         <strong>{t('energy.bannerStrong')}</strong>
@@ -238,5 +250,7 @@ export function EnergyPage() {
         </table>
       </div>
     </>
+      )}
+    </PageStatus>
   );
 }

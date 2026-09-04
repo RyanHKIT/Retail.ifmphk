@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, expect, test } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { api } from '@/api/retail'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { loadRuleOverrides } from '@/lib/settingsStore'
@@ -21,6 +22,7 @@ beforeEach(() => {
 
 afterEach(() => {
   sessionStorage.clear()
+  vi.restoreAllMocks()
 })
 
 test('save and reset persist dwell_threshold_sec and first_contact_sec', async () => {
@@ -41,4 +43,12 @@ test('save and reset persist dwell_threshold_sec and first_contact_sec', async (
   expect(loadRuleOverrides()).toBeNull()
   expect(screen.getByLabelText('服務缺口停留閾值（秒）')).toHaveValue(120)
   expect(screen.getByLabelText('首次接觸 SLA（秒）')).toHaveValue(90)
+})
+
+test('failed settings load shows 繁中 retry instead of hanging', async () => {
+  vi.spyOn(api, 'settings').mockRejectedValue(new Error('network'))
+  renderSettings()
+  expect(await screen.findByRole('button', { name: '重試' })).toBeInTheDocument()
+  expect(screen.getByText('暫時無法載入，請稍後再試')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: '設定' })).not.toBeInTheDocument()
 })

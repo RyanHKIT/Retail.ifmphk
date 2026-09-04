@@ -10,6 +10,7 @@ import { ChartPanel } from '@/components/retail/ChartPanel';
 import { KpiCard } from '@/components/retail/KpiCard';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
 import { AlertList } from '@/components/retail/AlertList';
+import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip, type SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
@@ -49,8 +50,13 @@ export function OverviewPage() {
   const [pendingDispatch, setPendingDispatch] = useState(0);
   const [hintSources, setHintSources] = useState<SourceChipSource[]>(HINT_ORDER);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
     Promise.all([
       fetchMockWithMeta<{ kpis: KpiItem[] }>('kpi.json'),
       api.footfallHourly(),
@@ -61,6 +67,7 @@ export function OverviewPage() {
       api.gapEvents(),
       api.energy(),
     ]).then(([k, h, p, hm, z, a, gaps, en]) => {
+      if (cancelled) return;
       setKpis(k.data.kpis);
       setHourly(h);
       setPeople(p.data);
@@ -74,10 +81,13 @@ export function OverviewPage() {
       ]));
       setEnergy(en);
       setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setError(true);
+      setLoading(false);
     });
-  }, []);
-
-  if (loading) return <div className="loading">{t('common.loading')}</div>;
+    return () => { cancelled = true; };
+  }, [reload]);
 
   const passbyKey = t('overview.passby');
   const enterKey = t('overview.enter');
@@ -94,7 +104,7 @@ export function OverviewPage() {
   })) ?? [];
 
   return (
-    <>
+    <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
       <div className="demo-banner">{t('demo.banner')}</div>
       <h1 className="page-title">{t('overview.title')}</h1>
       <p className="page-subtitle">{storeLabel} · {t('overview.subtitle')}</p>
@@ -188,6 +198,6 @@ export function OverviewPage() {
           </div>
         </div>
       </section>
-    </>
+    </PageStatus>
   );
 }

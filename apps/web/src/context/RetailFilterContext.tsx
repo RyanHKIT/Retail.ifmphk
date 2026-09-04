@@ -1,7 +1,9 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
+export const PRIMARY_DEMO_STORE_ID = 'it-cwb';
+
 export const STORE_OPTIONS = [
-  { id: 'it-cwb' },
+  { id: PRIMARY_DEMO_STORE_ID },
   { id: 'it-tst' },
 ] as const;
 
@@ -27,7 +29,7 @@ type RetailFilterState = {
 const RetailFilterContext = createContext<RetailFilterState | null>(null);
 
 export function RetailFilterProvider({ children }: { children: ReactNode }) {
-  const [storeId, setStoreId] = useState('it-cwb');
+  const [storeId, setStoreId] = useState(PRIMARY_DEMO_STORE_ID);
   const [dateKey, setDateKey] = useState('today');
   const [period, setPeriod] = useState('full');
 
