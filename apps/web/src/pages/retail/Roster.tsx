@@ -1,0 +1,162 @@
+import { useEffect, useMemo, useState } from 'react';
+import {
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from 'recharts';
+import { api } from '@/api/retail';
+import type { RosterPlanData } from '@/api/retail';
+import { useRetailFilter } from '@/context/RetailFilterContext';
+import { loadSuggestedOverride, saveSuggestedOverride, clearSuggestedOverride } from '@/lib/rosterStore';
+import { useRetailTheme } from '@/context/RetailThemeContext';
+import { useRetailLocale } from '@/context/RetailLocaleContext';
+import { chartTooltipStyle } from '@/lib/chartStyle';
+import type { MessageKey } from '@/i18n/messages';
+
+export function RosterPage() {
+  const { storeId } = useRetailFilter();
+  const { chart } = useRetailTheme();
+  const { t } = useRetailLocale();
+  const storeLabel = t(`filter.store.${storeId}` as MessageKey);
+  const [plan, setPlan] = useState<RosterPlanData | null>(null);
+  const [suggested, setSuggested] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    api.rosterPlan().then((data) => {
+      setPlan(data);
+      setSuggested(loadSuggestedOverride() ?? [...data.suggested]);
+      setLoading(false);
+    });
+  }, []);
+
+  const chartData = useMemo(() => {
+    if (!plan) return [];
+    const sug = t('roster.suggestedSeries');
+    const exp = t('roster.expectedSeries');
+    const det = t('roster.detectedSeries');
+    const ent = t('roster.enterSeries');
+    return plan.hours.map((hour, i) => ({
+      hour,
+      [sug]: suggested[i] ?? plan.suggested[i],
+      [exp]: plan.expected[i],
+      [det]: plan.detected[i],
+      [ent]: plan.enter_by_hour[i],
+    }));
+  }, [plan, suggested, t]);
+
+  const bump = (index: number, delta: number) => {
+    setSuggested((prev) => {
+      const next = [...prev];
+      next[index] = Math.max(0, (next[index] ?? 0) + delta);
+      return next;
+    });
+    setSaved(false);
+  };
+
+  const persist = () => {
+    saveSuggestedOverride(suggested);
+    setSaved(true);
+  };
+
+  const reset = () => {
+    if (!plan) return;
+    clearSuggestedOverride();
+    setSuggested([...plan.suggested]);
+    setSaved(false);
+  };
+
+  if (loading || !plan) return <div className="loading">{t('common.loading')}</div>;
+
+  const sug = t('roster.suggestedSeries');
+  const exp = t('roster.expectedSeries');
+  const det = t('roster.detectedSeries');
+  const ent = t('roster.enterSeries');
+
+  return (
+    <>
+      <h1 className="page-title">{t('roster.title')}</h1>
+      <p className="page-subtitle">
+        {storeLabel} · {t('roster.subtitle')}
+      </p>
+
+      <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="kpi-card">
+          <div className="kpi-label">{t('roster.peak')}</div>
+          <div><span className="kpi-value" style={{ fontSize: '1.4rem' }}>{plan.summary.peak_hour}</span></div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-label">{t('roster.maxGap')}</div>
+          <div><span className="kpi-value">{plan.summary.max_gap}</span><span className="kpi-unit">{t('roster.people')}</span></div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-label">{t('roster.underHours')}</div>
+          <div><span className="kpi-value">{plan.summary.under_hours}</span><span className="kpi-unit">h</span></div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-label">{t('roster.overHours')}</div>
+          <div><span className="kpi-value">{plan.summary.over_hours}</span><span className="kpi-unit">h</span></div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div className="card-title">{t('roster.chart')}</div>
+        <ResponsiveContainer width="100%" height={280}>
+          <ComposedChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+            <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
+            <YAxis yAxisId="left" stroke={chart.axis} fontSize={11} />
+            <YAxis yAxisId="right" orientation="right" stroke={chart.axis} fontSize={11} />
+            <Tooltip contentStyle={chartTooltipStyle(chart)} />
+            <Legend />
+            <Bar yAxisId="left" dataKey={det} fill="#71717a" radius={[4, 4, 0, 0]} />
+            <Line yAxisId="left" type="monotone" dataKey={exp} stroke="#8b5cf6" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey={sug} stroke="#e11d48" strokeWidth={2} />
+            <Line yAxisId="right" type="monotone" dataKey={ent} stroke="#06b6d4" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 8 }}>{plan.note}</p>
+      </div>
+
+      <div className="card">
+        <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{t('roster.tune')}</span>
+          <div className="btn-row">
+            <button type="button" className="btn btn-ghost" onClick={reset}>{t('common.reset')}</button>
+            <button type="button" className="btn btn-primary" onClick={persist}>
+              {saved ? t('common.saved') : t('common.saveLocal')}
+            </button>
+          </div>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t('roster.hour')}</th>
+              <th>{t('roster.enter')}</th>
+              <th>{t('roster.expected')}</th>
+              <th>{t('roster.detected')}</th>
+              <th>{t('roster.suggested')}</th>
+              <th>{t('roster.adjust')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plan.hours.map((h, i) => (
+              <tr key={h}>
+                <td style={{ fontFamily: 'var(--mono)' }}>{h}</td>
+                <td>{plan.enter_by_hour[i]}</td>
+                <td>{plan.expected[i]}</td>
+                <td>{plan.detected[i]}</td>
+                <td style={{ fontWeight: 600, color: 'var(--accent)' }}>{suggested[i]}</td>
+                <td>
+                  <div className="btn-row">
+                    <button type="button" className="btn btn-sm" onClick={() => bump(i, -1)}>−</button>
+                    <button type="button" className="btn btn-sm" onClick={() => bump(i, 1)}>+</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}

@@ -1,0 +1,50 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "paths": [
+      {
+        "rank": 1,
+        "path": ["entrance", "shelf_a", "fitting_room", "cashier"],
+        "path_labels": ["入口", "貨架A", "試衣間", "收銀台"],
+        "count": 89,
+        "percentage": 23.1
+      },
+      {
+        "rank": 2,
+        "path": ["entrance", "shelf_b", "cashier"],
+        "path_labels": ["入口", "貨架B", "收銀台"],
+        "count": 72,
+        "percentage": 18.7
+      },
+      {
+        "rank": 3,
+        "path": ["entrance", "shelf_a", "shelf_b", "cashier"],
+        "path_labels": ["入口", "貨架A", "貨架B", "收銀台"],
+        "count": 58,
+        "percentage": 15.0
+      },
+      {
+        "rank": 4,
+        "path": ["entrance", "shelf_b", "fitting_room", "cashier"],
+        "path_labels": ["入口", "貨架B", "試衣間", "收銀台"],
+        "count": 45,
+        "percentage": 11.7
+      },
+      {
+        "rank": 5,
+        "path": ["entrance", "shelf_a", "cashier"],
+        "path_labels": ["入口", "貨架A", "收銀台"],
+        "count": 38,
+        "percentage": 9.8
+      }
+    ],
+    "total_tracks": 386
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

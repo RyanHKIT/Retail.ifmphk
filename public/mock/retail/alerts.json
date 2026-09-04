@@ -1,0 +1,48 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "total": 3,
+    "unread": 2,
+    "items": [
+      {
+        "alert_id": "alert_20260902_152900_001",
+        "type": "service_gap",
+        "severity": "high",
+        "title": "試衣間服務缺口",
+        "message": "2 位顧客等候超過 2 分鐘，無員工響應",
+        "zone_id": "fitting_room",
+        "timestamp": "2026-09-02T14:22:15+08:00",
+        "read": false,
+        "gap_id": "gap_20260902_142215_001"
+      },
+      {
+        "alert_id": "alert_20260902_152800_002",
+        "type": "understaffed",
+        "severity": "medium",
+        "title": "試衣間人手不足",
+        "message": "當前 0 名員工，標準需 1 名",
+        "zone_id": "fitting_room",
+        "timestamp": "2026-09-02T15:28:00+08:00",
+        "read": false
+      },
+      {
+        "alert_id": "alert_20260902_135510_003",
+        "type": "service_gap",
+        "severity": "high",
+        "title": "貨架區 B 服務缺口",
+        "message": "顧客停留 2m10s 無人服務",
+        "zone_id": "shelf_b",
+        "timestamp": "2026-09-02T13:55:10+08:00",
+        "read": true,
+        "gap_id": "gap_20260902_135510_002"
+      }
+    ]
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

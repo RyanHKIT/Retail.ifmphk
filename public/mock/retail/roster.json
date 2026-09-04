@@ -1,0 +1,52 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "date": "2026-09-02",
+    "shifts": [
+      {
+        "shift_id": "morning",
+        "label": "早班",
+        "start": "10:00",
+        "end": "15:00",
+        "expected_staff": 6,
+        "detected_avg_staff": 5.4,
+        "variance": -0.6,
+        "status": "under"
+      },
+      {
+        "shift_id": "afternoon",
+        "label": "午班",
+        "start": "15:00",
+        "end": "19:00",
+        "expected_staff": 8,
+        "detected_avg_staff": 7.2,
+        "variance": -0.8,
+        "status": "under"
+      },
+      {
+        "shift_id": "evening",
+        "label": "晚班",
+        "start": "19:00",
+        "end": "22:00",
+        "expected_staff": 8,
+        "detected_avg_staff": 7.5,
+        "variance": -0.5,
+        "status": "under"
+      }
+    ],
+    "current_shift": {
+      "shift_id": "afternoon",
+      "expected_staff": 8,
+      "detected_staff": 6,
+      "as_of": "2026-09-02T15:29:00+08:00"
+    },
+    "note": "排班數據 Demo Mock，Phase 2 對接 HR/排班系統"
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

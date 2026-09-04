@@ -1,0 +1,40 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "stages": [
+      {
+        "id": "passby",
+        "label": "過店",
+        "value": 1248,
+        "rate": 100.0
+      },
+      {
+        "id": "enter",
+        "label": "進店",
+        "value": 386,
+        "rate": 30.9
+      },
+      {
+        "id": "not_entered",
+        "label": "未進店",
+        "value": 862,
+        "rate": 69.1
+      },
+      {
+        "id": "purchase",
+        "label": "購買",
+        "value": 98,
+        "rate": 25.4,
+        "note": "Phase 2 POS 對接，Demo Mock",
+        "mock": true
+      }
+    ]
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "hours": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00"],
+    "zones": ["shelf_a", "shelf_b", "fitting_room", "cashier"],
+    "zone_labels": {
+      "shelf_a": "貨架A",
+      "shelf_b": "貨架B",
+      "fitting_room": "試衣間",
+      "cashier": "收銀台"
+    },
+    "status_legend": {
+      "normal": { "label": "正常", "color": "#4CAF50" },
+      "understaffed": { "label": "人手不足", "color": "#FFC107" },
+      "critical": { "label": "嚴重不足", "color": "#F44336" },
+      "overstaffed": { "label": "人手過多", "color": "#2196F3" }
+    },
+    "matrix": [
+      {
+        "hour": "10:00",
+        "cells": [
+          { "zone_id": "shelf_a", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "shelf_b", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "fitting_room", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "cashier", "status": "normal", "staff": 1, "expected": 1 }
+        ]
+      },
+      {
+        "hour": "11:00",
+        "cells": [
+          { "zone_id": "shelf_a", "status": "understaffed", "staff": 0, "expected": 1 },
+          { "zone_id": "shelf_b", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "fitting_room", "status": "understaffed", "staff": 0, "expected": 1 },
+          { "zone_id": "cashier", "status": "normal", "staff": 1, "expected": 1 }
+        ]
+      },
+      {
+        "hour": "12:00",
+        "cells": [
+          { "zone_id": "shelf_a", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "shelf_b", "status": "critical", "staff": 0, "expected": 1 },
+          { "zone_id": "fitting_room", "status": "understaffed", "staff": 0, "expected": 1 },
+          { "zone_id": "cashier", "status": "critical", "staff": 0, "expected": 1 }
+        ]
+      },
+      {
+        "hour": "13:00",
+        "cells": [
+          { "zone_id": "shelf_a", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "shelf_b", "status": "understaffed", "staff": 0, "expected": 1 },
+          { "zone_id": "fitting_room", "status": "critical", "staff": 0, "expected": 1 },
+          { "zone_id": "cashier", "status": "normal", "staff": 2, "expected": 1 }
+        ]
+      },
+      {
+        "hour": "14:00",
+        "cells": [
+          { "zone_id": "shelf_a", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "shelf_b", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "fitting_room", "status": "critical", "staff": 0, "expected": 1 },
+          { "zone_id": "cashier", "status": "overstaffed", "staff": 2, "expected": 1 }
+        ]
+      },
+      {
+        "hour": "15:00",
+        "cells": [
+          { "zone_id": "shelf_a", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "shelf_b", "status": "normal", "staff": 1, "expected": 1 },
+          { "zone_id": "fitting_room", "status": "understaffed", "staff": 0, "expected": 1 },
+          { "zone_id": "cashier", "status": "normal", "staff": 2, "expected": 1 }
+        ]
+      }
+    ],
+    "summary": {
+      "understaffed_pct": 12.3,
+      "overstaffed_pct": 3.1,
+      "calculation": "不足/過多分鐘數 ÷ (區域數 × 營業分鐘數) × 100%"
+    }
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

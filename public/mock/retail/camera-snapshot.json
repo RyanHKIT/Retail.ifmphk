@@ -1,0 +1,35 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "cameras": [
+      {
+        "camera_id": "CAM-01",
+        "name": "門外過店",
+        "status": "online",
+        "snapshot_url": "/mock/assets/cameras/CAM-01.jpg",
+        "last_count": {
+          "passby_today": 1248,
+          "updated_at": "2026-09-02T15:29:55+08:00"
+        }
+      },
+      {
+        "camera_id": "CAM-02",
+        "name": "玻璃門入口",
+        "status": "online",
+        "snapshot_url": "/mock/assets/cameras/CAM-02.jpg",
+        "last_count": {
+          "enter_today": 386,
+          "exit_today": 344,
+          "updated_at": "2026-09-02T15:29:55+08:00"
+        }
+      }
+    ]
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "summary": {
+      "passby_total": 1248,
+      "enter_total": 386,
+      "not_entered_total": 862,
+      "not_entered_rate": 69.1
+    },
+    "hours": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"],
+    "not_entered_by_hour": [46, 67, 97, 80, 73, 69, 77, 88, 108, 126, 94, 77]
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}

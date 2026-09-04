@@ -1,0 +1,55 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "metric": "composite",
+    "zones": [
+      {
+        "zone_id": "shelf_a",
+        "name": "貨架區 A",
+        "visit_count": 186,
+        "avg_dwell_sec": 198,
+        "intensity": 0.72
+      },
+      {
+        "zone_id": "shelf_b",
+        "name": "貨架區 B",
+        "visit_count": 224,
+        "avg_dwell_sec": 272,
+        "intensity": 0.91
+      },
+      {
+        "zone_id": "fitting_room",
+        "name": "試衣間",
+        "visit_count": 68,
+        "avg_dwell_sec": 495,
+        "intensity": 0.85
+      },
+      {
+        "zone_id": "cashier",
+        "name": "收銀台",
+        "visit_count": 98,
+        "avg_dwell_sec": 145,
+        "intensity": 0.58
+      },
+      {
+        "zone_id": "entrance",
+        "name": "入口",
+        "visit_count": 386,
+        "avg_dwell_sec": 12,
+        "intensity": 0.45
+      }
+    ],
+    "legend": {
+      "min": 0.0,
+      "max": 1.0,
+      "colors": ["#E8F4FD", "#90CAF9", "#42A5F5", "#1E88E5", "#0D47A1"]
+    }
+  },
+  "meta": {
+    "store_id": "IT-001",
+    "date": "2026-09-02",
+    "generated_at": "2026-09-02T15:30:00+08:00",
+    "source": "mock"
+  }
+}
