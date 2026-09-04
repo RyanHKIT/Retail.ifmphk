@@ -31,7 +31,7 @@ export function RetailShell() {
     <div className="app-shell" data-theme={theme} data-locale={locale}>
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <h1>IFMP</h1>
+          <h1>{t('brand.title')}</h1>
           <span>{t('brand.sub')}</span>
         </div>
         <nav>
@@ -47,8 +47,8 @@ export function RetailShell() {
             </NavLink>
           ))}
         </nav>
-        <div style={{ marginTop: 'auto', padding: '12px', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-          <Link to="/" style={{ display: 'block', marginBottom: 8, color: 'var(--accent)' }}>
+        <div className="sidebar-foot">
+          <Link to="/" className="sidebar-home">
             {t('nav.backHome')}
           </Link>
           {storeLabel} · {t('common.mock')}

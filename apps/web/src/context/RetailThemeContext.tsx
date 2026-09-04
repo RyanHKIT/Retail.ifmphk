@@ -20,17 +20,17 @@ type RetailThemeState = {
 };
 
 const CHART: Record<RetailTheme, ChartTheme> = {
-  night: {
-    grid: '#2a2a34',
-    axis: '#71717a',
-    tooltipBg: '#1a1a20',
-    tooltipBorder: '#2a2a34',
-  },
   day: {
-    grid: '#e4e4e7',
-    axis: '#71717a',
+    grid: '#cfd8e2',
+    axis: '#6b7c8c',
     tooltipBg: '#ffffff',
-    tooltipBorder: '#d4d4d8',
+    tooltipBorder: '#cfd8e2',
+  },
+  night: {
+    grid: '#2a3642',
+    axis: '#7a8b9a',
+    tooltipBg: '#172029',
+    tooltipBorder: '#2a3642',
   },
 };
 
@@ -43,7 +43,7 @@ function readInitial(): RetailTheme {
   } catch {
     /* ignore */
   }
-  return 'night';
+  return 'day';
 }
 
 export function RetailThemeProvider({ children }: { children: ReactNode }) {

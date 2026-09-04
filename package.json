@@ -1,8 +1,9 @@
-﻿{
+{
   "name": "ifmp-shop",
   "private": true,
   "scripts": {
     "dev": "npm run dev --prefix apps/web",
-    "build": "npm run build --prefix apps/web"
+    "build": "npm run build --prefix apps/web",
+    "test": "npm test --prefix apps/web"
   }
 }

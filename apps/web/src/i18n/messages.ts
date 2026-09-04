@@ -7,15 +7,16 @@ export const LOCALE_OPTIONS: { id: Locale; label: string }[] = [
 ];
 
 const zhHant = {
-  'brand.sub': 'Retail Analytics · I.T Demo',
-  'nav.overview': '總覽看板',
-  'nav.footfall': '客流分析',
-  'nav.journey': '店內動線',
-  'nav.people': '人員分析',
+  'brand.title': 'IFMP Retail',
+  'brand.sub': 'I.T. 示範 · 樣本數據',
+  'nav.overview': '總覽',
+  'nav.footfall': '客流',
+  'nav.journey': '動線',
+  'nav.people': '人員',
   'nav.serviceGap': '服務缺口',
-  'nav.roster': '排班建議',
-  'nav.coach': '服務教練',
-  'nav.energy': 'IoT 能源',
+  'nav.roster': '排班',
+  'nav.coach': '教練',
+  'nav.energy': '能源',
   'nav.settings': '設定',
   'nav.backHome': '← 返回 IFMP 首頁',
   'filter.store.IT-001': 'I.T 銅鑼灣時代廣場',
@@ -206,15 +207,16 @@ const zhHant = {
 type Dict = { [K in keyof typeof zhHant]: string };
 
 const zhHans: Dict = {
-  'brand.sub': 'Retail Analytics · I.T Demo',
-  'nav.overview': '总览看板',
-  'nav.footfall': '客流分析',
-  'nav.journey': '店内动线',
-  'nav.people': '人员分析',
+  'brand.title': 'IFMP Retail',
+  'brand.sub': 'I.T. 示范 · 样本数据',
+  'nav.overview': '总览',
+  'nav.footfall': '客流',
+  'nav.journey': '动线',
+  'nav.people': '人员',
   'nav.serviceGap': '服务缺口',
-  'nav.roster': '排班建议',
-  'nav.coach': '服务教练',
-  'nav.energy': 'IoT 能源',
+  'nav.roster': '排班',
+  'nav.coach': '教练',
+  'nav.energy': '能源',
   'nav.settings': '设置',
   'nav.backHome': '← 返回 IFMP 首页',
   'filter.store.IT-001': 'I.T 铜锣湾时代广场',
@@ -403,7 +405,8 @@ const zhHans: Dict = {
 };
 
 const en: Dict = {
-  'brand.sub': 'Retail Analytics · I.T Demo',
+  'brand.title': 'IFMP Retail',
+  'brand.sub': 'I.T. demo · sample data',
   'nav.overview': 'Overview',
   'nav.footfall': 'Footfall',
   'nav.journey': 'Journey',
@@ -411,7 +414,7 @@ const en: Dict = {
   'nav.serviceGap': 'Service Gap',
   'nav.roster': 'Roster',
   'nav.coach': 'Coach',
-  'nav.energy': 'IoT Energy',
+  'nav.energy': 'Energy',
   'nav.settings': 'Settings',
   'nav.backHome': '← Back to IFMP Home',
   'filter.store.IT-001': 'I.T Times Square Causeway Bay',
