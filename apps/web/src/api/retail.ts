@@ -18,6 +18,7 @@ export interface ApiResponse<T> {
 
 const importedMocks: Record<string, ApiResponse<unknown>> = {
   'energy.json': energyJson as ApiResponse<unknown>,
+  'roster-plan.json': rosterPlanJson as ApiResponse<unknown>,
 };
 
 export async function fetchMockWithMeta<T>(file: string): Promise<{ data: T; meta?: ApiResponse<T>['meta'] }> {
@@ -64,7 +65,7 @@ export const api = {
   zones: () => fetchMock<ZonesData>('zones.json'),
   cameraSnapshot: () => fetchMock<{ cameras: CameraSnapshot[] }>('camera-snapshot.json'),
   rosterPlan: async (): Promise<RosterPlanData> =>
-    (rosterPlanJson as ApiResponse<RosterPlanData>).data,
+    (await fetchMockWithMeta<RosterPlanData>('roster-plan.json')).data,
   settings: async (): Promise<SettingsData> =>
     (settingsJson as ApiResponse<SettingsData>).data,
   energy: async (): Promise<EnergyData> =>

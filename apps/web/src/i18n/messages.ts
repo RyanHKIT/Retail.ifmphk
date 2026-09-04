@@ -155,7 +155,9 @@ const zhHant = {
   'gap.empty': '今日尚無服務缺口',
 
   'roster.title': '排班建議',
-  'roster.subtitle': '依客流預測建議人數 · 可對照應到 / 實測（套餐 B）',
+  'roster.subtitle': '依門禁客流建議人手 · 可對照應到 / 實測',
+  'roster.storyLabel': '需求',
+  'roster.story': '依門禁客流建議人手',
   'roster.peak': '高峰時段',
   'roster.maxGap': '最大欠配',
   'roster.underHours': '欠配時段數',
@@ -385,7 +387,9 @@ const zhHans: Dict = {
   'gap.empty': '今日尚无服务缺口',
 
   'roster.title': '排班建议',
-  'roster.subtitle': '依客流预测建议人数 · 可对照应到 / 实测（套餐 B）',
+  'roster.subtitle': '依门禁客流建议人手 · 可对照应到 / 实测',
+  'roster.storyLabel': '需求',
+  'roster.story': '依门禁客流建议人手',
   'roster.peak': '高峰时段',
   'roster.maxGap': '最大欠配',
   'roster.underHours': '欠配时段数',
@@ -613,7 +617,9 @@ const en: Dict = {
   'gap.empty': 'No service gaps today',
 
   'roster.title': 'Roster planner',
-  'roster.subtitle': 'Demand-based staffing vs expected / detected (Package B)',
+  'roster.subtitle': 'Staffing from door-counter footfall vs expected / detected',
+  'roster.storyLabel': 'Demand',
+  'roster.story': 'Staffing suggested from door-counter footfall',
   'roster.peak': 'Peak hour',
   'roster.maxGap': 'Max shortfall',
   'roster.underHours': 'Under hours',
