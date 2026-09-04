@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { FunnelStage, FootfallHourly, PassbyHourly, FootfallEvent, CameraSnapshot } from '@/api/retail';
+import { ChartPanel } from '@/components/retail/ChartPanel';
 import { SourceChip } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
-import { chartTooltipStyle } from '@/lib/chartStyle';
+import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 
 export function FootfallPage() {
@@ -75,8 +76,7 @@ export function FootfallPage() {
       </div>
       <p className="page-subtitle">{t('footfall.subtitle')}</p>
 
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div className="card-title">{t('footfall.funnel')}</div>
+      <ChartPanel title={t('footfall.funnel')} style={{ marginBottom: 20 }}>
         <div className="funnel">
           {funnel.map((stage) => (
             <div key={stage.id} className="funnel-stage">
@@ -98,11 +98,10 @@ export function FootfallPage() {
             * 購買轉化為 Phase 2 POS 對接，目前為 Mock
           </p>
         )}
-      </div>
+      </ChartPanel>
 
       <div className="grid-2">
-        <div className="card">
-          <div className="card-title">{t('footfall.inOut')}</div>
+        <ChartPanel title={t('footfall.inOut')}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={inOutData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -110,13 +109,12 @@ export function FootfallPage() {
               <YAxis stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
               <Legend />
-              <Bar dataKey={enterKey} fill="#e11d48" radius={[4, 4, 0, 0]} />
-              <Bar dataKey={exitKey} fill="#71717a" radius={[4, 4, 0, 0]} />
+              <Bar dataKey={enterKey} fill={CHART[1]} radius={[4, 4, 0, 0]} />
+              <Bar dataKey={exitKey} fill={CHART[4]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
-        <div className="card">
-          <div className="card-title">{t('footfall.passby')}</div>
+        </ChartPanel>
+        <ChartPanel title={t('footfall.passby')}>
           <p style={{ fontSize: '0.85rem', marginBottom: 12, color: 'var(--text-secondary)' }}>
             今日未進店 <strong style={{ color: 'var(--text-primary)' }}>{passby?.summary.not_entered_total.toLocaleString()}</strong> 人
             （{passby?.summary.not_entered_rate}%）
@@ -127,10 +125,10 @@ export function FootfallPage() {
               <XAxis dataKey="hour" stroke={chart.axis} fontSize={10} />
               <YAxis stroke={chart.axis} fontSize={10} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Bar dataKey={notEnteredKey} fill="#52525b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey={notEnteredKey} fill={CHART[3]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ChartPanel>
       </div>
 
       <div className="grid-2" style={{ marginBottom: 20 }}>

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { api } from '@/api/retail';
 import type { PeopleSummary, PeopleHourly, StaffHourly, ZonePeople, RosterData } from '@/api/retail';
+import { ChartPanel } from '@/components/retail/ChartPanel';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
-import { chartTooltipStyle } from '@/lib/chartStyle';
+import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 
 export function PeoplePage() {
   const { chart } = useRetailTheme();
@@ -63,25 +64,24 @@ export function PeoplePage() {
       <p className="page-subtitle">{t('people.subtitle')}</p>
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">在店員工</div>
           <div><span className="kpi-value">{summary?.in_store.staff}</span><span className="kpi-unit">人</span></div>
           <div className="kpi-realtime">● 實時</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">在店顧客</div>
           <div><span className="kpi-value">{summary?.in_store.customer}</span><span className="kpi-unit">人</span></div>
           <div className="kpi-realtime">● 實時</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">今日過店路人</div>
           <div><span className="kpi-value">{summary?.today_totals.pedestrian_passby.toLocaleString()}</span><span className="kpi-unit">人</span></div>
         </div>
       </div>
 
       <div className="grid-2">
-        <div className="card">
-          <div className="card-title">人員時段分佈</div>
+        <ChartPanel title="人員時段分佈">
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={areaData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -89,13 +89,12 @@ export function PeoplePage() {
               <YAxis stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
               <Legend />
-              <Area type="monotone" dataKey={staffKey} stackId="1" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.4} />
-              <Area type="monotone" dataKey={customerKey} stackId="1" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.4} />
+              <Area type="monotone" dataKey={staffKey} stackId="1" stroke={CHART[2]} fill={CHART[2]} fillOpacity={0.4} />
+              <Area type="monotone" dataKey={customerKey} stackId="1" stroke={CHART[1]} fill={CHART[1]} fillOpacity={0.4} />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
-        <div className="card">
-          <div className="card-title">員工分時段 · 排班對照</div>
+        </ChartPanel>
+        <ChartPanel title="員工分時段 · 排班對照">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={staffCompareData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -103,11 +102,11 @@ export function PeoplePage() {
               <YAxis stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
               <Legend />
-              <Bar dataKey={detectedKey} fill="#e11d48" radius={[4, 4, 0, 0]} />
-              <Bar dataKey={expectedKey} fill="#52525b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey={detectedKey} fill={CHART[1]} radius={[4, 4, 0, 0]} />
+              <Bar dataKey={expectedKey} fill={CHART[4]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ChartPanel>
       </div>
 
       <div className="grid-2" style={{ marginTop: 20 }}>

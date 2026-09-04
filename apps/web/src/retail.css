@@ -362,22 +362,23 @@ button {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.chart-enter {
-  animation: chart-enter var(--duration-enter) var(--ease-out) both;
-}
-
 @keyframes fade-only {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
+.chart-enter {
+  animation: chart-enter var(--duration-enter) var(--ease-out) both;
+}
+
+.grid-kpi > .kpi-card.chart-enter:nth-child(1) { animation-delay: 0ms; }
+.grid-kpi > .kpi-card.chart-enter:nth-child(2) { animation-delay: calc(1 * var(--duration-enter-stagger)); }
+.grid-kpi > .kpi-card.chart-enter:nth-child(3) { animation-delay: calc(2 * var(--duration-enter-stagger)); }
+.grid-kpi > .kpi-card.chart-enter:nth-child(4) { animation-delay: calc(3 * var(--duration-enter-stagger)); }
+.grid-kpi > .kpi-card.chart-enter:nth-child(5) { animation-delay: calc(4 * var(--duration-enter-stagger)); }
+
 @media (prefers-reduced-motion: reduce) {
   .chart-enter {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-  .chart-enter-reduced {
     animation: fade-only 180ms var(--ease-out) both;
   }
 }

@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState, type MouseEvent } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { GapSummary, GapEvent, GapByZone, StaffingMatrix } from '@/api/retail';
+import { ChartPanel } from '@/components/retail/ChartPanel';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { getDispatches, markDispatched, type DispatchRecord } from '@/lib/dispatchStore';
@@ -9,7 +10,7 @@ import { useRetailFilter } from '@/context/RetailFilterContext';
 import { loadRuleOverrides } from '@/lib/settingsStore';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
-import { chartTooltipStyle } from '@/lib/chartStyle';
+import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 import type { MessageKey } from '@/i18n/messages';
 
 export function ServiceGapPage() {
@@ -75,41 +76,40 @@ export function ServiceGapPage() {
       </p>
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('gap.count')}</div>
           <div><span className="kpi-value">{summary?.gap_count}</span><span className="kpi-unit">{t('gap.times')}</span></div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('gap.duration')}</div>
           <div><span className="kpi-value" style={{ fontSize: '1.4rem' }}>{summary?.total_gap_duration_display}</span></div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('gap.under')}</div>
           <div><span className="kpi-value">{summary?.understaffed_pct}</span><span className="kpi-unit">%</span></div>
           <div className="kpi-change down">{t('gap.weighted')}</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('gap.over')}</div>
           <div><span className="kpi-value">{summary?.overstaffed_pct}</span><span className="kpi-unit">%</span></div>
         </div>
       </div>
 
       <div className="grid-2">
-        <div className="card">
-          <div className="card-title">{t('gap.byZone')}</div>
+        <ChartPanel title={t('gap.byZone')}>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={zoneBarData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
               <XAxis dataKey="name" stroke={chart.axis} fontSize={11} />
               <YAxis stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Bar dataKey={t('gap.times')} fill="#e11d48" radius={[4, 4, 0, 0]} />
+              <Bar dataKey={t('gap.times')} fill={CHART[3]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 8 }}>
             {t('gap.pain')}
           </p>
-        </div>
+        </ChartPanel>
         <div className="card">
           <div className="card-title">{t('gap.vl')}</div>
           <div style={{ display: 'flex', gap: 24, marginTop: 16 }}>

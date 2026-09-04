@@ -5,7 +5,7 @@ export function KpiCard({ kpi }: { kpi: KpiItem }) {
   const displayValue = kpi.format === 'percent' ? kpi.value.toFixed(1) : kpi.value.toLocaleString();
 
   return (
-    <div className="kpi-card">
+    <div className="kpi-card chart-enter">
       <div className="kpi-label">{kpi.label}</div>
       <div>
         <span className="kpi-value">{displayValue}</span>

@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { HeatmapData, ZonesData, ZoneDwell, DwellTrend, JourneyPath } from '@/api/retail';
+import { ChartPanel } from '@/components/retail/ChartPanel';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
-import { chartTooltipStyle } from '@/lib/chartStyle';
+import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 
 export function JourneyPage() {
   const { chart } = useRetailTheme();
@@ -55,7 +56,7 @@ export function JourneyPage() {
     return row;
   }) ?? [];
 
-  const TREND_COLORS = ['#e11d48', '#8b5cf6', '#06b6d4', '#f59e0b'];
+  const TREND_COLORS = [CHART[1], CHART[2], CHART[3], CHART[4]];
 
   return (
     <>
@@ -86,15 +87,14 @@ export function JourneyPage() {
         </div>
         {zones && heatmap && <FloorHeatmap zones={zones.zones} heat={heatmap.zones} />}
         <div className="legend-row">
-          <span><span className="legend-dot" style={{ background: 'rgba(225,29,72,0.25)' }} />低</span>
-          <span><span className="legend-dot" style={{ background: 'rgba(225,29,72,0.85)' }} />高</span>
+          <span><span className="legend-dot" style={{ background: 'color-mix(in srgb, var(--chart-1) 25%, transparent)' }} />低</span>
+          <span><span className="legend-dot" style={{ background: 'var(--chart-3)' }} />高</span>
           <span style={{ marginLeft: 'auto' }}>懸停區域查看人次與停留</span>
         </div>
       </div>
 
       <div className="grid-2">
-        <div className="card">
-          <div className="card-title">區域停留排行</div>
+        <ChartPanel title="區域停留排行">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dwellBarData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -104,12 +104,11 @@ export function JourneyPage() {
                 contentStyle={chartTooltipStyle(chart)}
                 formatter={(_v: number, _n, p) => [(p.payload as { display: string }).display, '平均停留']}
               />
-              <Bar dataKey="秒" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="秒" fill={CHART[1]} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
-        <div className="card">
-          <div className="card-title">7 日停留趨勢</div>
+        </ChartPanel>
+        <ChartPanel title="7 日停留趨勢">
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -122,7 +121,7 @@ export function JourneyPage() {
               ))}
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </ChartPanel>
       </div>
 
       <div className="card" style={{ marginTop: 20 }}>

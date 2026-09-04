@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { api } from '@/api/retail';
 import type { KpiItem, FootfallHourly, PeopleSummary, HeatmapData, ZonesData, AlertItem, EnergyData } from '@/api/retail';
+import { ChartPanel } from '@/components/retail/ChartPanel';
 import { KpiCard } from '@/components/retail/KpiCard';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
 import { AlertList } from '@/components/retail/AlertList';
@@ -13,10 +14,10 @@ import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { countPending } from '@/lib/dispatchStore';
-import { chartTooltipStyle } from '@/lib/chartStyle';
+import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 import type { MessageKey } from '@/i18n/messages';
 
-const PIE_COLORS = ['#06b6d4', '#8b5cf6', '#71717a'];
+const PIE_COLORS = [CHART[2], CHART[1], CHART[4]];
 
 export function OverviewPage() {
   const { storeId } = useRetailFilter();
@@ -110,21 +111,19 @@ export function OverviewPage() {
       )}
 
       <div className="grid-2">
-        <div className="card">
-          <div className="card-title">{t('overview.footfallChart')}</div>
+        <ChartPanel title={t('overview.footfallChart')}>
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
               <XAxis dataKey="hour" stroke={chart.axis} />
               <YAxis stroke={chart.axis} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Line type="monotone" dataKey={passbyKey} stroke="#71717a" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey={enterKey} stroke="#e11d48" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey={passbyKey} stroke={CHART[4]} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey={enterKey} stroke={CHART[1]} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
-        </div>
-        <div className="card">
-          <div className="card-title">{t('overview.roles')}</div>
+        </ChartPanel>
+        <ChartPanel title={t('overview.roles')}>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" label>
@@ -143,7 +142,7 @@ export function OverviewPage() {
               </span>
             ))}
           </div>
-        </div>
+        </ChartPanel>
       </div>
 
       <div className="grid-2-1">

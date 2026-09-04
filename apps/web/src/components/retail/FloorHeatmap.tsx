@@ -1,11 +1,11 @@
 import type { ZonesData, HeatmapData } from '@/api/retail';
 
 const INTENSITY_COLORS = [
-  'rgba(225, 29, 72, 0.25)',
-  'rgba(225, 29, 72, 0.45)',
-  'rgba(225, 29, 72, 0.65)',
-  'rgba(225, 29, 72, 0.85)',
-  'rgba(225, 29, 72, 1)',
+  'color-mix(in srgb, var(--chart-1) 25%, transparent)',
+  'color-mix(in srgb, var(--chart-1) 45%, transparent)',
+  'color-mix(in srgb, var(--chart-1) 55%, var(--chart-3))',
+  'color-mix(in srgb, var(--chart-3) 70%, var(--chart-1))',
+  'var(--chart-3)',
 ];
 
 function intensityToColor(intensity: number): string {

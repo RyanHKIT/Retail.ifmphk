@@ -5,12 +5,13 @@ import {
 } from 'recharts';
 import { fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { EnergyData } from '@/api/retail';
+import { ChartPanel } from '@/components/retail/ChartPanel';
 import { SourceChip } from '@/components/retail/SourceChip';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
-import { chartTooltipStyle } from '@/lib/chartStyle';
+import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 import type { MessageKey } from '@/i18n/messages';
 
 export function EnergyPage() {
@@ -83,27 +84,27 @@ export function EnergyPage() {
       </p>
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('energy.avgTemp')}</div>
           <div><span className="kpi-value">{summary.avg_temp_c}</span><span className="kpi-unit">°C</span></div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('energy.avgHumidity')}</div>
           <div><span className="kpi-value">{summary.avg_humidity_pct}</span><span className="kpi-unit">%</span></div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('energy.todayKwh')}</div>
           <div><span className="kpi-value">{summary.today_kwh}</span><span className="kpi-unit">kWh</span></div>
           <div className={`kpi-change ${summary.change_pct < 0 ? 'up' : 'down'}`}>
             {t('common.vsYesterday')} {summary.change_pct}%
           </div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('energy.estCost')}</div>
           <div><span className="kpi-value">{summary.est_cost_hkd}</span><span className="kpi-unit">HKD</span></div>
           <div className="kpi-change">@{summary.tariff_hkd_per_kwh}/kWh</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card chart-enter">
           <div className="kpi-label">{t('energy.power')}</div>
           <div>
             <span className="kpi-value">{meter?.power_kw ?? '—'}</span>
@@ -143,8 +144,7 @@ export function EnergyPage() {
       </div>
 
       <div className="grid-2">
-        <div className="card">
-          <div className="card-title">{t('energy.climate')}</div>
+        <ChartPanel title={t('energy.climate')}>
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={climateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -153,21 +153,21 @@ export function EnergyPage() {
               <YAxis yAxisId="right" orientation="right" stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
               <Legend />
-              <Line yAxisId="left" type="monotone" dataKey={tempKey} stroke="#e11d48" strokeWidth={2} dot={false} />
-              <Line yAxisId="left" type="monotone" dataKey={humKey} stroke="#06b6d4" strokeWidth={2} dot={false} />
+              <Line yAxisId="left" type="monotone" dataKey={tempKey} stroke={CHART[3]} strokeWidth={2} dot={false} />
+              <Line yAxisId="left" type="monotone" dataKey={humKey} stroke={CHART[2]} strokeWidth={2} dot={false} />
               <Area
                 yAxisId="right"
                 type="monotone"
                 dataKey={occKey}
-                fill="rgba(139,92,246,0.2)"
-                stroke="#8b5cf6"
+                fill={CHART[4]}
+                fillOpacity={0.2}
+                stroke={CHART[4]}
                 strokeWidth={1.5}
               />
             </ComposedChart>
           </ResponsiveContainer>
-        </div>
-        <div className="card">
-          <div className="card-title">{t('energy.powerMix')}</div>
+        </ChartPanel>
+        <ChartPanel title={t('energy.powerMix')}>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={powerData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -175,9 +175,9 @@ export function EnergyPage() {
               <YAxis stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
               <Legend />
-              <Bar dataKey={hvacKey} stackId="a" fill="#e11d48" />
-              <Bar dataKey={lightingKey} stackId="a" fill="#f59e0b" />
-              <Bar dataKey={otherKey} stackId="a" fill="#71717a" radius={[4, 4, 0, 0]} />
+              <Bar dataKey={hvacKey} stackId="a" fill={CHART[1]} />
+              <Bar dataKey={lightingKey} stackId="a" fill={CHART[3]} />
+              <Bar dataKey={otherKey} stackId="a" fill={CHART[4]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <div className="legend-row" style={{ marginTop: 8 }}>
@@ -185,21 +185,20 @@ export function EnergyPage() {
             <span>{lightingKey} {summary.lighting_share_pct}%</span>
             <span>{otherKey} {summary.other_share_pct}%</span>
           </div>
-        </div>
+        </ChartPanel>
       </div>
 
-      <div className="card" style={{ marginTop: 20, marginBottom: 20 }}>
-        <div className="card-title">{t('energy.hourlyKwh')}</div>
+      <ChartPanel title={t('energy.hourlyKwh')} style={{ marginTop: 20, marginBottom: 20 }}>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={powerData}>
             <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
             <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
             <YAxis stroke={chart.axis} fontSize={11} />
             <Tooltip contentStyle={chartTooltipStyle(chart)} />
-            <Area type="monotone" dataKey={kwhKey} stroke="#22c55e" fill="rgba(34,197,94,0.2)" strokeWidth={2} />
+            <Area type="monotone" dataKey={kwhKey} stroke={CHART[1]} fill={CHART[1]} fillOpacity={0.2} strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
-      </div>
+      </ChartPanel>
 
       <div className="card" style={{ marginBottom: 20 }}>
         <div className="card-title">{t('energy.rules')}</div>
