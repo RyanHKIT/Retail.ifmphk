@@ -66,3 +66,16 @@ test('saveRuleOverrides fires a retail-settings window event', () => {
     window.removeEventListener('retail-settings', onSettings)
   }
 })
+
+test('clearRuleOverrides fires a retail-settings window event', () => {
+  saveRuleOverrides(sample)
+  const seen: string[] = []
+  const onSettings = () => seen.push('retail-settings')
+  window.addEventListener('retail-settings', onSettings)
+  try {
+    clearRuleOverrides()
+    expect(seen).toEqual(['retail-settings'])
+  } finally {
+    window.removeEventListener('retail-settings', onSettings)
+  }
+})

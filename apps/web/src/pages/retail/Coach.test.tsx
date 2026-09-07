@@ -7,7 +7,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
-import { saveRuleOverrides } from '@/lib/settingsStore'
+import { clearRuleOverrides, saveRuleOverrides } from '@/lib/settingsStore'
 import { CoachPage } from './Coach'
 
 const mockDir = resolve(
@@ -97,6 +97,27 @@ test('retail-settings event updates subtitle without remount', async () => {
     expect(screen.getByText(/≥180s/)).toBeInTheDocument()
   })
   expect(screen.getByText(/首次接觸 45s/)).toBeInTheDocument()
+})
+
+test('retail-settings event on reset restores default subtitle', async () => {
+  saveRuleOverrides({
+    dwell_threshold_sec: 180,
+    staff_proximity_m: 3,
+    first_contact_sec: 45,
+    overstaff_multiplier: 1.5,
+  })
+  renderCoach()
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務教練' })).toBeInTheDocument()
+  })
+  expect(screen.getByText(/≥180s/)).toBeInTheDocument()
+
+  clearRuleOverrides()
+
+  await waitFor(() => {
+    expect(screen.getByText(/≥120s/)).toBeInTheDocument()
+  })
+  expect(screen.getByText(/首次接觸 90s/)).toBeInTheDocument()
 })
 
 test('on mount reads ?zone= and filters the coach list', async () => {

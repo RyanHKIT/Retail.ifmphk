@@ -9,7 +9,7 @@ import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
 import { isDispatched, listDispatched } from '@/lib/dispatchStore'
-import { saveRuleOverrides } from '@/lib/settingsStore'
+import { clearRuleOverrides, saveRuleOverrides } from '@/lib/settingsStore'
 import { ServiceGapPage } from './ServiceGap'
 
 const mockDir = resolve(
@@ -116,4 +116,25 @@ test('retail-settings event updates rule banner without remount', async () => {
     expect(screen.getByText(/規則：等候 ≥ 3 分鐘/)).toBeInTheDocument()
   })
   expect(screen.getByText(/首次接觸 SLA 45s/)).toBeInTheDocument()
+})
+
+test('retail-settings event on reset restores default rule banner', async () => {
+  saveRuleOverrides({
+    dwell_threshold_sec: 180,
+    staff_proximity_m: 3,
+    first_contact_sec: 45,
+    overstaff_multiplier: 1.5,
+  })
+  renderGap()
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務缺口' })).toBeInTheDocument()
+  })
+  expect(screen.getByText(/規則：等候 ≥ 3 分鐘/)).toBeInTheDocument()
+
+  clearRuleOverrides()
+
+  await waitFor(() => {
+    expect(screen.getByText(/規則：等候 ≥ 2 分鐘/)).toBeInTheDocument()
+  })
+  expect(screen.getByText(/首次接觸 SLA 90s/)).toBeInTheDocument()
 })

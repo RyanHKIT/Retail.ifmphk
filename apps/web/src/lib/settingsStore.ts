@@ -47,4 +47,7 @@ export function saveRuleOverrides(rules: RetailRules) {
 
 export function clearRuleOverrides() {
   sessionStorage.removeItem(KEY);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('retail-settings'));
+  }
 }
