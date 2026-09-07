@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { FunnelStage, FootfallHourly, PassbyHourly, FootfallEvent, CameraSnapshot } from '@/api/retail';
@@ -68,6 +68,8 @@ export function FootfallPage() {
   })) ?? [];
 
   const enterStage = funnel.find((s) => s.id === 'enter');
+  const passbyStage = funnel.find((s) => s.id === 'passby');
+  const missStage = funnel.find((s) => s.id === 'not_entered');
 
   const dirBadge = (d: string) => {
     if (d === 'enter') return <span className="badge badge-enter">{t('footfall.enter')}</span>;
@@ -94,39 +96,57 @@ export function FootfallPage() {
         <span className="source-hint-label">{t('footfall.storyLabel')}</span>
         <SourceChip source="counter" />
         <span className="source-hint-copy">{t('footfall.story')}</span>
-        {enterStage && (
-          <span className="rule-chip">
-            {t('footfall.enterRate')} {enterStage.rate}%
-          </span>
-        )}
       </div>
 
-      <ChartPanel title={t('footfall.funnel')} style={{ marginBottom: 20 }}>
+      <section className="counter-hero chart-enter" aria-label={t('footfall.enter')}>
+        <div className="counter-hero-lead">
+          <div className="situation-label">{enterStage?.label ?? t('footfall.enter')}</div>
+          <div>
+            <span className="counter-hero-value">{(enterStage?.value ?? 0).toLocaleString()}</span>
+            <span className="situation-unit">{t('footfall.unitPeople')}</span>
+          </div>
+          {enterStage && (
+            <div className="rule-chip">{t('footfall.enterRate')} {enterStage.rate}%</div>
+          )}
+        </div>
+        <div className="counter-hero-facts">
+          <div className="counter-hero-fact">
+            <span className="situation-label">{passbyStage?.label ?? passbyKey}</span>
+            <span className="counter-hero-fact-value">{(passbyStage?.value ?? passby?.summary.passby_total ?? 0).toLocaleString()}</span>
+          </div>
+          <div className="counter-hero-fact">
+            <span className="situation-label">{missStage?.label ?? t('footfall.notEntered')}</span>
+            <span className="counter-hero-fact-value">{(missStage?.value ?? passby?.summary.not_entered_total ?? 0).toLocaleString()}</span>
+          </div>
+        </div>
+      </section>
+
+      <ChartPanel title={t('footfall.funnel')} className="funnel-panel" staggerIndex={1}>
         <div className="funnel">
-          {funnel.map((stage) => (
-            <div key={stage.id} className="funnel-stage">
-              <span className="funnel-label">{stage.label}</span>
-              <div className="funnel-bar-wrap">
-                <div
-                  className="funnel-bar"
-                  style={{ width: `${maxFunnel ? (stage.value / maxFunnel) * 100 : 0}%` }}
-                >
-                  {stage.value.toLocaleString()}
+          {funnel.map((stage) => {
+            const ratio = maxFunnel ? stage.value / maxFunnel : 0;
+            return (
+              <div key={stage.id} className="funnel-stage">
+                <span className="funnel-label">{stage.label}</span>
+                <div className="funnel-bar-wrap">
+                  <div
+                    className={stage.mock ? 'funnel-bar-fill is-mock' : 'funnel-bar-fill'}
+                    style={{ '--funnel-scale': String(ratio) } as CSSProperties}
+                  />
                 </div>
+                <span className="funnel-value">{stage.value.toLocaleString()}</span>
+                <span className="funnel-rate">{stage.rate}%</span>
               </div>
-              <span className="funnel-rate">{stage.rate}%</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {funnel.find((s) => s.mock) && (
-          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 12 }}>
-            * 購買轉化為 Phase 2 POS 對接，目前為 Mock
-          </p>
+          <p className="funnel-note">{t('footfall.mockPurchase')}</p>
         )}
       </ChartPanel>
 
       <div className="grid-2">
-        <ChartPanel title={t('footfall.inOut')}>
+        <ChartPanel title={t('footfall.inOut')} staggerIndex={2}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={inOutData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -139,9 +159,11 @@ export function FootfallPage() {
             </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
-        <ChartPanel title={t('footfall.passby')}>
-          <p style={{ fontSize: '0.85rem', marginBottom: 12, color: 'var(--text-secondary)' }}>
-            今日未進店 <strong style={{ color: 'var(--text-primary)' }}>{passby?.summary.not_entered_total.toLocaleString()}</strong> 人
+        <ChartPanel title={t('footfall.passby')} staggerIndex={3}>
+          <p className="support-metric">
+            {t('footfall.notEntered')}{' '}
+            <strong>{passby?.summary.not_entered_total.toLocaleString()}</strong>
+            {' '}{t('footfall.unitPeople')}
             （{passby?.summary.not_entered_rate}%）
           </p>
           <ResponsiveContainer width="100%" height={180}>
@@ -156,17 +178,20 @@ export function FootfallPage() {
         </ChartPanel>
       </div>
 
-      <div className="grid-2" style={{ marginBottom: 20 }}>
+      <div className="grid-2 camera-support">
         {cameras.map((cam) => (
           <div key={cam.camera_id} className="card">
             <div className="card-title">{cam.name} · {cam.camera_id}</div>
             <div className="camera-card">
-              <span className="camera-status">● 在線</span>
-              <span className="camera-label">實時畫面（Demo 佔位）</span>
+              <span className="camera-status">
+                <span className="status-dot" />
+                {t('footfall.online')}
+              </span>
+              <span className="camera-label">{t('footfall.cameras')}</span>
               <span className="camera-stat">
                 {cam.camera_id === 'CAM-01'
-                  ? `過店 ${cam.last_count?.passby_today ?? 0}`
-                  : `進店 ${cam.last_count?.enter_today ?? 0}`}
+                  ? `${passbyKey} ${cam.last_count?.passby_today ?? 0}`
+                  : `${t('footfall.enter')} ${cam.last_count?.enter_today ?? 0}`}
               </span>
             </div>
           </div>
@@ -192,9 +217,9 @@ export function FootfallPage() {
             <tbody>
               {events.map((e) => (
                 <tr key={e.event_id}>
-                  <td style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem' }}>{e.timestamp.slice(11, 19)}</td>
+                  <td className="tabular-cell">{e.timestamp.slice(11, 19)}</td>
                   <td>{dirBadge(e.direction)}</td>
-                  <td style={{ fontFamily: 'var(--mono)', fontSize: '0.7rem' }}>{e.track_id}</td>
+                  <td className="tabular-cell">{e.track_id}</td>
                   <td>{roleBadge(e.role)}</td>
                   <td>{(e.role_confidence * 100).toFixed(0)}%</td>
                   <td>{e.camera_id}</td>

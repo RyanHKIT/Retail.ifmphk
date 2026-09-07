@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type SVGProps } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
@@ -15,6 +15,18 @@ import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
 
 type HeatMetric = 'visits' | 'dwell' | 'composite';
+
+const clickGlyph: SVGProps<SVGSVGElement> = {
+  width: 16,
+  height: 16,
+  viewBox: '0 0 16 16',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.5,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  'aria-hidden': true,
+};
 
 function heatForMetric(zones: HeatmapData['zones'], metric: HeatMetric): HeatmapData['zones'] {
   if (metric === 'composite') return zones;
@@ -98,19 +110,15 @@ export function JourneyPage() {
         <span className="source-hint-copy">{t('journey.story')}</span>
       </div>
 
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div className="card-title" style={{ marginBottom: 0 }}>{t('journey.heatmap')}</div>
-          <div style={{ display: 'flex', gap: 8 }}>
+      <section className="journey-hero card chart-enter">
+        <div className="journey-hero-head">
+          <h2 className="card-title">{t('journey.heatmap')}</h2>
+          <div className="seg-toggle" role="group" aria-label={t('journey.heatmap')}>
             {(['composite', 'visits', 'dwell'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
-                className="filter-select"
-                style={{
-                  background: metric === m ? 'var(--accent-soft)' : undefined,
-                  color: metric === m ? 'var(--accent)' : undefined,
-                }}
+                className={metric === m ? 'is-active' : undefined}
                 onClick={() => setMetric(m)}
               >
                 {m === 'composite' ? t('journey.composite') : m === 'visits' ? t('journey.visits') : t('journey.dwell')}
@@ -122,6 +130,7 @@ export function JourneyPage() {
           <FloorHeatmap
             zones={zones.zones}
             heat={heatZones}
+            hero
             onZoneClick={(zone) => {
               setFocus({ zoneId: zone.zone_id, zoneName: zone.name });
               navigate(`/retail/service-gap?zone=${zone.zone_id}`);
@@ -130,15 +139,20 @@ export function JourneyPage() {
         ) : (
           <div className="empty-state">{t('journey.empty')}</div>
         )}
-        <div className="legend-row">
+        <div className="legend-row journey-hero-legend">
           <span><span className="legend-dot" style={{ background: 'color-mix(in srgb, var(--chart-1) 25%, transparent)' }} />{t('journey.low')}</span>
           <span><span className="legend-dot" style={{ background: 'var(--chart-3)' }} />{t('journey.high')}</span>
-          <span style={{ marginLeft: 'auto' }}>{t('journey.hover')}</span>
+          <span className="journey-click-hint">
+            <svg {...clickGlyph}>
+              <path d="M4 2.5v8.5l2.2-2.1 1.3 3.2 1.5-.6-1.3-3.1H12z" />
+            </svg>
+            {t('journey.click')}
+          </span>
         </div>
-      </div>
+      </section>
 
       <div className="grid-2">
-        <ChartPanel title={t('journey.dwellRank')}>
+        <ChartPanel title={t('journey.dwellRank')} staggerIndex={1}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dwellBarData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -152,7 +166,7 @@ export function JourneyPage() {
             </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
-        <ChartPanel title={t('journey.dwellTrend')}>
+        <ChartPanel title={t('journey.dwellTrend')} staggerIndex={2}>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -168,7 +182,7 @@ export function JourneyPage() {
         </ChartPanel>
       </div>
 
-      <div className="card" style={{ marginTop: 20 }}>
+      <div className="card chart-enter" style={{ animationDelay: 'calc(3 * var(--duration-enter-stagger))' }}>
         <div className="card-title">{t('journey.paths')}</div>
         {paths.length === 0 ? (
           <div className="empty-state">{t('journey.empty')}</div>
@@ -178,7 +192,7 @@ export function JourneyPage() {
               <span className="path-rank">{p.rank}</span>
               <span className="path-flow">{p.path_labels.join(' → ')}</span>
               <span className="path-pct">{p.percentage}%</span>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>({p.count} 人)</span>
+              <span className="path-count">{p.count} {t('footfall.unitPeople')}</span>
             </div>
           ))
         )}

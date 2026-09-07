@@ -1,3 +1,4 @@
+import type { SVGProps } from 'react';
 import type { ZonesData, HeatmapData } from '@/api/retail';
 
 const INTENSITY_COLORS = [
@@ -13,24 +14,43 @@ function intensityToColor(intensity: number): string {
   return INTENSITY_COLORS[idx] ?? INTENSITY_COLORS[0];
 }
 
+const chevron: SVGProps<SVGSVGElement> = {
+  width: 12,
+  height: 12,
+  viewBox: '0 0 16 16',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.5,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  'aria-hidden': true,
+};
+
 interface FloorHeatmapProps {
   zones: ZonesData['zones'];
   heat?: HeatmapData['zones'];
   compact?: boolean;
+  hero?: boolean;
   onZoneClick?: (zone: ZonesData['zones'][number]) => void;
 }
 
-export function FloorHeatmap({ zones, heat, compact, onZoneClick }: FloorHeatmapProps) {
+export function FloorHeatmap({ zones, heat, compact, hero, onZoneClick }: FloorHeatmapProps) {
   const heatMap = new Map(heat?.map((z) => [z.zone_id, z]) ?? []);
+  const clickable = Boolean(onZoneClick);
+  const planClass = [
+    'floor-plan',
+    compact ? 'floor-plan--compact' : '',
+    hero ? 'floor-plan--hero' : '',
+    clickable ? 'floor-plan--clickable' : '',
+  ].filter(Boolean).join(' ');
 
   return (
-    <div className="floor-plan" style={compact ? { aspectRatio: '16/8' } : undefined}>
+    <div className={planClass}>
       {zones
         .filter((z) => z.zone_id !== 'entrance' || !compact)
         .map((zone) => {
           const h = heatMap.get(zone.zone_id);
-          const bg = h ? intensityToColor(h.intensity) : 'rgba(42,42,52,0.6)';
-          const clickable = Boolean(onZoneClick);
+          const bg = h ? intensityToColor(h.intensity) : 'color-mix(in srgb, var(--ink-muted) 28%, transparent)';
           return (
             <div
               key={zone.zone_id}
@@ -50,7 +70,6 @@ export function FloorHeatmap({ zones, heat, compact, onZoneClick }: FloorHeatmap
                 width: `${zone.bbox.w}%`,
                 height: `${zone.bbox.h}%`,
                 background: bg,
-                border: '1px solid rgba(255,255,255,0.1)',
               }}
               title={h ? `${h.visit_count} 人次 · ${Math.round(h.avg_dwell_sec / 60)}m 停留` : zone.name}
             >
@@ -58,19 +77,11 @@ export function FloorHeatmap({ zones, heat, compact, onZoneClick }: FloorHeatmap
             </div>
           );
         })}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 8,
-          left: 8,
-          fontSize: '0.65rem',
-          color: 'var(--text-muted)',
-          background: 'rgba(0,0,0,0.5)',
-          padding: '4px 8px',
-          borderRadius: 4,
-        }}
-      >
-        入口 ↓
+      <div className="floor-entrance">
+        <svg {...chevron}>
+          <path d="M3 6l5 5 5-5" />
+        </svg>
+        入口
       </div>
     </div>
   );

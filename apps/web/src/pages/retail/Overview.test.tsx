@@ -75,6 +75,9 @@ test('pending dispatch CTA links to /retail/service-gap', async () => {
   expect(screen.getByText(/尚有 7 則未標記調度/)).toBeInTheDocument()
   expect(document.querySelector('.overview-next-action')).toBeTruthy()
   expect(document.querySelector('.overview-situation')).toBeTruthy()
+  expect(document.querySelector('.situation-cell--lead')).toBeTruthy()
+  expect(document.querySelectorAll('.overview-situation .kpi-card').length).toBe(0)
+  expect(document.querySelector('.overview-kicker')).toBeNull()
 })
 
 test('hides dispatch CTA when every gap is already dispatched', async () => {
