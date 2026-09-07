@@ -34,3 +34,25 @@ test('shows 繁中 sample-sharing banner when store is not primary demo store', 
   fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'it-tst' } })
   expect(screen.getByText('示範數據共用樣本；切換門店僅切換標籤')).toBeInTheDocument()
 })
+
+test('nav uses SVG glyphs instead of emoji or unicode icons', () => {
+  const { container } = renderShell()
+  const nav = container.querySelector('aside nav')
+  expect(nav).toBeTruthy()
+  expect(nav?.querySelectorAll('.nav-icon svg').length).toBe(9)
+  expect(nav?.textContent).not.toMatch(/[◉⇄◎👤⚠☰★⚡⚙]/)
+})
+
+test('chrome copy has no zip emoji residue', () => {
+  renderShell()
+  expect(screen.getByText('3 條告警')).toBeInTheDocument()
+  expect(screen.getByText('返回 IFMP 首頁')).toBeInTheDocument()
+  expect(screen.queryByText(/🔔|🌙|☀️|←/)).not.toBeInTheDocument()
+})
+
+test('sidebar groups evidence and action nav', () => {
+  renderShell()
+  expect(screen.getByText('現場')).toBeInTheDocument()
+  expect(screen.getByText('行動')).toBeInTheDocument()
+  expect(screen.getByText('設施')).toBeInTheDocument()
+})
