@@ -40,6 +40,9 @@ export function getDisplayRules(): RetailRules {
 
 export function saveRuleOverrides(rules: RetailRules) {
   sessionStorage.setItem(KEY, JSON.stringify(rules));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('retail-settings'));
+  }
 }
 
 export function clearRuleOverrides() {

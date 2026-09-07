@@ -79,6 +79,26 @@ test('subtitle reads dwell and first_contact from settingsStore', async () => {
   expect(screen.getByText(/首次接觸 45s/)).toBeInTheDocument()
 })
 
+test('retail-settings event updates subtitle without remount', async () => {
+  renderCoach()
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務教練' })).toBeInTheDocument()
+  })
+  expect(screen.getByText(/≥120s/)).toBeInTheDocument()
+
+  saveRuleOverrides({
+    dwell_threshold_sec: 180,
+    staff_proximity_m: 3,
+    first_contact_sec: 45,
+    overstaff_multiplier: 1.5,
+  })
+
+  await waitFor(() => {
+    expect(screen.getByText(/≥180s/)).toBeInTheDocument()
+  })
+  expect(screen.getByText(/首次接觸 45s/)).toBeInTheDocument()
+})
+
 test('on mount reads ?zone= and filters the coach list', async () => {
   renderCoach('/retail/coach?zone=fitting_room')
   await waitFor(() => {

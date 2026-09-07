@@ -36,10 +36,20 @@ export function ServiceGapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reload, setReload] = useState(0);
-  const rules = getDisplayRules();
+  const [rules, setRules] = useState(getDisplayRules);
   const dwellSec = rules.dwell_threshold_sec;
   const slaSec = rules.first_contact_sec;
   const dwellMin = Math.max(1, Math.round(dwellSec / 60));
+
+  useEffect(() => {
+    const refreshRules = () => setRules(getDisplayRules());
+    window.addEventListener('retail-settings', refreshRules);
+    window.addEventListener('storage', refreshRules);
+    return () => {
+      window.removeEventListener('retail-settings', refreshRules);
+      window.removeEventListener('storage', refreshRules);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

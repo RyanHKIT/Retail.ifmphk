@@ -54,3 +54,15 @@ test('getDisplayRules uses defaults then overlays store', () => {
   expect(getDisplayRules().dwell_threshold_sec).toBe(180)
   expect(getDisplayRules().first_contact_sec).toBe(60)
 })
+
+test('saveRuleOverrides fires a retail-settings window event', () => {
+  const seen: string[] = []
+  const onSettings = () => seen.push('retail-settings')
+  window.addEventListener('retail-settings', onSettings)
+  try {
+    saveRuleOverrides(sample)
+    expect(seen).toEqual(['retail-settings'])
+  } finally {
+    window.removeEventListener('retail-settings', onSettings)
+  }
+})
