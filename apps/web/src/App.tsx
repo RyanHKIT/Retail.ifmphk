@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
+import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailShell } from '@/components/retail/RetailShell'
 import { OverviewPage } from '@/pages/retail/Overview'
 import { FootfallPage } from '@/pages/retail/Footfall'
@@ -121,7 +122,9 @@ export default function App() {
           <RetailLocaleProvider>
             <RetailThemeProvider>
               <RetailFilterProvider>
-                <RetailShell />
+                <DemoSpineProvider>
+                  <RetailShell />
+                </DemoSpineProvider>
               </RetailFilterProvider>
             </RetailThemeProvider>
           </RetailLocaleProvider>
