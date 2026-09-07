@@ -37,7 +37,7 @@ Settings page unchanged — `persist()` already calls `saveRuleOverrides`, which
 
 ## Fix: reset emits `retail-settings` (2026-09-07)
 
-**Commit:** `f4b0b2a` — `fix: emit retail-settings on threshold reset`
+**Commit:** `8ec5090` — `fix: emit retail-settings on threshold reset`
 
 `clearRuleOverrides` now dispatches `retail-settings` (same as `saveRuleOverrides`), so Settings reset live-refreshes Gap/Coach without navigation.
 
