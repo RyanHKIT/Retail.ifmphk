@@ -120,11 +120,12 @@ test('retail-settings event on reset restores default subtitle', async () => {
   expect(screen.getByText(/首次接觸 90s/)).toBeInTheDocument()
 })
 
-test('on mount reads ?zone= and filters the coach list', async () => {
+test('on mount reads ?zone= and shows prefilter banner', async () => {
   renderCoach('/retail/coach?zone=fitting_room')
   await waitFor(() => {
     expect(screen.getByRole('heading', { name: '服務教練' })).toBeInTheDocument()
   })
+  expect(document.querySelector('.prefilter-banner')).toHaveTextContent('已篩 試衣間')
   expect(screen.getByLabelText('區域')).toHaveValue('fitting_room')
   const cards = [...document.querySelectorAll('.coach-card')]
   expect(cards.length).toBeGreaterThan(0)

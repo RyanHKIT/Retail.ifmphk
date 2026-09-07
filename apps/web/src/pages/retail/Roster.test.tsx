@@ -79,6 +79,8 @@ test('shows 需求 and 週更表 section tabs', async () => {
   })
   expect(screen.getByRole('tab', { name: '需求' })).toBeInTheDocument()
   expect(screen.getByRole('tab', { name: '週更表' })).toBeInTheDocument()
+  expect(document.querySelectorAll('.grid-kpi .kpi-card').length).toBe(0)
+  expect(document.querySelector('.situation-cell--lead')).toBeTruthy()
 
   fireEvent.click(screen.getByRole('tab', { name: '週更表' }))
   expect(screen.getByText(/週起 2026-09-01/)).toBeInTheDocument()

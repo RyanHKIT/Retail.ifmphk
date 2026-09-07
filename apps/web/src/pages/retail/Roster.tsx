@@ -13,6 +13,7 @@ import { SpineNav } from '@/components/retail/SpineNav';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { loadSuggestedOverride, saveSuggestedOverride, clearSuggestedOverride } from '@/lib/rosterStore';
+import { loadBoard } from '@/lib/rosterBoardStore';
 import { zoneToStation } from '@/lib/demoSpine';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
@@ -96,6 +97,7 @@ export function RosterPage() {
   const exp = t('roster.expectedSeries');
   const det = t('roster.detectedSeries');
   const ent = t('roster.enterSeries');
+  const boardState = loadBoard();
 
   return (
     <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
@@ -139,26 +141,40 @@ export function RosterPage() {
 
           {section === 'demand' && (
             <>
-              <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                <div className="kpi-card chart-enter">
-                  <div className="kpi-label">{t('roster.peak')}</div>
-                  <div><span className="kpi-value" style={{ fontSize: '1.4rem' }}>{plan.summary.peak_hour}</span></div>
+              <section
+                className="overview-situation situation-strip chart-enter"
+                aria-label={t('roster.sectionDemand')}
+              >
+                <div className="situation-cell situation-cell--lead">
+                  <div className="situation-label">{t('roster.maxGap')}</div>
+                  <div>
+                    <span className="situation-value">{plan.summary.max_gap}</span>
+                    <span className="situation-unit">{t('roster.people')}</span>
+                  </div>
                 </div>
-                <div className="kpi-card chart-enter">
-                  <div className="kpi-label">{t('roster.maxGap')}</div>
-                  <div><span className="kpi-value">{plan.summary.max_gap}</span><span className="kpi-unit">{t('roster.people')}</span></div>
+                <div className="situation-cell">
+                  <div className="situation-label">{t('roster.peak')}</div>
+                  <div>
+                    <span className="situation-value">{plan.summary.peak_hour}</span>
+                  </div>
                 </div>
-                <div className="kpi-card chart-enter">
-                  <div className="kpi-label">{t('roster.underHours')}</div>
-                  <div><span className="kpi-value">{plan.summary.under_hours}</span><span className="kpi-unit">h</span></div>
+                <div className="situation-cell">
+                  <div className="situation-label">{t('roster.underHours')}</div>
+                  <div>
+                    <span className="situation-value">{plan.summary.under_hours}</span>
+                    <span className="situation-unit">h</span>
+                  </div>
                 </div>
-                <div className="kpi-card chart-enter">
-                  <div className="kpi-label">{t('roster.overHours')}</div>
-                  <div><span className="kpi-value">{plan.summary.over_hours}</span><span className="kpi-unit">h</span></div>
+                <div className="situation-cell">
+                  <div className="situation-label">{t('roster.overHours')}</div>
+                  <div>
+                    <span className="situation-value">{plan.summary.over_hours}</span>
+                    <span className="situation-unit">h</span>
+                  </div>
                 </div>
-              </div>
+              </section>
 
-              <ChartPanel title={t('roster.chart')} style={{ marginBottom: 20 }}>
+              <ChartPanel title={t('roster.chart')} style={{ marginBottom: 20 }} staggerIndex={1}>
                 <ResponsiveContainer width="100%" height={280}>
                   <ComposedChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
@@ -219,7 +235,29 @@ export function RosterPage() {
             </>
           )}
 
-          {section === 'board' && <RosterWeekBoard highlightStation={highlightStation} />}
+          {section === 'board' && (
+            <>
+              <section
+                className="overview-situation situation-strip chart-enter roster-board-situation"
+                aria-label={t('roster.sectionBoard')}
+              >
+                <div className="situation-cell situation-cell--lead">
+                  <div className="situation-label">{t('roster.boardTarget')}</div>
+                  <div>
+                    <span className="situation-value">{boardState.targetHeadcount}</span>
+                    <span className="situation-unit">{t('roster.people')}</span>
+                  </div>
+                </div>
+                <div className="situation-cell">
+                  <div className="situation-label">{t('roster.sectionBoard')}</div>
+                  <div>
+                    <span className="situation-value">{boardState.weekStart}</span>
+                  </div>
+                </div>
+              </section>
+              <RosterWeekBoard highlightStation={highlightStation} />
+            </>
+          )}
         </>
       )}
     </PageStatus>

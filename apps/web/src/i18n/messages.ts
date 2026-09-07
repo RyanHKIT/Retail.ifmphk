@@ -174,6 +174,9 @@ const zhHant = {
   'gap.rule': '規則：等候 ≥ {min} 分鐘',
   'gap.sla': '首次接觸 SLA {sec}s',
   'gap.empty': '今日尚無服務缺口',
+  'gap.pendingDispatch': '待調度',
+  'gap.dispatchHero': '調度下一則',
+  'gap.situation': '今日缺口',
 
   'roster.title': '排班建議',
   'roster.subtitle': '依門禁客流建議人手 · 可對照應到 / 實測',
@@ -198,6 +201,8 @@ const zhHant = {
   'roster.people': '人',
   'roster.sectionDemand': '需求',
   'roster.sectionBoard': '週更表',
+  'roster.boardTarget': '目標人手',
+  'roster.boardConflicts': '衝突提示',
 
   'coach.title': '服務教練',
   'coach.subtitle': '缺口回放案例（≥{sec}s）· 首次接觸 {sla}s · VL 摘要 · 週會素材（套餐 B）',
@@ -209,6 +214,8 @@ const zhHant = {
   'coach.customers': '顧客',
   'coach.staff': '員工',
   'coach.clip': '片段',
+  'coach.filterBanner': '已篩 {zone}',
+  'coach.filterGap': '已鎖定案例 · {zone}',
 
   'energy.title': 'IoT 溫度與能源管理',
   'energy.subtitle': '感測更新 {time}',
@@ -243,6 +250,8 @@ const zhHant = {
   'energy.occ': '客流指數',
   'energy.kwh': '用電度',
   'energy.battery': '電量',
+  'energy.situation': '環境概況',
+  'energy.suggestNote': '示範模式 — 規則僅顯示建議，無法聯動執行',
 
   'settings.title': '設定',
   'settings.subtitle': '告警規則與區域標準（Demo 僅存本機）',
@@ -432,6 +441,9 @@ const zhHans: Dict = {
   'gap.rule': '规则：等候 ≥ {min} 分钟',
   'gap.sla': '首次接触 SLA {sec}s',
   'gap.empty': '今日尚无服务缺口',
+  'gap.pendingDispatch': '待调度',
+  'gap.dispatchHero': '调度下一则',
+  'gap.situation': '今日缺口',
 
   'roster.title': '排班建议',
   'roster.subtitle': '依门禁客流建议人手 · 可对照应到 / 实测',
@@ -456,6 +468,8 @@ const zhHans: Dict = {
   'roster.people': '人',
   'roster.sectionDemand': '需求',
   'roster.sectionBoard': '周更表',
+  'roster.boardTarget': '目标人手',
+  'roster.boardConflicts': '冲突提示',
 
   'coach.title': '服务教练',
   'coach.subtitle': '缺口回放案例（≥{sec}s）· 首次接触 {sla}s · VL 摘要 · 周会素材（套餐 B）',
@@ -467,6 +481,8 @@ const zhHans: Dict = {
   'coach.customers': '顾客',
   'coach.staff': '员工',
   'coach.clip': '片段',
+  'coach.filterBanner': '已筛 {zone}',
+  'coach.filterGap': '已锁定案例 · {zone}',
 
   'energy.title': 'IoT 温度与能源管理',
   'energy.subtitle': '传感更新 {time}',
@@ -501,6 +517,8 @@ const zhHans: Dict = {
   'energy.occ': '客流指数',
   'energy.kwh': '用电度',
   'energy.battery': '电量',
+  'energy.situation': '环境概况',
+  'energy.suggestNote': '示范模式 — 规则仅显示建议，无法联动执行',
 
   'settings.title': '设置',
   'settings.subtitle': '告警规则与区域标准（Demo 仅存本地）',
@@ -688,6 +706,9 @@ const en: Dict = {
   'gap.rule': 'Rule: wait ≥ {min} min',
   'gap.sla': 'First-contact SLA {sec}s',
   'gap.empty': 'No service gaps today',
+  'gap.pendingDispatch': 'Pending dispatch',
+  'gap.dispatchHero': 'Dispatch next',
+  'gap.situation': "Today's gaps",
 
   'roster.title': 'Roster planner',
   'roster.subtitle': 'Staffing from door-counter footfall vs expected / detected',
@@ -712,6 +733,8 @@ const en: Dict = {
   'roster.people': 'ppl',
   'roster.sectionDemand': 'Demand',
   'roster.sectionBoard': 'Week board',
+  'roster.boardTarget': 'Target headcount',
+  'roster.boardConflicts': 'Conflicts',
 
   'coach.title': 'Service coach',
   'coach.subtitle': 'Gap replay cases (≥{sec}s) · first contact {sla}s · VL summary · weekly review (Package B)',
@@ -723,6 +746,8 @@ const en: Dict = {
   'coach.customers': 'Customers',
   'coach.staff': 'Staff',
   'coach.clip': 'Clip',
+  'coach.filterBanner': 'Filtered: {zone}',
+  'coach.filterGap': 'Case locked · {zone}',
 
   'energy.title': 'IoT temperature & energy',
   'energy.subtitle': 'Sensors updated {time}',
@@ -757,6 +782,8 @@ const en: Dict = {
   'energy.occ': 'Occupancy',
   'energy.kwh': 'kWh',
   'energy.battery': 'Battery',
+  'energy.situation': 'Environment',
+  'energy.suggestNote': 'Demo mode — rules show suggestions only; no execution',
 
   'settings.title': 'Settings',
   'settings.subtitle': 'Alert rules & zone standards (Demo, local only)',

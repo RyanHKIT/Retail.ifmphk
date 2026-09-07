@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
 
 export type HourBarStatus = 'ok' | 'under' | 'warning' | 'exceeded'
@@ -20,7 +21,7 @@ export function HourBar({
   max: number
   name: string
 }) {
-  const pct = max > 0 ? Math.min((hours / max) * 100, 100) : 0
+  const pct = max > 0 ? Math.min(hours / max, 1) : 0
   const status = hourBarStatus(hours, min, max)
 
   return (
@@ -29,7 +30,7 @@ export function HourBar({
       <div className="hour-bar__track" aria-hidden>
         <div
           className={cn('hour-bar__fill', `hour-bar__fill--${status}`)}
-          style={{ width: `${pct}%` }}
+          style={{ '--hour-bar-scale': String(pct) } as CSSProperties}
         />
       </div>
       <span className={cn('hour-bar__hours', status === 'exceeded' && 'hour-bar__hours--hot')}>

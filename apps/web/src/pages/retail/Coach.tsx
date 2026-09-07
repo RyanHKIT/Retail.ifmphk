@@ -92,6 +92,23 @@ export function CoachPage() {
     return matchesZone(e, zoneFilter);
   });
 
+  const filterZoneLabel = useMemo(() => {
+    if (queryGap) {
+      const hit = events.find((e) => e.gap_id === queryGap);
+      return hit?.zone_name ?? queryZone;
+    }
+    if (queryZone) {
+      const match = zones.find(([id, name]) => id === queryZone || name === queryZone);
+      return match?.[1] ?? queryZone;
+    }
+    if (zoneFilter !== 'all') {
+      return zones.find(([id]) => id === zoneFilter)?.[1] ?? zoneFilter;
+    }
+    return '';
+  }, [events, queryGap, queryZone, zoneFilter, zones]);
+
+  const showPrefilter = Boolean(queryZone || queryGap);
+
   const refresh = () => setDispatches(getDispatches());
 
   const onDispatch = (e: GapEvent) => {
@@ -107,6 +124,19 @@ export function CoachPage() {
         {storeLabel} · {t('coach.subtitle', { sec: dwellSec, sla: slaSec })}
       </p>
       <SpineNav />
+
+      {showPrefilter && filterZoneLabel && (
+        <div className="prefilter-banner" role="status">
+          <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+            <path d="M2 4h12M4 8h8M6 12h4" strokeLinecap="round" />
+          </svg>
+          <span>
+            {queryGap
+              ? t('coach.filterGap', { zone: filterZoneLabel })
+              : t('coach.filterBanner', { zone: filterZoneLabel })}
+          </span>
+        </div>
+      )}
 
       <div className="toolbar-row">
         <label className="filter-inline">
@@ -147,7 +177,7 @@ export function CoachPage() {
                   {done && <span className="badge badge-dispatched">{t('common.dispatched')}</span>}
                 </div>
               </div>
-              <div className="vl-box" style={{ marginTop: 12 }}>
+              <div className="coach-vl">
                 <div className="vl-box-label">{t('coach.vlLabel')}</div>
                 {items.length === 0 ? (
                   <p className="vl-empty">{t('coach.noVl')}</p>

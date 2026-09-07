@@ -75,7 +75,6 @@ export function EnergyPage() {
   const summary = data?.summary;
   const hasControl = Boolean(data?.has_control);
   const tempSensors = data?.sensors.filter((s) => s.temp_c != null) ?? [];
-  const meter = data?.sensors.find((s) => s.type === 'meter');
   const tempKey = t('energy.temp');
   const humKey = t('energy.humidity');
   const occKey = t('energy.occ');
@@ -83,12 +82,13 @@ export function EnergyPage() {
   const lightingKey = t('energy.lighting');
   const otherKey = t('energy.other');
   const kwhKey = t('energy.kwh');
+  const controlMode = hasControl ? 'execute' : 'suggest';
 
   return (
     <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
       {!data || !summary ? null : (
     <>
-      <div className="demo-banner" data-control={hasControl ? 'execute' : 'suggest'}>
+      <div className="demo-banner" data-control={controlMode}>
         <strong>{t('energy.bannerStrong')}</strong>
         {' — '}
         <span>{t(hasControl ? 'energy.controlExecute' : 'energy.controlSuggest')}</span>
@@ -102,154 +102,159 @@ export function EnergyPage() {
       </p>
       <SpineNav />
 
-      <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
-        <div className="kpi-card chart-enter">
-          <div className="kpi-label">{t('energy.avgTemp')}</div>
-          <div><span className="kpi-value">{summary.avg_temp_c}</span><span className="kpi-unit">°C</span></div>
+      <section
+        className="overview-situation situation-strip chart-enter"
+        aria-label={t('energy.situation')}
+      >
+        <div className="situation-cell situation-cell--lead">
+          <div className="situation-label">{t('energy.avgTemp')}</div>
+          <div>
+            <span className="situation-value">{summary.avg_temp_c}</span>
+            <span className="situation-unit">°C</span>
+          </div>
         </div>
-        <div className="kpi-card chart-enter">
-          <div className="kpi-label">{t('energy.avgHumidity')}</div>
-          <div><span className="kpi-value">{summary.avg_humidity_pct}</span><span className="kpi-unit">%</span></div>
-        </div>
-        <div className="kpi-card chart-enter">
-          <div className="kpi-label">{t('energy.todayKwh')}</div>
-          <div><span className="kpi-value">{summary.today_kwh}</span><span className="kpi-unit">kWh</span></div>
-          <div className={`kpi-change ${summary.change_pct < 0 ? 'up' : 'down'}`}>
+        <div className="situation-cell">
+          <div className="situation-label">{t('energy.todayKwh')}</div>
+          <div>
+            <span className="situation-value">{summary.today_kwh}</span>
+            <span className="situation-unit">kWh</span>
+          </div>
+          <div className={`situation-delta ${summary.change_pct < 0 ? 'up' : 'down'}`}>
             {t('common.vsYesterday')} {summary.change_pct}%
           </div>
         </div>
-        <div className="kpi-card chart-enter">
-          <div className="kpi-label">{t('energy.estCost')}</div>
-          <div><span className="kpi-value">{summary.est_cost_hkd}</span><span className="kpi-unit">HKD</span></div>
-          <div className="kpi-change">@{summary.tariff_hkd_per_kwh}/kWh</div>
-        </div>
-        <div className="kpi-card chart-enter">
-          <div className="kpi-label">{t('energy.power')}</div>
+        <div className="situation-cell">
+          <div className="situation-label">{t('energy.avgHumidity')}</div>
           <div>
-            <span className="kpi-value">{meter?.power_kw ?? '—'}</span>
-            <span className="kpi-unit">kW</span>
+            <span className="situation-value">{summary.avg_humidity_pct}</span>
+            <span className="situation-unit">%</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div className="card-title">{t('energy.sensors')}</div>
-        <div className="sensor-grid">
-          {tempSensors.map((s) => (
-            <div key={s.sensor_id} className={`sensor-card ${s.status === 'warn' ? 'warn' : ''}`}>
-              <div className="sensor-head">
-                <strong>{s.zone_name}</strong>
-                <span className={`badge ${s.status === 'warn' ? 'badge-pending' : 'badge-normal'}`}>
-                  {s.status === 'warn' ? t('energy.warn') : t('energy.ok')}
-                </span>
-              </div>
-              <div className="sensor-metrics">
-                <div>
-                  <span className="sensor-value">{s.temp_c}</span>
-                  <span className="sensor-unit">°C</span>
+      <div className="energy-evidence" data-control={controlMode}>
+        <section className="energy-sensors chart-enter" aria-label={t('energy.sensors')}>
+          <div className="card-title">{t('energy.sensors')}</div>
+          <div className="sensor-grid">
+            {tempSensors.map((s) => (
+              <div key={s.sensor_id} className={`sensor-card ${s.status === 'warn' ? 'warn' : ''}`}>
+                <div className="sensor-head">
+                  <strong>{s.zone_name}</strong>
+                  <span className={`badge ${s.status === 'warn' ? 'badge-pending' : 'badge-normal'}`}>
+                    {s.status === 'warn' ? t('energy.warn') : t('energy.ok')}
+                  </span>
                 </div>
-                <div>
-                  <span className="sensor-value">{s.humidity_pct}</span>
-                  <span className="sensor-unit">%RH</span>
+                <div className="sensor-metrics">
+                  <div>
+                    <span className="sensor-value">{s.temp_c}</span>
+                    <span className="sensor-unit">°C</span>
+                  </div>
+                  <div>
+                    <span className="sensor-value">{s.humidity_pct}</span>
+                    <span className="sensor-unit">%RH</span>
+                  </div>
                 </div>
+                <div className="sensor-meta">
+                  {s.sensor_id} · {t('energy.battery')} {s.battery_pct}% · {s.updated_at.slice(11, 16)}
+                </div>
+                {s.note && <div className="sensor-note">{s.note}</div>}
               </div>
-              <div className="sensor-meta">
-                {s.sensor_id} · {t('energy.battery')} {s.battery_pct}% · {s.updated_at.slice(11, 16)}
-              </div>
-              {s.note && <div className="sensor-note">{s.note}</div>}
+            ))}
+          </div>
+        </section>
+
+        <div className="grid-2">
+          <ChartPanel title={t('energy.climate')} staggerIndex={1}>
+            <ResponsiveContainer width="100%" height={260}>
+              <ComposedChart data={climateData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
+                <YAxis yAxisId="left" stroke={chart.axis} fontSize={11} domain={[20, 30]} />
+                <YAxis yAxisId="right" orientation="right" stroke={chart.axis} fontSize={11} />
+                <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                <Legend />
+                <Line yAxisId="left" type="monotone" dataKey={tempKey} stroke={CHART[3]} strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey={humKey} stroke={CHART[2]} strokeWidth={2} dot={false} />
+                <Area
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey={occKey}
+                  fill={CHART[4]}
+                  fillOpacity={0.2}
+                  stroke={CHART[4]}
+                  strokeWidth={1.5}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+          <ChartPanel title={t('energy.powerMix')} staggerIndex={2}>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={powerData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
+                <YAxis stroke={chart.axis} fontSize={11} />
+                <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                <Legend />
+                <Bar dataKey={hvacKey} stackId="a" fill={CHART[1]} />
+                <Bar dataKey={lightingKey} stackId="a" fill={CHART[3]} />
+                <Bar dataKey={otherKey} stackId="a" fill={CHART[4]} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="legend-row" style={{ marginTop: 8 }}>
+              <span>{hvacKey} {summary.hvac_share_pct}%</span>
+              <span>{lightingKey} {summary.lighting_share_pct}%</span>
+              <span>{otherKey} {summary.other_share_pct}%</span>
             </div>
-          ))}
+          </ChartPanel>
         </div>
-      </div>
 
-      <div className="grid-2">
-        <ChartPanel title={t('energy.climate')}>
-          <ResponsiveContainer width="100%" height={260}>
-            <ComposedChart data={climateData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-              <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
-              <YAxis yAxisId="left" stroke={chart.axis} fontSize={11} domain={[20, 30]} />
-              <YAxis yAxisId="right" orientation="right" stroke={chart.axis} fontSize={11} />
-              <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Legend />
-              <Line yAxisId="left" type="monotone" dataKey={tempKey} stroke={CHART[3]} strokeWidth={2} dot={false} />
-              <Line yAxisId="left" type="monotone" dataKey={humKey} stroke={CHART[2]} strokeWidth={2} dot={false} />
-              <Area
-                yAxisId="right"
-                type="monotone"
-                dataKey={occKey}
-                fill={CHART[4]}
-                fillOpacity={0.2}
-                stroke={CHART[4]}
-                strokeWidth={1.5}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </ChartPanel>
-        <ChartPanel title={t('energy.powerMix')}>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={powerData}>
+        <ChartPanel title={t('energy.hourlyKwh')} staggerIndex={3}>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={powerData}>
               <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
               <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
               <YAxis stroke={chart.axis} fontSize={11} />
               <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Legend />
-              <Bar dataKey={hvacKey} stackId="a" fill={CHART[1]} />
-              <Bar dataKey={lightingKey} stackId="a" fill={CHART[3]} />
-              <Bar dataKey={otherKey} stackId="a" fill={CHART[4]} radius={[4, 4, 0, 0]} />
-            </BarChart>
+              <Area type="monotone" dataKey={kwhKey} stroke={CHART[1]} fill={CHART[1]} fillOpacity={0.2} strokeWidth={2} />
+            </AreaChart>
           </ResponsiveContainer>
-          <div className="legend-row" style={{ marginTop: 8 }}>
-            <span>{hvacKey} {summary.hvac_share_pct}%</span>
-            <span>{lightingKey} {summary.lighting_share_pct}%</span>
-            <span>{otherKey} {summary.other_share_pct}%</span>
-          </div>
         </ChartPanel>
-      </div>
 
-      <ChartPanel title={t('energy.hourlyKwh')} style={{ marginTop: 20, marginBottom: 20 }}>
-        <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={powerData}>
-            <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-            <XAxis dataKey="hour" stroke={chart.axis} fontSize={11} />
-            <YAxis stroke={chart.axis} fontSize={11} />
-            <Tooltip contentStyle={chartTooltipStyle(chart)} />
-            <Area type="monotone" dataKey={kwhKey} stroke={CHART[1]} fill={CHART[1]} fillOpacity={0.2} strokeWidth={2} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </ChartPanel>
-
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div className="card-title">{t('energy.rules')}</div>
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 12 }}>
-          {data.control_note}
-        </p>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t('energy.ruleName')}</th>
-              <th>{t('energy.trigger')}</th>
-              <th>{t('energy.action')}</th>
-              <th>{t('energy.status')}</th>
-              <th>{t('energy.fired')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.rules.map((r) => (
-              <tr key={r.id}>
-                <td style={{ fontWeight: 600 }}>{r.name}</td>
-                <td>{r.trigger}</td>
-                <td>{r.action}</td>
-                <td>
-                  <span className={`badge ${r.status === 'armed' ? 'badge-confirmed' : 'badge-pending'}`}>
-                    {r.status === 'armed' ? t('energy.armed') : r.status === 'scheduled' ? t('energy.scheduled') : r.status}
-                  </span>
-                </td>
-                <td>{r.fired_today}</td>
+        <div className={`card energy-rules ${!hasControl ? 'energy-rules--suggest' : ''}`}>
+          <div className="card-title">{t('energy.rules')}</div>
+          {!hasControl && (
+            <p className="energy-suggest-note">{t('energy.suggestNote')}</p>
+          )}
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 12 }}>
+            {data.control_note}
+          </p>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>{t('energy.ruleName')}</th>
+                <th>{t('energy.trigger')}</th>
+                <th>{t('energy.action')}</th>
+                <th>{t('energy.status')}</th>
+                <th>{t('energy.fired')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.rules.map((r) => (
+                <tr key={r.id}>
+                  <td style={{ fontWeight: 600 }}>{r.name}</td>
+                  <td>{r.trigger}</td>
+                  <td>{r.action}</td>
+                  <td>
+                    <span className={`badge ${r.status === 'armed' ? 'badge-confirmed' : 'badge-pending'}`}>
+                      {r.status === 'armed' ? t('energy.armed') : r.status === 'scheduled' ? t('energy.scheduled') : r.status}
+                    </span>
+                  </td>
+                  <td>{r.fired_today}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
       )}

@@ -1182,6 +1182,15 @@ button {
   color: var(--accent);
 }
 
+.demo-banner[data-control="suggest"] {
+  background: color-mix(in srgb, var(--ink-muted) 8%, var(--paper-elevated));
+  border-style: dashed;
+}
+
+.demo-banner[data-control="suggest"] strong {
+  color: var(--ink-secondary);
+}
+
 .btn-row {
   display: flex;
   gap: 8px;
@@ -1291,7 +1300,6 @@ button {
 
 .roster-week-table tr.is-highlighted .roster-week-table__station {
   background: color-mix(in srgb, var(--accent) 16%, var(--paper));
-  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .source-hint-strip {
@@ -2111,16 +2119,20 @@ button {
 .hour-bar__track {
   width: 56px;
   height: 6px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--paper-sidebar);
   overflow: hidden;
   flex-shrink: 0;
 }
 
 .hour-bar__fill {
+  width: 100%;
   height: 100%;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--accent);
+  transform: scaleX(var(--hour-bar-scale, 0));
+  transform-origin: left center;
+  transition: transform var(--duration-enter) var(--ease-out);
 }
 
 .hour-bar__fill--under {
@@ -2197,5 +2209,134 @@ button {
 @media (max-width: 1100px) {
   .roster-hours-sidebar {
     display: none;
+  }
+}
+
+/* Task 6 — Gap / Roster / Coach / Energy craft */
+
+.dispatch-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: color-mix(in srgb, var(--warning) 10%, var(--paper-elevated));
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--line));
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.dispatch-hero-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dispatch-hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+}
+
+.dispatch-hero-meta strong {
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.dispatch-hero-meta--done {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.gap-evidence,
+.energy-evidence {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vl-note {
+  margin: 16px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.row-expand-icon {
+  color: var(--accent);
+  vertical-align: middle;
+}
+
+.prefilter-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.coach-vl {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.roster-board-situation {
+  grid-template-columns: 1.35fr 1fr;
+}
+
+.energy-sensors {
+  margin-bottom: 0;
+}
+
+.energy-sensors .card-title {
+  margin-bottom: 12px;
+}
+
+.energy-sensors .sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.energy-sensors .sensor-card {
+  background: var(--paper-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.energy-rules--suggest .badge-confirmed {
+  opacity: 0.55;
+}
+
+.energy-suggest-note {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: var(--paper-sidebar);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.energy-evidence[data-control="suggest"] .energy-rules .data-table td {
+  color: var(--ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hour-bar__fill {
+    transition: none;
   }
 }

@@ -56,6 +56,18 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+test('craft layout: dispatch hero and situation strip, no KPI cookie grid', async () => {
+  renderGap()
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務缺口' })).toBeInTheDocument()
+  })
+  expect(document.querySelector('.dispatch-hero')).toBeTruthy()
+  expect(document.querySelector('.situation-cell--lead')).toBeTruthy()
+  expect(document.querySelectorAll('.grid-kpi .kpi-card').length).toBe(0)
+  expect(document.querySelectorAll('.row-expand-icon').length).toBeGreaterThan(0)
+  expect(document.body.textContent).not.toMatch(/[▲▼]/)
+})
+
 test('shows ≥2 min rule and one-click 已調度', async () => {
   renderGap()
   await waitFor(() => {
