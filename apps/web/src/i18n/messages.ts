@@ -60,6 +60,7 @@ const zhHant = {
   'spine.done': '本節完成',
   'spine.toCoach': '去教練',
   'spine.toRoster': '去排班',
+  'spine.beatLabel': '示範節拍 {n}',
   'demo.banner': 'Demo 模式 — 數據來自 Mock JSON，Phase 1 將接入百度一見 Webhook 實時數據',
   'demo.strong': 'Demo 模式',
 
@@ -327,6 +328,7 @@ const zhHans: Dict = {
   'spine.done': '本节完成',
   'spine.toCoach': '去教练',
   'spine.toRoster': '去排班',
+  'spine.beatLabel': '示范节拍 {n}',
   'demo.banner': 'Demo 模式 — 数据来自 Mock JSON，Phase 1 将接入百度一见 Webhook 实时数据',
   'demo.strong': 'Demo 模式',
 
@@ -592,6 +594,7 @@ const en: Dict = {
   'spine.done': 'Section complete',
   'spine.toCoach': 'To coach',
   'spine.toRoster': 'To roster',
+  'spine.beatLabel': 'Demo beat {n}',
   'demo.banner': 'Demo mode — Mock JSON data. Phase 1 will connect Baidu Yijian Webhook live data.',
   'demo.strong': 'Demo mode',
 

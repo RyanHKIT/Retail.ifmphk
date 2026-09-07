@@ -56,3 +56,22 @@ test('sidebar groups evidence and action nav', () => {
   expect(screen.getByText('行動')).toBeInTheDocument()
   expect(screen.getByText('設施')).toBeInTheDocument()
 })
+
+test('presenter mode shows beat index on spine routes', () => {
+  render(
+    <MemoryRouter initialEntries={['/retail/footfall?demo=1']}>
+      <RetailLocaleProvider>
+        <RetailThemeProvider>
+          <RetailFilterProvider>
+            <Routes>
+              <Route path="/retail/footfall" element={<RetailShell />}>
+                <Route index element={<div>outlet</div>} />
+              </Route>
+            </Routes>
+          </RetailFilterProvider>
+        </RetailThemeProvider>
+      </RetailLocaleProvider>
+    </MemoryRouter>,
+  )
+  expect(screen.getByText('1/6')).toBeInTheDocument()
+})

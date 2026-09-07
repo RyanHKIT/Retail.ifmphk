@@ -1290,6 +1290,33 @@ button {
   margin-bottom: 16px;
 }
 
+.spine-nav--presenter {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin: -8px 0 16px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  border-radius: var(--radius-lg);
+}
+
+.demo-beat-badge {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
 .spine-handoff {
   margin-bottom: 16px;
 }

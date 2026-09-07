@@ -1,5 +1,25 @@
 import { expect, test } from 'vitest'
-import { gapDeepLink, nextBeatPath, zoneToStation, type SpineFocus } from './demoSpine'
+import {
+  currentBeatIndex,
+  gapDeepLink,
+  nextBeatPath,
+  SPINE_BEAT_COUNT,
+  zoneToStation,
+  type SpineFocus,
+} from './demoSpine'
+
+test('currentBeatIndex maps spine routes to 0-based beat index', () => {
+  expect(SPINE_BEAT_COUNT).toBe(7)
+  expect(currentBeatIndex('/retail')).toBe(0)
+  expect(currentBeatIndex('/retail/footfall')).toBe(1)
+  expect(currentBeatIndex('/retail/journey')).toBe(2)
+  expect(currentBeatIndex('/retail/service-gap')).toBe(3)
+  expect(currentBeatIndex('/retail/roster')).toBe(4)
+  expect(currentBeatIndex('/retail/coach')).toBe(5)
+  expect(currentBeatIndex('/retail/energy')).toBe(6)
+  expect(currentBeatIndex('/retail/people')).toBeNull()
+  expect(currentBeatIndex('/retail/settings')).toBeNull()
+})
 
 test('nextBeatPath walks the golden-path beats then loops to overview', () => {
   expect(nextBeatPath('/retail')).toBe('/retail/footfall')

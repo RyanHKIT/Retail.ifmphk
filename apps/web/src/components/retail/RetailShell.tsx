@@ -1,5 +1,6 @@
 import { useEffect, useState, type SVGProps } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { currentBeatIndex, SPINE_BEAT_COUNT } from '@/lib/demoSpine';
 import {
   DATE_OPTIONS,
   PERIOD_OPTIONS,
@@ -189,6 +190,10 @@ export function RetailShell() {
   const { storeId, dateKey, period, setStoreId, setDateKey, setPeriod } = useRetailFilter();
   const { theme, isDay, toggleTheme } = useRetailTheme();
   const { t, locale, setLocale, options } = useRetailLocale();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const presenter = searchParams.get('demo') === '1';
+  const beatIndex = currentBeatIndex(location.pathname);
   const storeLabel = t(`filter.store.${storeId}` as MessageKey);
   const [navOpen, setNavOpen] = useState(false);
 
@@ -330,6 +335,11 @@ export function RetailShell() {
               </span>
               <span className="theme-toggle-text">{isDay ? t('theme.night') : t('theme.day')}</span>
             </button>
+            {presenter && beatIndex !== null && (
+              <div className="demo-beat-badge" aria-label={t('spine.beatLabel', { n: beatIndex })}>
+                {beatIndex}/{SPINE_BEAT_COUNT - 1}
+              </div>
+            )}
             <div className="topbar-badge">{t('topbar.alerts')}</div>
           </div>
         </header>

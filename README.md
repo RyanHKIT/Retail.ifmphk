@@ -15,7 +15,7 @@ npm install
 npm run dev
 ```
 
-瀏覽器開啟：**http://127.0.0.1:5174/retail**（Overview 總覽）
+瀏覽器開啟：**http://127.0.0.1:5174/retail**（Overview 總覽）；簡報可加 **`?demo=1`** 顯示 golden-path 節拍與 sticky SpineNav。
 
 開發伺服器固定綁定 `127.0.0.1:5174`；靜態資源目錄為 repo 根目錄的 `public/`。
 

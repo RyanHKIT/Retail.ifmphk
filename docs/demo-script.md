@@ -1,95 +1,63 @@
 ﻿# IFMP Retail · I.T. 示範簡報腳本（繁中）
 
-**時長：** 約 18–25 分鐘 · **入口：** `/retail` · **資料：** mock（門禁計數 + 店內攝像雙來源故事）
+**時長：** 約 15–20 分鐘 · **入口：** `/retail?demo=1`（選用 presenter 節拍指示） · **資料：** mock（門禁計數 + 店內攝像雙來源故事）
 
 ## 開場（30 秒）
 
 - 產品：**IFMP Retail** — 增收（轉化機會）與降本（人力／能源）同一套營運板
 - 標示「I.T. 示範 · 樣本資料」，非正式 I.T. 商標
+- **Presenter 模式：** URL 加 `?demo=1` → 頂欄顯示節拍 `0/6`…`6/6`，SpineNav「下一步」條 sticky 置頂
 
 ---
 
-## Beat 0 · 總覽（Overview）
+## Golden path（主線 · Beat 0–6）
 
-| 動作 | 講點 |
-|------|------|
-| 開 `/retail` | KPI 卡片、待調度提示、counter / camera 來源標籤 |
-| **門店切換（銅鑼灣 ↔ 尖沙咀）** | **示範數據共用樣本；切換門店僅切換標籤，不是第二套 live feed。勿用來證明多店差異。** |
-| 指向下一步 | 「先看門口真實客流，再看店內動線與缺口」 |
+跟著各頁 **SpineNav** 的「**下一步**」；Energy 末頁為「**本節完成**」回總覽。
 
-## Beat 1 · 客流（Footfall）
+| Beat | 路由 | SpineNav / CTA | 動作與講點 |
+|------|------|----------------|------------|
+| **0** | `/retail` | 有待調度 → **去服務缺口**；否則 **下一步** → 客流 | 雙源 KPI 狀況帶；counter / camera 來源標籤；**門店切換（銅鑼灣 ↔ 尖沙咀）** 僅切換標籤，共用樣本 |
+| **1** | `/retail/footfall` | **下一步** → 動線 | 門口真實客流：過店 / 進店 / 流失 / 進店率；**門禁計數器** 為增收敘事起點 |
+| **2** | `/retail/journey` | 點熱區 → `/retail/service-gap?zone=`；**下一步** → 服務缺口 | 熱力圖 + 停留；轉化機會 = 動線 × 停留 |
+| **3** | `/retail/service-gap` | **調度下一則** → 已調度；**去教練** `/retail/coach?gap=&zone=`、**去排班** `/retail/roster?zone=` | ≥{dwell}s 未服務、門檻 chip（連 Settings）；**行動層**一鍵調度 |
+| **4** | `/retail/roster` | **下一步** → 教練 | 需求 vs 建議／實際；`?zone=` 高亮週更表站別（入口→樓面、試衣間→試衣、收銀台→收銀） |
+| **5** | `/retail/coach` | **下一步** → 能源 | `?gap=` / `?zone=` 預篩；VL 每週複盤敘事 |
+| **6** | `/retail/energy` | **本節完成** → 總覽 | IoT 誠實橫幅；條件式控制僅建議、未必有 HVAC 寫入權 |
 
-| 動作 | 講點 |
-|------|------|
-| 進 Footfall | 路過 / 進店 / 流失 / 進店率；每小時趨勢 |
-| 指 Source | **門禁計數器** 為門口真實依據（增收敘事起點） |
+### Beat 3 後 · 回總覽確認（同 session）
 
-## Beat 2 · 動線（Journey）
-
-| 動作 | 講點 |
-|------|------|
-| 熱力圖 + 停留 | 哪裡吸引注意、哪裡只是路過 |
-| Top paths | 轉化機會 = 動線 × 停留 |
-
-## Beat 3 · 店內人數（People）
-
-| 動作 | 講點 |
-|------|------|
-| 顧客 / 員工 / 路過 | 店內 mix |
-| 員工每小時 | 誰在場、與後續缺口／排班呼應 |
-
-## Beat 4 · 服務缺口（Service Gap）
-
-| 動作 | 講點 |
-|------|------|
-| ≥2 分鐘未服務、人手不足／過剩 %、區域 | 服務風險 + 人力浪費訊號 |
-| 閱讀門檻 chip | 停留 120s、首次觸客 SLA（可連 Settings） |
-
-## Beat 5 · 缺口 → 調度（Gap → Dispatch）
-
-| 動作 | 講點 |
-|------|------|
-| 選一筆缺口 → **已調度** | **行動層**：一鍵調度，非只看板 |
-| 回 Overview | 待調度數下降（同分頁 session 內） |
-
-## Beat 6 · 排班（Roster）
-
-| 動作 | 講點 |
-|------|------|
-| 需求 vs 建議／實際圖表 | 降本：人力對齊需求曲線 |
-| **週更表** 分頁 | 點格新增／移除班次；衝突提示（mock 持久化） |
-
-## Beat 7 · 營運教練（Coach）
-
-| 動作 | 講點 |
-|------|------|
-| 區域篩選 | 聚焦問題樓層／區域 |
-| VL 摘要列表 | 每週複盤敘事（繁中標籤） |
-
-## Beat 8 · 能源（Energy）
-
-| 動作 | 講點 |
-|------|------|
-| 監測 + IoT 來源 | .utilities 成本槓桿 |
-| **條件式控制** 橫幅 | 商場未必有 HVAC 寫入權；示範僅建議，誠實標示 |
+1. 調度一則缺口後，導航回 **總覽** `/retail`
+2. **待調度數下降**（同分頁 `retail-dispatch` 事件，無需整頁硬刷新）
+3. 再 **下一步** 進排班，延續 Beat 4
 
 ---
 
-## 收尾（可選）
+## 副線 · Settings（可選，同 session）
 
-- **Settings：** 門檻 120s / SLA 90s、示範店鋪標籤
-- 重申套餐 A（洞察）+ B（調度／排班／教練）+ D（能源短 beat）
+| 步驟 | 路由 | 講點 |
+|------|------|------|
+| 1 | `/retail/settings` | 停留門檻（預設 120s）、首次觸客 SLA（90s） |
+| 2 | 改 dwell → **儲存** | Gap 規則 chip / 副標即時更新（`retail-settings` 事件） |
+| 3 | `/retail/service-gap` | 橫幅文案反映新門檻 |
+| 4 | `/retail/coach` | 副標／規則同步（無 remount hack） |
+
+---
+
+## 非主線頁面
+
+- **人員** `/retail/people` — 店內 mix，可略過；不在 golden path SpineNav 鏈上
+- **設定** — 見副線
 
 ---
 
 ## 簡報前重置（乾淨 session）
 
-同分頁內 **調度、排班覆寫、設定** 會寫入 `sessionStorage`；主題／語言寫入 `localStorage`。
+同分頁內 **調度、排班覆寫、設定、spine focus** 會寫入 `sessionStorage`；主題／語言寫入 `localStorage`。
 
 ### 最快方式
 
-1. **關閉分頁再開** `/retail`（清除該 tab 的 sessionStorage）
-2. 或 DevTools → Application → Storage → Clear site data（該 origin 全清）
+1. **關閉分頁再開** `/retail?demo=1`
+2. 或 DevTools → Application → Storage → Clear site data
 
 ### 精準清除（主控台貼上）
 
@@ -99,6 +67,7 @@
   'ifmp_retail_roster_suggested',
   'ifmp_retail_roster_board_assignments',
   'ifmp_retail_settings',
+  'ifmp_retail_spine_focus',
 ].forEach((k) => sessionStorage.removeItem(k));
 location.reload();
 ```
@@ -108,13 +77,14 @@ location.reload();
 | `ifmp_retail_dispatches` | 已調度標記 |
 | `ifmp_retail_roster_suggested` | 需求層建議覆寫 |
 | `ifmp_retail_roster_board_assignments` | 週更表編輯 |
-| `ifmp_retail_settings` | 門檻覆寫（Settings 頁亦可「恢復預設」） |
-| `ifmp_retail_theme` / `ifmp_retail_locale` | 主題、語言（localStorage；通常保留繁中即可） |
+| `ifmp_retail_settings` | 門檻覆寫 |
+| `ifmp_retail_spine_focus` | 動線 zone / 缺口 handoff |
+| `ifmp_retail_theme` / `ifmp_retail_locale` | 主題、語言（localStorage；通常保留繁中） |
 
 ### 建議彩排順序
 
-Beat 0 → 1 → 2 → 3 → 4 → **5（調度）** → 6 → 7 → 8；Beat 5 前確認尚未調度，或先執行上方 reset。
+**0 → 1 → 2 → 3（調度 + 去教練/排班）→ 回 0 確認待調度降 → 4 → 5 → 6**；Beat 3 前確認尚未調度，或先 reset。
 
 ---
 
-**部署：** [`docs/deploy-retail.ifmphk.com.md`](deploy-retail.ifmphk.com.md) · **驗收清單：** `docs/superpowers/specs/2026-09-04-ifmp-retail-demo-design.md` §10
+**部署：** [`docs/deploy-retail.ifmphk.com.md`](deploy-retail.ifmphk.com.md) · **驗收：** `docs/superpowers/plans/2026-09-07-ifmp-retail-spine-craft.md` golden path

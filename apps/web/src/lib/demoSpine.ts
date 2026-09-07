@@ -16,12 +16,20 @@ function normalizePath(current: string): string {
   return path
 }
 
+export function currentBeatIndex(current: string): number | null {
+  const path = normalizePath(current)
+  const idx = (BEATS as readonly string[]).indexOf(path)
+  return idx === -1 ? null : idx
+}
+
 export function nextBeatPath(current: string): string {
   const path = normalizePath(current)
   const idx = (BEATS as readonly string[]).indexOf(path)
   if (idx === -1) return '/retail'
   return BEATS[(idx + 1) % BEATS.length]
 }
+
+export const SPINE_BEAT_COUNT = BEATS.length
 
 function withQuery(pathname: string, params: Array<[string, string | undefined]>): string {
   const qs = params
