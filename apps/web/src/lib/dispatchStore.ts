@@ -38,6 +38,9 @@ export function markDispatched(eventId: string, zoneName?: string, note?: string
     note,
   };
   writeAll(map);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('retail-dispatch'));
+  }
 }
 
 export function listDispatched(): string[] {

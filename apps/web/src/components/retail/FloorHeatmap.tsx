@@ -17,9 +17,10 @@ interface FloorHeatmapProps {
   zones: ZonesData['zones'];
   heat?: HeatmapData['zones'];
   compact?: boolean;
+  onZoneClick?: (zone: ZonesData['zones'][number]) => void;
 }
 
-export function FloorHeatmap({ zones, heat, compact }: FloorHeatmapProps) {
+export function FloorHeatmap({ zones, heat, compact, onZoneClick }: FloorHeatmapProps) {
   const heatMap = new Map(heat?.map((z) => [z.zone_id, z]) ?? []);
 
   return (
@@ -29,10 +30,20 @@ export function FloorHeatmap({ zones, heat, compact }: FloorHeatmapProps) {
         .map((zone) => {
           const h = heatMap.get(zone.zone_id);
           const bg = h ? intensityToColor(h.intensity) : 'rgba(42,42,52,0.6)';
+          const clickable = Boolean(onZoneClick);
           return (
             <div
               key={zone.zone_id}
-              className="floor-zone"
+              className={clickable ? 'floor-zone is-clickable' : 'floor-zone'}
+              role={clickable ? 'button' : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              onClick={clickable ? () => onZoneClick?.(zone) : undefined}
+              onKeyDown={clickable ? (ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                  ev.preventDefault();
+                  onZoneClick?.(zone);
+                }
+              } : undefined}
               style={{
                 left: `${zone.bbox.x}%`,
                 top: `${zone.bbox.y}%`,

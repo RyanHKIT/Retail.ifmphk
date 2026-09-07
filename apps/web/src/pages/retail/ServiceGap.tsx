@@ -1,14 +1,18 @@
 import { Fragment, useEffect, useState, type MouseEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { GapSummary, GapEvent, GapByZone, StaffingMatrix } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
 import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
+import { SpineNav } from '@/components/retail/SpineNav';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import {
   getDispatches, isDispatched, listDispatched, markDispatched, type DispatchRecord,
 } from '@/lib/dispatchStore';
+import { gapDeepLink } from '@/lib/demoSpine';
+import { useDemoSpine } from '@/context/DemoSpineContext';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { getDisplayRules } from '@/lib/settingsStore';
 import { useRetailTheme } from '@/context/RetailThemeContext';
@@ -20,6 +24,7 @@ export function ServiceGapPage() {
   const { storeId } = useRetailFilter();
   const { chart } = useRetailTheme();
   const { t } = useRetailLocale();
+  const { gapId, zoneId, zoneName, setFocus } = useDemoSpine();
   const storeLabel = t(`filter.store.${storeId}` as MessageKey);
   const [summary, setSummary] = useState<GapSummary | null>(null);
   const [events, setEvents] = useState<GapEvent[]>([]);
@@ -79,10 +84,12 @@ export function ServiceGapPage() {
   const onDispatch = (e: GapEvent, ev: MouseEvent) => {
     ev.stopPropagation();
     markDispatched(e.gap_id, e.zone_name);
+    setFocus({ gapId: e.gap_id, zoneId: e.zone_id, zoneName: e.zone_name });
     refreshDispatch();
   };
 
   const dispatchedIds = listDispatched();
+  const handoff = gapDeepLink({ gapId, zoneId, zoneName });
 
   return (
     <PageStatus loading={loading} error={error} onRetry={() => setReload((n) => n + 1)}>
@@ -93,6 +100,7 @@ export function ServiceGapPage() {
       <p className="page-subtitle">
         {storeLabel} · {t('gap.subtitle', { min: dwellMin })}
       </p>
+      <SpineNav />
 
       <div className="source-hint-strip" role="note">
         <span className="rule-chip">{t('gap.rule', { min: dwellMin })}</span>
@@ -101,6 +109,13 @@ export function ServiceGapPage() {
           {t('common.dispatched')} {dispatchedIds.length}
         </span>
       </div>
+
+      {dispatchedIds.length > 0 && (gapId || zoneName || zoneId) && (
+        <div className="spine-handoff btn-row">
+          <Link className="btn btn-primary" to={handoff.coach}>{t('spine.toCoach')}</Link>
+          <Link className="btn btn-ghost" to={handoff.roster}>{t('spine.toRoster')}</Link>
+        </div>
+      )}
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         <div className="kpi-card chart-enter">
@@ -263,6 +278,22 @@ export function ServiceGapPage() {
                               <> · {t('gap.at')} {dispatches[e.gap_id].dispatched_at}</>
                             )}
                           </div>
+                          {done && (
+                            <div className="btn-row" style={{ marginTop: 8 }}>
+                              <Link
+                                className="btn btn-sm btn-primary"
+                                to={gapDeepLink({ gapId: e.gap_id, zoneId: e.zone_id, zoneName: e.zone_name }).coach}
+                              >
+                                {t('spine.toCoach')}
+                              </Link>
+                              <Link
+                                className="btn btn-sm btn-ghost"
+                                to={gapDeepLink({ gapId: e.gap_id, zoneId: e.zone_id, zoneName: e.zone_name }).roster}
+                              >
+                                {t('spine.toRoster')}
+                              </Link>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )}

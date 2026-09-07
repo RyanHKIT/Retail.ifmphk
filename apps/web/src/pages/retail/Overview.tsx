@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -12,6 +12,7 @@ import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
 import { AlertList } from '@/components/retail/AlertList';
 import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip, type SourceChipSource } from '@/components/retail/SourceChip';
+import { SpineNav } from '@/components/retail/SpineNav';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
@@ -52,6 +53,7 @@ export function OverviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reload, setReload] = useState(0);
+  const gapIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +76,9 @@ export function OverviewPage() {
       setHeatmap(hm);
       setZones(z);
       setAlerts(a.items.slice(0, 5));
-      setPendingDispatch(countPending(gaps.items.map((g) => g.gap_id)));
+      const ids = gaps.items.map((g) => g.gap_id);
+      gapIdsRef.current = ids;
+      setPendingDispatch(countPending(ids));
       setHintSources(orderedHintSources([
         toChipSource(k.meta?.source),
         toChipSource(p.meta?.source),
@@ -88,6 +92,18 @@ export function OverviewPage() {
     });
     return () => { cancelled = true; };
   }, [reload]);
+
+  useEffect(() => {
+    const refreshPending = () => {
+      setPendingDispatch(countPending(gapIdsRef.current));
+    };
+    window.addEventListener('retail-dispatch', refreshPending);
+    window.addEventListener('storage', refreshPending);
+    return () => {
+      window.removeEventListener('retail-dispatch', refreshPending);
+      window.removeEventListener('storage', refreshPending);
+    };
+  }, []);
 
   const passbyKey = t('overview.passby');
   const enterKey = t('overview.enter');
@@ -117,7 +133,7 @@ export function OverviewPage() {
         <span className="source-hint-copy">{t('overview.sourceHintCopy')}</span>
       </div>
 
-      {pendingDispatch > 0 && (
+      {pendingDispatch > 0 ? (
         <div className="overview-next-action dispatch-banner">
           <div>
             <div className="overview-kicker">{t('overview.nextAction')}</div>
@@ -130,6 +146,8 @@ export function OverviewPage() {
             <Link className="btn btn-ghost" to="/retail/roster">{t('overview.toRoster')}</Link>
           </div>
         </div>
+      ) : (
+        <SpineNav />
       )}
 
       <section className="overview-situation" aria-label={t('overview.situation')}>

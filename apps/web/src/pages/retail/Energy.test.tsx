@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import * as retailApi from '@/api/retail'
+import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
@@ -8,13 +10,17 @@ import { EnergyPage } from './Energy'
 
 function renderEnergy() {
   return render(
-    <RetailLocaleProvider>
-      <RetailThemeProvider>
-        <RetailFilterProvider>
-          <EnergyPage />
-        </RetailFilterProvider>
-      </RetailThemeProvider>
-    </RetailLocaleProvider>,
+    <MemoryRouter initialEntries={['/retail/energy']}>
+      <RetailLocaleProvider>
+        <RetailThemeProvider>
+          <RetailFilterProvider>
+            <DemoSpineProvider>
+              <EnergyPage />
+            </DemoSpineProvider>
+          </RetailFilterProvider>
+        </RetailThemeProvider>
+      </RetailLocaleProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -39,6 +45,8 @@ test('shows IoT SourceChip and honesty banner when site has no control', async (
   expect(document.querySelector('[data-source="iot"]')).toHaveTextContent('IoT')
   expect(screen.getByText('有場地控制權方可執行；示範僅顯示建議')).toBeInTheDocument()
   expect(screen.getByText('客流聯動節能規則')).toBeInTheDocument()
+  const done = screen.getByRole('link', { name: '本節完成' })
+  expect(done).toHaveAttribute('href', '/retail')
 })
 
 test('failed energy load shows 繁中 retry instead of hanging', async () => {

@@ -55,7 +55,7 @@ function ShiftChip({
   )
 }
 
-export function RosterWeekBoard() {
+export function RosterWeekBoard({ highlightStation }: { highlightStation?: string } = {}) {
   const [tick, setTick] = useState(0)
   const state: BoardState = useMemo(() => loadBoard(), [tick])
   const dates = useMemo(() => weekDates(state.weekStart), [state.weekStart])
@@ -155,7 +155,7 @@ export function RosterWeekBoard() {
             </thead>
             <tbody>
               {STATIONS.map((station) => (
-                <tr key={station}>
+                <tr key={station} className={station === highlightStation ? 'is-highlighted' : undefined}>
                   <td className="roster-week-table__station">
                     <strong>{station}</strong>
                     <div className="roster-week-table__station-sub">

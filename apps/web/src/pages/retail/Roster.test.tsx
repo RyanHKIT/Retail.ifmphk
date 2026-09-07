@@ -1,20 +1,26 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
 import { loadSuggestedOverride } from '@/lib/rosterStore'
 import { RosterPage } from './Roster'
 
-function renderRoster() {
+function renderRoster(path = '/retail/roster') {
   return render(
-    <RetailLocaleProvider>
-      <RetailThemeProvider>
-        <RetailFilterProvider>
-          <RosterPage />
-        </RetailFilterProvider>
-      </RetailThemeProvider>
-    </RetailLocaleProvider>,
+    <MemoryRouter initialEntries={[path]}>
+      <RetailLocaleProvider>
+        <RetailThemeProvider>
+          <RetailFilterProvider>
+            <DemoSpineProvider>
+              <RosterPage />
+            </DemoSpineProvider>
+          </RetailFilterProvider>
+        </RetailThemeProvider>
+      </RetailLocaleProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -79,4 +85,36 @@ test('shows 需求 and 週更表 section tabs', async () => {
   expect(screen.getByText('樓面')).toBeInTheDocument()
   expect(screen.getByText('試衣')).toBeInTheDocument()
   expect(screen.getByText('收銀')).toBeInTheDocument()
+})
+
+test('maps ?zone=試衣間 to 試衣 and highlights that station row', async () => {
+  renderRoster('/retail/roster?zone=試衣間')
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '排班建議' })).toBeInTheDocument()
+  })
+  fireEvent.click(screen.getByRole('tab', { name: '週更表' }))
+  const fitting = screen.getByText('試衣').closest('tr')
+  const floor = screen.getByText('樓面').closest('tr')
+  const cashier = screen.getByText('收銀').closest('tr')
+  expect(fitting).toHaveClass('is-highlighted')
+  expect(floor).not.toHaveClass('is-highlighted')
+  expect(cashier).not.toHaveClass('is-highlighted')
+})
+
+test('maps ?zone=fitting_room and ?zone=收銀台 onto matching stations', async () => {
+  const { unmount } = renderRoster('/retail/roster?zone=fitting_room')
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '排班建議' })).toBeInTheDocument()
+  })
+  fireEvent.click(screen.getByRole('tab', { name: '週更表' }))
+  expect(screen.getByText('試衣').closest('tr')).toHaveClass('is-highlighted')
+  unmount()
+
+  renderRoster('/retail/roster?zone=收銀台')
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '排班建議' })).toBeInTheDocument()
+  })
+  fireEvent.click(screen.getByRole('tab', { name: '週更表' }))
+  expect(screen.getByText('收銀').closest('tr')).toHaveClass('is-highlighted')
+  expect(screen.getByText('試衣').closest('tr')).not.toHaveClass('is-highlighted')
 })

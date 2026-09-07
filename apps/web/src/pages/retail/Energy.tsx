@@ -8,6 +8,7 @@ import type { EnergyData } from '@/api/retail';
 import { ChartPanel } from '@/components/retail/ChartPanel';
 import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
+import { SpineNav } from '@/components/retail/SpineNav';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
@@ -99,6 +100,7 @@ export function EnergyPage() {
       <p className="page-subtitle">
         {storeLabel} · {t('energy.subtitle', { time: data.as_of.slice(11, 16) })} · {data.platform_note}
       </p>
+      <SpineNav />
 
       <div className="grid-kpi" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
         <div className="kpi-card chart-enter">

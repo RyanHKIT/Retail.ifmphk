@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
@@ -8,9 +9,11 @@ import { ChartPanel } from '@/components/retail/ChartPanel';
 import { PageStatus } from '@/components/retail/PageStatus';
 import { RosterWeekBoard } from '@/components/retail/RosterWeekBoard';
 import { SourceChip } from '@/components/retail/SourceChip';
+import { SpineNav } from '@/components/retail/SpineNav';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { loadSuggestedOverride, saveSuggestedOverride, clearSuggestedOverride } from '@/lib/rosterStore';
+import { zoneToStation } from '@/lib/demoSpine';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
@@ -22,6 +25,9 @@ export function RosterPage() {
   const { storeId } = useRetailFilter();
   const { chart } = useRetailTheme();
   const { t } = useRetailLocale();
+  const [searchParams] = useSearchParams();
+  const queryZone = searchParams.get('zone') ?? '';
+  const highlightStation = queryZone ? zoneToStation(queryZone) : undefined;
   const storeLabel = t(`filter.store.${storeId}` as MessageKey);
   const [plan, setPlan] = useState<RosterPlanData | null>(null);
   const [source, setSource] = useState<SourceChipSource | null>(null);
@@ -102,6 +108,7 @@ export function RosterPage() {
           <p className="page-subtitle">
             {storeLabel} · {t('roster.subtitle')}
           </p>
+          <SpineNav />
 
           <div className="source-hint-strip" role="note">
             <span className="source-hint-label">{t('roster.storyLabel')}</span>
@@ -212,7 +219,7 @@ export function RosterPage() {
             </>
           )}
 
-          {section === 'board' && <RosterWeekBoard />}
+          {section === 'board' && <RosterWeekBoard highlightStation={highlightStation} />}
         </>
       )}
     </PageStatus>

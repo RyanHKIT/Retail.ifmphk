@@ -4,9 +4,11 @@ import { fileURLToPath } from 'node:url'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
+import { markDispatched } from '@/lib/dispatchStore'
 import { OverviewPage } from './Overview'
 
 const mockDir = resolve(
@@ -24,11 +26,13 @@ function stubRetailFetch() {
 
 function renderOverview() {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={['/retail']}>
       <RetailLocaleProvider>
         <RetailThemeProvider>
           <RetailFilterProvider>
-            <OverviewPage />
+            <DemoSpineProvider>
+              <OverviewPage />
+            </DemoSpineProvider>
           </RetailFilterProvider>
         </RetailThemeProvider>
       </RetailLocaleProvider>
@@ -93,6 +97,17 @@ test('hides dispatch CTA when every gap is already dispatched', async () => {
   })
   expect(screen.queryByRole('link', { name: '去服務缺口' })).not.toBeInTheDocument()
   expect(document.querySelector('.overview-next-action')).toBeNull()
+  const next = screen.getByRole('link', { name: '下一步' })
+  expect(next).toHaveAttribute('href', '/retail/footfall')
+})
+
+test('retail-dispatch event recomputes pending count without reload', async () => {
+  renderOverview()
+  expect(await screen.findByText(/尚有 7 則未標記調度/)).toBeInTheDocument()
+  markDispatched('gap_20260902_142215_001', '試衣間')
+  await waitFor(() => {
+    expect(screen.getByText(/尚有 6 則未標記調度/)).toBeInTheDocument()
+  })
 })
 
 test('failed fetch shows 繁中 retry and recovers on click', async () => {

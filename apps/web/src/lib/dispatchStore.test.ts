@@ -48,6 +48,18 @@ test('marks persist in sessionStorage across later reads', () => {
   expect(store.listDispatched()).toEqual(['evt-persist'])
 })
 
+test('markDispatched fires a retail-dispatch window event', () => {
+  const seen: string[] = []
+  const onDispatch = () => seen.push('retail-dispatch')
+  window.addEventListener('retail-dispatch', onDispatch)
+  try {
+    store.markDispatched('gap-evt', '試衣間')
+    expect(seen).toEqual(['retail-dispatch'])
+  } finally {
+    window.removeEventListener('retail-dispatch', onDispatch)
+  }
+})
+
 test('rehydrates from existing sessionStorage without calling mark again', () => {
   sessionStorage.setItem(
     KEY,

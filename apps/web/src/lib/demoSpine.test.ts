@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { gapDeepLink, nextBeatPath, type SpineFocus } from './demoSpine'
+import { gapDeepLink, nextBeatPath, zoneToStation, type SpineFocus } from './demoSpine'
 
 test('nextBeatPath walks the golden-path beats then loops to overview', () => {
   expect(nextBeatPath('/retail')).toBe('/retail/footfall')
@@ -43,4 +43,20 @@ test('gapDeepLink omits missing params and falls back zoneName for ?zone=', () =
     coach: '/retail/coach?zone=入口',
     roster: '/retail/roster?zone=入口',
   })
+})
+
+test('zoneToStation maps gap zone names onto roster stations', () => {
+  expect(zoneToStation('入口')).toBe('樓面')
+  expect(zoneToStation('試衣間')).toBe('試衣')
+  expect(zoneToStation('收銀台')).toBe('收銀')
+  expect(zoneToStation('貨架 A')).toBe('樓面')
+  expect(zoneToStation('貨架 B')).toBe('樓面')
+  expect(zoneToStation(undefined)).toBe('樓面')
+})
+
+test('zoneToStation maps zone ids used in deep links', () => {
+  expect(zoneToStation('entrance')).toBe('樓面')
+  expect(zoneToStation('fitting_room')).toBe('試衣')
+  expect(zoneToStation('cashier')).toBe('收銀')
+  expect(zoneToStation('shelf_a')).toBe('樓面')
 })

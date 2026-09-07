@@ -952,6 +952,29 @@ button {
   font-size: 0.85rem;
 }
 
+.spine-nav {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.spine-handoff {
+  margin-bottom: 16px;
+}
+
+.floor-zone.is-clickable {
+  cursor: pointer;
+}
+
+.roster-week-table tr.is-highlighted {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.roster-week-table tr.is-highlighted .roster-week-table__station {
+  background: color-mix(in srgb, var(--accent) 16%, var(--paper));
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
 .source-hint-strip {
   display: flex;
   align-items: center;

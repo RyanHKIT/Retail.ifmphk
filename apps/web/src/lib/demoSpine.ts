@@ -41,3 +41,11 @@ export function gapDeepLink(focus: SpineFocus): { coach: string; roster: string 
     roster: withQuery('/retail/roster', [['zone', zone]]),
   }
 }
+
+export type RosterStation = '樓面' | '試衣' | '收銀'
+
+export function zoneToStation(zone?: string): RosterStation {
+  if (zone === '試衣間' || zone === 'fitting_room') return '試衣'
+  if (zone === '收銀台' || zone === 'cashier') return '收銀'
+  return '樓面'
+}

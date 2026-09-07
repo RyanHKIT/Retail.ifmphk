@@ -1,12 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '@/api/retail';
 import type { GapEvent } from '@/api/retail';
 import { PageStatus } from '@/components/retail/PageStatus';
+import { SpineNav } from '@/components/retail/SpineNav';
+import { useDemoSpine } from '@/context/DemoSpineContext';
 import { useRetailFilter } from '@/context/RetailFilterContext';
 import { getDispatches, isDispatched, markDispatched, type DispatchRecord } from '@/lib/dispatchStore';
 import { getDisplayRules } from '@/lib/settingsStore';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import type { MessageKey } from '@/i18n/messages';
+
+function matchesZone(event: GapEvent, zone: string): boolean {
+  return event.zone_id === zone || event.zone_name === zone;
+}
 
 function vlItems(summary: string | null): string[] {
   if (!summary) return [];
@@ -19,9 +26,13 @@ function vlItems(summary: string | null): string[] {
 export function CoachPage() {
   const { storeId } = useRetailFilter();
   const { t } = useRetailLocale();
+  const { setFocus } = useDemoSpine();
+  const [searchParams] = useSearchParams();
+  const queryGap = searchParams.get('gap') ?? '';
+  const queryZone = searchParams.get('zone') ?? '';
   const storeLabel = t(`filter.store.${storeId}` as MessageKey);
   const [events, setEvents] = useState<GapEvent[]>([]);
-  const [zoneFilter, setZoneFilter] = useState('all');
+  const [zoneFilter, setZoneFilter] = useState(queryZone || 'all');
   const [dispatches, setDispatches] = useState<Record<string, DispatchRecord>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -47,6 +58,18 @@ export function CoachPage() {
     return () => { cancelled = true; };
   }, [reload]);
 
+  useEffect(() => {
+    if (events.length === 0) return;
+    if (queryGap) {
+      const hit = events.find((e) => e.gap_id === queryGap);
+      if (hit) setZoneFilter(hit.zone_id ?? hit.zone_name);
+      return;
+    }
+    if (!queryZone) return;
+    const match = events.find((e) => matchesZone(e, queryZone));
+    if (match) setZoneFilter(match.zone_id ?? match.zone_name);
+  }, [events, queryGap, queryZone]);
+
   const zones = useMemo(() => {
     const set = new Map<string, string>();
     events.forEach((e) => set.set(e.zone_id ?? e.zone_name, e.zone_name));
@@ -54,14 +77,16 @@ export function CoachPage() {
   }, [events]);
 
   const filtered = events.filter((e) => {
+    if (queryGap && e.gap_id !== queryGap) return false;
     if (zoneFilter === 'all') return true;
-    return (e.zone_id ?? e.zone_name) === zoneFilter;
+    return matchesZone(e, zoneFilter);
   });
 
   const refresh = () => setDispatches(getDispatches());
 
   const onDispatch = (e: GapEvent) => {
     markDispatched(e.gap_id, e.zone_name, 'coach');
+    setFocus({ gapId: e.gap_id, zoneId: e.zone_id, zoneName: e.zone_name });
     refresh();
   };
 
@@ -71,6 +96,7 @@ export function CoachPage() {
       <p className="page-subtitle">
         {storeLabel} · {t('coach.subtitle', { sec: dwellSec, sla: slaSec })}
       </p>
+      <SpineNav />
 
       <div className="toolbar-row">
         <label className="filter-inline">

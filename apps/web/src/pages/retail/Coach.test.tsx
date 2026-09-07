@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { saveRuleOverrides } from '@/lib/settingsStore'
@@ -21,13 +23,17 @@ function stubRetailFetch() {
   })
 }
 
-function renderCoach() {
+function renderCoach(path = '/retail/coach') {
   return render(
-    <RetailLocaleProvider>
-      <RetailFilterProvider>
-        <CoachPage />
-      </RetailFilterProvider>
-    </RetailLocaleProvider>,
+    <MemoryRouter initialEntries={[path]}>
+      <RetailLocaleProvider>
+        <RetailFilterProvider>
+          <DemoSpineProvider>
+            <CoachPage />
+          </DemoSpineProvider>
+        </RetailFilterProvider>
+      </RetailLocaleProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -71,6 +77,30 @@ test('subtitle reads dwell and first_contact from settingsStore', async () => {
   })
   expect(screen.getByText(/≥180s/)).toBeInTheDocument()
   expect(screen.getByText(/首次接觸 45s/)).toBeInTheDocument()
+})
+
+test('on mount reads ?zone= and filters the coach list', async () => {
+  renderCoach('/retail/coach?zone=fitting_room')
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務教練' })).toBeInTheDocument()
+  })
+  expect(screen.getByLabelText('區域')).toHaveValue('fitting_room')
+  const cards = [...document.querySelectorAll('.coach-card')]
+  expect(cards.length).toBeGreaterThan(0)
+  expect(cards.every((c) => c.textContent?.includes('試衣間'))).toBe(true)
+  expect(cards.some((c) => c.textContent?.includes('貨架 A'))).toBe(false)
+  expect(cards.some((c) => c.textContent?.includes('收銀台'))).toBe(false)
+})
+
+test('on mount reads ?gap= and filters to that case', async () => {
+  renderCoach('/retail/coach?gap=gap_20260902_142215_001&zone=fitting_room')
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: '服務教練' })).toBeInTheDocument()
+  })
+  const cards = [...document.querySelectorAll('.coach-card')]
+  expect(cards).toHaveLength(1)
+  expect(cards[0]).toHaveTextContent('試衣間')
+  expect(cards[0]).toHaveTextContent('2 位顧客在試衣間外等候超過 2 分鐘，無員工接近')
 })
 
 test('failed fetch shows 繁中 retry instead of hanging', async () => {

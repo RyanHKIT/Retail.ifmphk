@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { api, fetchMockWithMeta, toChipSource } from '@/api/retail';
 import type { HeatmapData, ZonesData, ZoneDwell, DwellTrend, JourneyPath } from '@/api/retail';
@@ -6,7 +7,9 @@ import { ChartPanel } from '@/components/retail/ChartPanel';
 import { FloorHeatmap } from '@/components/retail/FloorHeatmap';
 import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
+import { SpineNav } from '@/components/retail/SpineNav';
 import type { SourceChipSource } from '@/components/retail/SourceChip';
+import { useDemoSpine } from '@/context/DemoSpineContext';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
@@ -23,6 +26,8 @@ function heatForMetric(zones: HeatmapData['zones'], metric: HeatMetric): Heatmap
 export function JourneyPage() {
   const { chart } = useRetailTheme();
   const { t } = useRetailLocale();
+  const { setFocus } = useDemoSpine();
+  const navigate = useNavigate();
   const [heatmap, setHeatmap] = useState<HeatmapData | null>(null);
   const [zones, setZones] = useState<ZonesData | null>(null);
   const [dwell, setDwell] = useState<ZoneDwell[]>([]);
@@ -85,6 +90,7 @@ export function JourneyPage() {
         {source && <SourceChip source={source} />}
       </div>
       <p className="page-subtitle">{t('journey.subtitle')}</p>
+      <SpineNav />
 
       <div className="source-hint-strip" role="note">
         <span className="source-hint-label">{t('journey.heatmap')}</span>
@@ -113,7 +119,14 @@ export function JourneyPage() {
           </div>
         </div>
         {zones && heatmap ? (
-          <FloorHeatmap zones={zones.zones} heat={heatZones} />
+          <FloorHeatmap
+            zones={zones.zones}
+            heat={heatZones}
+            onZoneClick={(zone) => {
+              setFocus({ zoneId: zone.zone_id, zoneName: zone.name });
+              navigate(`/retail/service-gap?zone=${zone.zone_id}`);
+            }}
+          />
         ) : (
           <div className="empty-state">{t('journey.empty')}</div>
         )}

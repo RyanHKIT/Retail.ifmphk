@@ -47,6 +47,10 @@ const zhHant = {
   'common.retry': '重試',
   'common.loadError': '暫時無法載入，請稍後再試',
   'common.empty': '目前沒有可顯示的資料',
+  'spine.next': '下一步',
+  'spine.done': '本節完成',
+  'spine.toCoach': '去教練',
+  'spine.toRoster': '去排班',
   'demo.banner': 'Demo 模式 — 數據來自 Mock JSON，Phase 1 將接入百度一見 Webhook 實時數據',
   'demo.strong': 'Demo 模式',
 
@@ -286,6 +290,10 @@ const zhHans: Dict = {
   'common.retry': '重试',
   'common.loadError': '暂时无法载入，请稍后再试',
   'common.empty': '目前没有可显示的资料',
+  'spine.next': '下一步',
+  'spine.done': '本节完成',
+  'spine.toCoach': '去教练',
+  'spine.toRoster': '去排班',
   'demo.banner': 'Demo 模式 — 数据来自 Mock JSON，Phase 1 将接入百度一见 Webhook 实时数据',
   'demo.strong': 'Demo 模式',
 
@@ -523,6 +531,10 @@ const en: Dict = {
   'common.retry': 'Retry',
   'common.loadError': 'Could not load. Please try again.',
   'common.empty': 'Nothing to show right now',
+  'spine.next': 'Next',
+  'spine.done': 'Section complete',
+  'spine.toCoach': 'To coach',
+  'spine.toRoster': 'To roster',
   'demo.banner': 'Demo mode — Mock JSON data. Phase 1 will connect Baidu Yijian Webhook live data.',
   'demo.strong': 'Demo mode',
 

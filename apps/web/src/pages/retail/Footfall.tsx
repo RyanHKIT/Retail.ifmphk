@@ -5,6 +5,7 @@ import type { FunnelStage, FootfallHourly, PassbyHourly, FootfallEvent, CameraSn
 import { ChartPanel } from '@/components/retail/ChartPanel';
 import { PageStatus } from '@/components/retail/PageStatus';
 import { SourceChip } from '@/components/retail/SourceChip';
+import { SpineNav } from '@/components/retail/SpineNav';
 import { useRetailTheme } from '@/context/RetailThemeContext';
 import { useRetailLocale } from '@/context/RetailLocaleContext';
 import { CHART, chartTooltipStyle } from '@/lib/chartStyle';
@@ -87,6 +88,7 @@ export function FootfallPage() {
         {source && <SourceChip source={source} />}
       </div>
       <p className="page-subtitle">{t('footfall.subtitle')}</p>
+      <SpineNav />
 
       <div className="source-hint-strip" role="note">
         <span className="source-hint-label">{t('footfall.storyLabel')}</span>

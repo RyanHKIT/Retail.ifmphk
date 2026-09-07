@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { DemoSpineProvider } from '@/context/DemoSpineContext'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
@@ -25,13 +27,17 @@ function stubRetailFetch() {
 
 function renderGap() {
   return render(
-    <RetailLocaleProvider>
-      <RetailThemeProvider>
-        <RetailFilterProvider>
-          <ServiceGapPage />
-        </RetailFilterProvider>
-      </RetailThemeProvider>
-    </RetailLocaleProvider>,
+    <MemoryRouter initialEntries={['/retail/service-gap']}>
+      <RetailLocaleProvider>
+        <RetailThemeProvider>
+          <RetailFilterProvider>
+            <DemoSpineProvider>
+              <ServiceGapPage />
+            </DemoSpineProvider>
+          </RetailFilterProvider>
+        </RetailThemeProvider>
+      </RetailLocaleProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -68,6 +74,13 @@ test('shows ≥2 min rule and one-click 已調度', async () => {
     .data.items[0].gap_id as string
   expect(isDispatched(firstId)).toBe(true)
   expect(listDispatched()).toContain(firstId)
+
+  const firstZone = JSON.parse(readFileSync(resolve(mockDir, 'gap-events.json'), 'utf-8'))
+    .data.items[0].zone_id as string
+  const coach = screen.getByRole('link', { name: '去教練' })
+  const roster = screen.getByRole('link', { name: '去排班' })
+  expect(coach).toHaveAttribute('href', `/retail/coach?gap=${firstId}&zone=${firstZone}`)
+  expect(roster).toHaveAttribute('href', `/retail/roster?zone=${firstZone}`)
 })
 
 test('reads dwell and first_contact display copy from settingsStore', async () => {
