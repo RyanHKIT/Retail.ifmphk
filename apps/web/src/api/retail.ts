@@ -251,9 +251,20 @@ export interface AlertItem {
   read: boolean;
 }
 
+export type ZoneAnchor = { x: number; y: number; r: number };
+
 export interface ZonesData {
   store_name: string;
-  zones: { zone_id: string; name: string; type: string; bbox: { x: number; y: number; w: number; h: number }; area_sqm: number }[];
+  floor_plan_url: string;
+  floor_plan_label?: string;
+  zones: {
+    zone_id: string;
+    name: string;
+    type: string;
+    bbox: { x: number; y: number; w: number; h: number };
+    anchor: ZoneAnchor;
+    area_sqm: number;
+  }[];
 }
 
 export interface CameraSnapshot {

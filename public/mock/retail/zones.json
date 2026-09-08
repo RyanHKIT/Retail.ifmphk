@@ -4,7 +4,8 @@
   "data": {
     "store_id": "it-cwb",
     "store_name": "I.T. 銅鑼灣（示範）",
-    "floor_plan_url": "/assets/floor-plans/it-cwb.svg",
+    "floor_plan_url": "/assets/floor-plans/it-demo-fashion.png",
+    "floor_plan_label": "示範平面圖（樣本）",
     "zones": [
       {
         "zone_id": "entrance",
@@ -12,6 +13,7 @@
         "name_en": "Entrance",
         "type": "entrance",
         "bbox": { "x": 40, "y": 85, "w": 20, "h": 10 },
+        "anchor": { "x": 50, "y": 92, "r": 12 },
         "area_sqm": 8,
         "min_staff": 0
       },
@@ -21,6 +23,7 @@
         "name_en": "Shelves A",
         "type": "shelf",
         "bbox": { "x": 10, "y": 20, "w": 30, "h": 40 },
+        "anchor": { "x": 18, "y": 48, "r": 16 },
         "area_sqm": 45,
         "min_staff": 1
       },
@@ -30,6 +33,7 @@
         "name_en": "Shelves B",
         "type": "shelf",
         "bbox": { "x": 45, "y": 15, "w": 25, "h": 45 },
+        "anchor": { "x": 40, "y": 32, "r": 14 },
         "area_sqm": 38,
         "min_staff": 1
       },
@@ -39,6 +43,7 @@
         "name_en": "Fitting room",
         "type": "fitting",
         "bbox": { "x": 75, "y": 25, "w": 20, "h": 30 },
+        "anchor": { "x": 82, "y": 28, "r": 12 },
         "area_sqm": 12,
         "min_staff": 1
       },
@@ -48,6 +53,7 @@
         "name_en": "Cashier",
         "type": "cashier",
         "bbox": { "x": 70, "y": 70, "w": 25, "h": 20 },
+        "anchor": { "x": 58, "y": 20, "r": 11 },
         "area_sqm": 15,
         "min_staff": 1
       }
