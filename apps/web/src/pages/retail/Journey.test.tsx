@@ -59,6 +59,11 @@ afterEach(() => {
 
 test('heatmap zones are buttons and click navigates to service-gap?zone=', async () => {
   renderJourney()
+  expect(await screen.findByRole('img', { name: '示範平面圖（樣本）' })).toHaveAttribute(
+    'src',
+    '/assets/floor-plans/it-demo-fashion.png',
+  )
+  expect(screen.getByText(/示範平面圖 · 樣本密度/)).toBeInTheDocument()
   const zone = await screen.findByRole('button', { name: '試衣間' })
   expect(zone).toHaveClass('is-clickable')
   expect(document.querySelector('.floor-plan--hero')).toBeTruthy()

@@ -240,6 +240,7 @@ export function OverviewPage() {
         <div className="grid-2-1">
           <div className="card chart-enter" style={{ animationDelay: 'calc(2 * var(--duration-enter-stagger))' }}>
             <div className="card-title">{t('overview.heatmap')}</div>
+            <p className="card-note">{t('overview.demoPlan')}</p>
             {zones && heatmap && (
               <FloorHeatmap
                 zones={zones.zones}

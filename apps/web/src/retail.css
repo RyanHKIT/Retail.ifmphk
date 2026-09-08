@@ -611,6 +611,13 @@ button {
   margin: 0 0 8px;
 }
 
+.card-note {
+  margin: -4px 0 10px;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
 .grid-kpi {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

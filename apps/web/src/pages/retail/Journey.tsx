@@ -107,6 +107,7 @@ export function JourneyPage() {
       <div className="source-hint-strip" role="note">
         <span className="source-hint-label">{t('journey.heatmap')}</span>
         <SourceChip source="camera" />
+        <span className="source-hint-copy">{t('journey.demoPlan')}</span>
         <span className="source-hint-copy">{t('journey.story')}</span>
       </div>
 
