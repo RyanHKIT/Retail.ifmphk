@@ -33,7 +33,7 @@
         "name_en": "Shelves B",
         "type": "shelf",
         "bbox": { "x": 45, "y": 15, "w": 25, "h": 45 },
-        "anchor": { "x": 40, "y": 32, "r": 14 },
+        "anchor": { "x": 90, "y": 52, "r": 13 },
         "area_sqm": 38,
         "min_staff": 1
       },
@@ -43,7 +43,7 @@
         "name_en": "Fitting room",
         "type": "fitting",
         "bbox": { "x": 75, "y": 25, "w": 20, "h": 30 },
-        "anchor": { "x": 82, "y": 28, "r": 12 },
+        "anchor": { "x": 82, "y": 26, "r": 11 },
         "area_sqm": 12,
         "min_staff": 1
       },
@@ -53,7 +53,7 @@
         "name_en": "Cashier",
         "type": "cashier",
         "bbox": { "x": 70, "y": 70, "w": 25, "h": 20 },
-        "anchor": { "x": 58, "y": 20, "r": 11 },
+        "anchor": { "x": 55, "y": 30, "r": 10 },
         "area_sqm": 15,
         "min_staff": 1
       }
