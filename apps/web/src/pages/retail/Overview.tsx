@@ -182,39 +182,23 @@ export function OverviewPage() {
       )}
 
       <div className="overview-evidence">
-        <ChartPanel title={t('overview.footfallChart')} staggerIndex={0}>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-              <XAxis dataKey="hour" stroke={chart.axis} />
-              <YAxis stroke={chart.axis} />
-              <Tooltip contentStyle={chartTooltipStyle(chart)} />
-              <Line type="monotone" dataKey={passbyKey} stroke={CHART[4]} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey={enterKey} stroke={CHART[1]} strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartPanel>
-
-        <div className="grid-2-1">
-          <div className="card chart-enter" style={{ animationDelay: 'calc(1 * var(--duration-enter-stagger))' }}>
-            <div className="card-title">{t('overview.heatmap')}</div>
-            {zones && heatmap && <FloorHeatmap zones={zones.zones} heat={heatmap.zones} compact />}
-          </div>
-          <div className="card chart-enter" style={{ animationDelay: 'calc(2 * var(--duration-enter-stagger))' }}>
-            <div className="card-title">{t('overview.alerts')}</div>
-            <AlertList items={alerts} />
-            {pieData.length > 0 && (
+        {pieData.length > 0 ? (
+          <div className="grid-1-2">
+            <div className="card chart-enter" style={{ animationDelay: 'calc(0 * var(--duration-enter-stagger))' }}>
+              <div className="card-title">{t('overview.roles')}</div>
               <div className="overview-roles">
-                <ResponsiveContainer width="100%" height={120}>
-                  <PieChart>
-                    <Pie data={pieData} cx="30%" cy="50%" innerRadius={28} outerRadius={48} dataKey="value">
-                      {pieData.map((_, i) => (
-                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={chartTooltipStyle(chart)} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="overview-roles-chart">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={36} outerRadius={56} dataKey="value">
+                        {pieData.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
                 <div className="legend-row overview-roles-legend">
                   {people?.role_distribution.map((r, i) => (
                     <span key={r.role}>
@@ -224,7 +208,51 @@ export function OverviewPage() {
                   ))}
                 </div>
               </div>
+            </div>
+            <ChartPanel title={t('overview.footfallChart')} staggerIndex={1}>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                  <XAxis dataKey="hour" stroke={chart.axis} />
+                  <YAxis stroke={chart.axis} />
+                  <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                  <Line type="monotone" dataKey={passbyKey} stroke={CHART[4]} strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey={enterKey} stroke={CHART[1]} strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartPanel>
+          </div>
+        ) : (
+          <ChartPanel title={t('overview.footfallChart')} staggerIndex={0}>
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+                <XAxis dataKey="hour" stroke={chart.axis} />
+                <YAxis stroke={chart.axis} />
+                <Tooltip contentStyle={chartTooltipStyle(chart)} />
+                <Line type="monotone" dataKey={passbyKey} stroke={CHART[4]} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey={enterKey} stroke={CHART[1]} strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        )}
+
+        <div className="grid-2-1">
+          <div className="card chart-enter" style={{ animationDelay: 'calc(2 * var(--duration-enter-stagger))' }}>
+            <div className="card-title">{t('overview.heatmap')}</div>
+            {zones && heatmap && (
+              <FloorHeatmap
+                zones={zones.zones}
+                heat={heatmap.zones}
+                floorPlanUrl={zones.floor_plan_url}
+                floorPlanLabel={zones.floor_plan_label}
+                compact
+              />
             )}
+          </div>
+          <div className="card chart-enter" style={{ animationDelay: 'calc(3 * var(--duration-enter-stagger))' }}>
+            <div className="card-title">{t('overview.alerts')}</div>
+            <AlertList items={alerts} />
           </div>
         </div>
 

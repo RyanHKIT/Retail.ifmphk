@@ -130,6 +130,8 @@ export function JourneyPage() {
           <FloorHeatmap
             zones={zones.zones}
             heat={heatZones}
+            floorPlanUrl={zones.floor_plan_url}
+            floorPlanLabel={zones.floor_plan_label}
             hero
             onZoneClick={(zone) => {
               setFocus({ zoneId: zone.zone_id, zoneName: zone.name });

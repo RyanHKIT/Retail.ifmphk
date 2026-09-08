@@ -68,8 +68,8 @@ export function accumulateGaussians(
 /** Map intensity buffer → RGBA (length width*height*4). */
 export function colorizeDensity(
   intensity: Float32Array,
-  width: number,
-  height: number,
+  _width: number,
+  _height: number,
   outRgba: Uint8ClampedArray,
   opts?: { maxAlpha?: number },
 ): void {
@@ -94,7 +94,10 @@ export function colorizeDensity(
 function makeImageData(data: Uint8ClampedArray, width: number, height: number): ImageData {
   if (typeof ImageData !== 'undefined') {
     try {
-      return new ImageData(data, width, height)
+      // Copy into a fresh ArrayBuffer-backed view for DOM ImageData typing.
+      const copy = new Uint8ClampedArray(data.length)
+      copy.set(data)
+      return new ImageData(copy, width, height)
     } catch {
       // jsdom / older environments
     }
