@@ -183,6 +183,15 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
+-- Helpers are internal (used by RLS policies only), not RPC API surface.
+-- Postgres grants EXECUTE to PUBLIC by default; revoke so they are not
+-- callable via /rest/v1/rpc/* by anon or authenticated clients.
+REVOKE EXECUTE ON FUNCTION public.get_user_role(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.user_manages_branch(uuid, uuid) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_profile_branch_id(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_employee_branch_id(uuid) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+
 -- =============================================
 -- HELPERS (SECURITY DEFINER to avoid RLS recursion)
 -- Pattern from MeDo 00001 + 00004
