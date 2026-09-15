@@ -43,6 +43,28 @@ npx vitest run
 
 Expected: typecheck clean; 27 test files / 94+ tests passing (incl. 8 new flow tests).
 
+### Smoke results — 2026-09-15 ✅
+
+| Check | Result |
+|---|---|
+| Home hub → pilot link → `/flow/login` redirect | ✅ |
+| Login renders bilingual (IFMP RETAIL / I.T. 銅鑼灣) | ✅ (after provider fix, see below) |
+| Empty submit error / wrong-credential error (live Supabase) | ✅ |
+| Signed-in shell: nav 主控台/排班/設定, top bar I.T. 銅鑼灣 + user + 登出 | ✅ |
+| Manager profile resolves via RLS (`branch_manager`) | ✅ |
+| Legacy `/retail` untouched | ✅ |
+| Typecheck + 27 files / 94 tests | ✅ |
+
+Fixes shipped during smoke (commits `324ddb9`, `bbe9a72`, `897177e`):
+1. `/flow/login` mounted under FlowLocale+FlowAuth providers (was outside → blank page).
+2. RLS helpers moved to `private` schema — revoking EXECUTE in `public` broke policy
+   evaluation for `authenticated` (profile fetch failed → login bounce). Private schema
+   keeps PostgREST exposure closed while policies keep working.
+
+Pilot manager: `retail-manager-pilot@ifmphk.com` (demo1234 — **rotate before handover**),
+branch_manager @ I.T. 銅鑼灣. Dev server note: the `/api/health` proxy errors in the
+terminal are the legacy Express backend not running — unrelated to `/flow`.
+
 ## 4. Out of scope (later phases)
 
 | Phase | Content |
