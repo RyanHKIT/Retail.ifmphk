@@ -23,7 +23,7 @@ const FlowAuthContext = createContext<FlowAuthContextValue | null>(null)
 
 async function fetchProfile(user: User | null): Promise<FlowProfile | null> {
   if (!user) return null
-  const supabase = createFlowSupabase()
+  const supabase = createFlowSupabase() // singleton — never creates a second GoTrueClient
   const { data, error } = await supabase
     .from('profiles')
     .select('id, email, display_name, role')
@@ -53,7 +53,7 @@ export function FlowAuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    const supabase = createFlowSupabase()
+    const supabase = createFlowSupabase() // singleton
     let cancelled = false
 
     async function init() {
@@ -77,7 +77,7 @@ export function FlowAuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (email: string, password: string) => {
-      const supabase = createFlowSupabase()
+      const supabase = createFlowSupabase() // singleton
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) return { error: error.message }
       await applySession(data.session ?? null)
@@ -87,7 +87,7 @@ export function FlowAuthProvider({ children }: { children: ReactNode }) {
   )
 
   const signOut = useCallback(async () => {
-    const supabase = createFlowSupabase()
+    const supabase = createFlowSupabase() // singleton
     await supabase.auth.signOut()
     setSession(null)
     setProfile(null)

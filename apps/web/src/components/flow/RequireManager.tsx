@@ -7,7 +7,7 @@ import { useFlowLocale } from '@/context/FlowLocaleContext'
  * - While loading OR resolving a profile for an existing session: show quiet loading state
  *   (prevents login flash for signed-in manager and post-sign-in redirect race).
  * - No session / no profile / non-manager role → redirect to /flow/login.
- * Pilot role policy: only branch_manager passes. Owner/staff surfaces arrive later.
+ * - Pilot role policy: only branch_manager passes. Owner/staff surfaces arrive later.
  */
 export function RequireManager() {
   const { session, profile, loading, resolvingProfile } = useFlowAuth()
