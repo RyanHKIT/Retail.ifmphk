@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Outlet, Route, Routes } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { RetailFilterProvider } from '@/context/RetailFilterContext'
 import { RetailThemeProvider } from '@/context/RetailThemeContext'
@@ -153,20 +153,22 @@ export default function App() {
         <Route path="energy" element={<EnergyPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
-      <Route path="/flow/login" element={<LoginPage />} />
       <Route
         path="/flow"
         element={
           <FlowLocaleProvider>
             <FlowAuthProvider>
-              <RequireManager />
+              <Outlet />
             </FlowAuthProvider>
           </FlowLocaleProvider>
         }
       >
-        <Route element={<FlowShell />}>
-          <Route index element={<OverviewPlaceholder />} />
-          <Route path="*" element={<FlowStubPage />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route element={<RequireManager />}>
+          <Route element={<FlowShell />}>
+            <Route index element={<OverviewPlaceholder />} />
+            <Route path="*" element={<FlowStubPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
