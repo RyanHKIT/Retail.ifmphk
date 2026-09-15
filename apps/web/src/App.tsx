@@ -15,6 +15,13 @@ import { RosterPage } from '@/pages/retail/Roster'
 import { CoachPage } from '@/pages/retail/Coach'
 import { SettingsPage } from '@/pages/retail/Settings'
 import { EnergyPage } from '@/pages/retail/Energy'
+import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
+import { FlowAuthProvider } from '@/context/FlowAuthContext'
+import { RequireManager } from '@/components/flow/RequireManager'
+import { FlowShell } from '@/components/flow/FlowShell'
+import { LoginPage } from '@/pages/flow/Login'
+import { OverviewPlaceholder } from '@/pages/flow/OverviewPlaceholder'
+import { FlowStubPage } from '@/pages/flow/FlowStubPage'
 
 type Health = {
   ok?: boolean
@@ -90,6 +97,12 @@ function HomePage() {
         >
           開啟 I.T 零售營運分析 Demo →
         </Link>
+        <Link
+          to="/flow"
+          className="mt-4 inline-flex items-center rounded-xl border border-[var(--color-line)] px-5 py-3 text-sm font-semibold hover:bg-white"
+        >
+          IFMP Retail（pilot）→
+        </Link>
         <div
           className={cn(
             'mt-5 rounded-xl border px-4 py-3 text-sm',
@@ -139,6 +152,22 @@ export default function App() {
         <Route path="coach" element={<CoachPage />} />
         <Route path="energy" element={<EnergyPage />} />
         <Route path="settings" element={<SettingsPage />} />
+      </Route>
+      <Route path="/flow/login" element={<LoginPage />} />
+      <Route
+        path="/flow"
+        element={
+          <FlowLocaleProvider>
+            <FlowAuthProvider>
+              <RequireManager />
+            </FlowAuthProvider>
+          </FlowLocaleProvider>
+        }
+      >
+        <Route element={<FlowShell />}>
+          <Route index element={<OverviewPlaceholder />} />
+          <Route path="*" element={<FlowStubPage />} />
+        </Route>
       </Route>
     </Routes>
   )

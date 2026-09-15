@@ -1,0 +1,236 @@
+/* IFMP Retail (Flow pilot) — scoped shell styles.
+   All selectors live under .flow-app so retail pages stay untouched. */
+
+.flow-app {
+  --flow-bg: #0d1220;
+  --flow-panel: #151c2e;
+  --flow-panel-2: #1b2438;
+  --flow-line: #2a3550;
+  --flow-text: #e8ecf5;
+  --flow-muted: #93a0b8;
+  --flow-accent: #2f81f7;
+  --flow-accent-soft: rgba(47, 129, 247, 0.16);
+  --flow-danger: #e5534b;
+
+  min-height: 100vh;
+  background: var(--flow-bg);
+  color: var(--flow-text);
+  font-family: 'Inter', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+}
+
+.flow-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Left nav */
+.flow-nav {
+  width: 232px;
+  flex-shrink: 0;
+  background: var(--flow-panel);
+  border-right: 1px solid var(--flow-line);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+}
+
+.flow-nav-brand {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px 14px;
+}
+
+.flow-nav-brand small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--flow-muted);
+  margin-top: 2px;
+}
+
+.flow-nav-group {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--flow-muted);
+  padding: 14px 10px 6px;
+}
+
+.flow-nav a {
+  display: block;
+  padding: 8px 10px;
+  margin: 1px 0;
+  border-radius: 6px;
+  color: var(--flow-muted);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.flow-nav a:hover {
+  background: var(--flow-panel-2);
+  color: var(--flow-text);
+}
+
+.flow-nav a.active {
+  background: var(--flow-accent-soft);
+  color: var(--flow-text);
+}
+
+/* Top bar */
+.flow-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.flow-topbar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--flow-line);
+  background: var(--flow-panel);
+}
+
+.flow-topbar-site {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.flow-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.flow-topbar-actions button,
+.flow-topbar-actions a {
+  background: var(--flow-panel-2);
+  border: 1px solid var(--flow-line);
+  color: var(--flow-muted);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.flow-topbar-actions button:hover,
+.flow-topbar-actions a:hover {
+  color: var(--flow-text);
+}
+
+/* Content */
+.flow-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.flow-placeholder {
+  border: 1px dashed var(--flow-line);
+  border-radius: 10px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--flow-muted);
+}
+
+.flow-placeholder h2 {
+  color: var(--flow-text);
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+/* Login */
+.flow-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.flow-login-card {
+  width: 360px;
+  background: var(--flow-panel);
+  border: 1px solid var(--flow-line);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.flow-login-brand {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--flow-accent);
+  margin-bottom: 8px;
+}
+
+.flow-login-title {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+.flow-login-site {
+  font-size: 12px;
+  color: var(--flow-muted);
+  margin-bottom: 18px;
+}
+
+.flow-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flow-login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--flow-muted);
+}
+
+.flow-login-form input {
+  background: var(--flow-bg);
+  border: 1px solid var(--flow-line);
+  border-radius: 6px;
+  color: var(--flow-text);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.flow-login-form input:focus {
+  outline: 1px solid var(--flow-accent);
+}
+
+.flow-login-form button {
+  background: var(--flow-accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  padding: 9px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.flow-login-form button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.flow-login-error {
+  color: var(--flow-danger);
+  font-size: 12px;
+}
+
+.flow-gate-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: var(--flow-muted);
+}
