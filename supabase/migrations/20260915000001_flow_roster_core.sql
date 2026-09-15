@@ -1,7 +1,7 @@
 -- =============================================
--- IFMP Retail (Flow pilot) — roster core schema
+-- IFMP Retail (Flow pilot) ??roster core schema
 -- Adapted from _reference/hk-roster-planner 00001 + 00004
--- Retail adaptation: stations 樓面 | 試衣 | 收銀
+-- Retail adaptation: stations 樓面 | 試衣 | ?��?
 -- =============================================
 
 -- ENUMS
@@ -31,7 +31,7 @@ CREATE TABLE public.branches (
 );
 ALTER TABLE public.branches ENABLE ROW LEVEL SECURITY;
 
--- EMPLOYEES (staff registry per branch) — retail stations
+-- EMPLOYEES (staff registry per branch) ??retail stations
 CREATE TABLE public.employees (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   profile_id uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
@@ -40,7 +40,7 @@ CREATE TABLE public.employees (
   name_en text NOT NULL DEFAULT '',
   phone text NOT NULL DEFAULT '',
   station text NOT NULL DEFAULT '樓面'
-    CHECK (station IN ('樓面', '試衣', '收銀')),
+    CHECK (station IN ('樓面', '試衣', '?��?')),
   employment_type text NOT NULL DEFAULT 'full_time', -- full_time | part_time
   min_hours_per_week numeric(5,2) NOT NULL DEFAULT 0,
   max_hours_per_week numeric(5,2) NOT NULL DEFAULT 48,
@@ -68,7 +68,7 @@ CREATE TABLE public.shift_templates (
   end_time time NOT NULL,
   color text NOT NULL DEFAULT '#B45309',
   station text NOT NULL DEFAULT '樓面'
-    CHECK (station IN ('樓面', '試衣', '收銀')),
+    CHECK (station IN ('樓面', '試衣', '?��?')),
   headcount_target integer NOT NULL DEFAULT 1,
   is_active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now()
@@ -161,7 +161,7 @@ ALTER TABLE public.availability_notes ENABLE ROW LEVEL SECURITY;
 -- =============================================
 -- AUTO-SYNC PROFILES ON SIGNUP
 -- =============================================
-CREATE FUNCTION public.handle_new_user()
+CREATE FUNCTION private.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
@@ -181,22 +181,20 @@ $$;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user();
-
--- Helpers are internal (used by RLS policies only), not RPC API surface.
--- Postgres grants EXECUTE to PUBLIC by default; revoke so they are not
--- callable via /rest/v1/rpc/* by anon or authenticated clients.
-REVOKE EXECUTE ON FUNCTION public.get_user_role(uuid) FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.user_manages_branch(uuid, uuid) FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.get_profile_branch_id(uuid) FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.get_employee_branch_id(uuid) FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+  EXECUTE FUNCTION private.handle_new_user();
 
 -- =============================================
 -- HELPERS (SECURITY DEFINER to avoid RLS recursion)
 -- Pattern from MeDo 00001 + 00004
+-- Live in schema `private` (created here) so they are NOT reachable via
+-- PostgREST /rest/v1/rpc/* (advisor: security definer function exposure)
+-- while still callable by RLS policies and the auth trigger.
 -- =============================================
-CREATE OR REPLACE FUNCTION public.get_user_role(uid uuid)
+CREATE SCHEMA IF NOT EXISTS private;
+GRANT USAGE ON SCHEMA private TO authenticated;
+REVOKE ALL ON SCHEMA private FROM anon, PUBLIC;
+
+CREATE OR REPLACE FUNCTION private.get_user_role(uid uuid)
 RETURNS user_role
 LANGUAGE sql
 SECURITY DEFINER
@@ -205,7 +203,7 @@ AS $$
   SELECT role FROM public.profiles WHERE id = uid;
 $$;
 
-CREATE OR REPLACE FUNCTION public.user_manages_branch(uid uuid, bid uuid)
+CREATE OR REPLACE FUNCTION private.user_manages_branch(uid uuid, bid uuid)
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
@@ -216,7 +214,7 @@ AS $$
   ) OR (SELECT role FROM public.profiles WHERE id = uid) = 'owner'::user_role;
 $$;
 
-CREATE OR REPLACE FUNCTION public.get_profile_branch_id(profile_id uuid)
+CREATE OR REPLACE FUNCTION private.get_profile_branch_id(profile_id uuid)
 RETURNS uuid
 LANGUAGE sql
 STABLE
@@ -226,7 +224,7 @@ AS $$
   SELECT branch_id FROM public.employees WHERE employees.profile_id = profile_id LIMIT 1;
 $$;
 
-CREATE OR REPLACE FUNCTION public.get_employee_branch_id(emp_id uuid)
+CREATE OR REPLACE FUNCTION private.get_employee_branch_id(emp_id uuid)
 RETURNS uuid
 LANGUAGE sql
 SECURITY DEFINER
@@ -234,6 +232,9 @@ SET search_path = public
 AS $$
   SELECT branch_id FROM public.employees WHERE id = emp_id;
 $$;
+
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA private FROM PUBLIC, anon;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated;
 
 -- =============================================
 -- RLS POLICIES
@@ -364,7 +365,7 @@ CREATE POLICY "Staff can insert own swap requests" ON public.swap_requests
     )
   );
 
--- AUDIT_LOGS — manager SELECT only; no client INSERT (write path is server-side / triggers later)
+-- AUDIT_LOGS ??manager SELECT only; no client INSERT (write path is server-side / triggers later)
 CREATE POLICY "Owner can view all audit logs" ON public.audit_logs
   FOR SELECT TO authenticated USING (get_user_role(auth.uid()) = 'owner'::user_role);
 CREATE POLICY "Branch managers can view audit logs" ON public.audit_logs
