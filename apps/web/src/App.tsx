@@ -22,6 +22,7 @@ import { FlowShell } from '@/components/flow/FlowShell'
 import { LoginPage } from '@/pages/flow/Login'
 import { OverviewPlaceholder } from '@/pages/flow/OverviewPlaceholder'
 import { FlowStubPage } from '@/pages/flow/FlowStubPage'
+import { WeekBoardPage } from '@/pages/flow/roster/WeekBoard'
 
 type Health = {
   ok?: boolean
@@ -167,6 +168,7 @@ export default function App() {
         <Route element={<RequireManager />}>
           <Route element={<FlowShell />}>
             <Route index element={<OverviewPlaceholder />} />
+            <Route path="roster" element={<WeekBoardPage />} />
             <Route path="*" element={<FlowStubPage />} />
           </Route>
         </Route>

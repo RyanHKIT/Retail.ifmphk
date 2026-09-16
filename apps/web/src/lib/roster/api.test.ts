@@ -23,6 +23,8 @@ import {
   createTemplate,
   deleteTemplate,
   fetchAudit,
+  fetchManagedBranchId,
+  fetchMonthAssignments,
   fetchSwaps,
   fetchWeekData,
   isoWeekInfo,
@@ -49,6 +51,8 @@ function makeQB(state: { data: unknown; error: unknown }) {
   for (const m of [
     'select',
     'eq',
+    'gte',
+    'lte',
     'in',
     'order',
     'range',
@@ -210,16 +214,13 @@ describe('assignment mutations', () => {
     ])
     expect(rows).toEqual([ASG])
     const qb = (h.client.from as any).mock.results[0].value
-    expect(qb.insert).toHaveBeenCalledWith(
-      [
-        expect.objectContaining({
-          roster_week_id: 'w1',
-          employee_id: 'e1',
-          shift_template_id: 's1',
-        }),
-      ],
-      expect.anything(),
-    )
+    expect(qb.insert).toHaveBeenCalledWith([
+      expect.objectContaining({
+        roster_week_id: 'w1',
+        employee_id: 'e1',
+        shift_template_id: 's1',
+      }),
+    ])
   })
 
   it('removeAssignment deletes by id', async () => {
@@ -296,6 +297,33 @@ describe('swaps + audit queries', () => {
     const qb = (h.client.from as any).mock.results[0].value
     expect(qb.order).toHaveBeenCalledWith('created_at', { ascending: false })
     expect(qb.range).toHaveBeenCalledWith(100, 149)
+  })
+})
+
+describe('manager branch + month query', () => {
+  it('fetchManagedBranchId returns the managed branch or null', async () => {
+    h.results.branch_managers = { data: [{ branch_id: 'b1' }], error: null }
+    await expect(fetchManagedBranchId('p1')).resolves.toBe('b1')
+
+    h.results.branch_managers = { data: [], error: null }
+    await expect(fetchManagedBranchId('p2')).resolves.toBeNull()
+  })
+
+  it('fetchMonthAssignments queries week range then assignments by week ids', async () => {
+    h.results.roster_weeks = { data: [{ id: 'w1' }, { id: 'w2' }], error: null }
+    h.results.assignments = { data: [ASG], error: null }
+    const rows = await fetchMonthAssignments('b1', '2026-09-16')
+    expect(rows).toEqual([ASG])
+    const weeksQB = (h.client.from as any).mock.results[0].value
+    expect(weeksQB.gte).toHaveBeenCalledWith('week_start', '2026-08-31')
+    expect(weeksQB.lte).toHaveBeenCalledWith('week_start', '2026-10-04')
+    const asgQB = (h.client.from as any).mock.results[1].value
+    expect(asgQB.in).toHaveBeenCalledWith('roster_week_id', ['w1', 'w2'])
+  })
+
+  it('fetchMonthAssignments returns [] when no weeks', async () => {
+    h.results.roster_weeks = { data: [], error: null }
+    await expect(fetchMonthAssignments('b1', '2026-09-16')).resolves.toEqual([])
   })
 })
 

@@ -93,6 +93,58 @@ function sb() {
   return createFlowSupabase()
 }
 
+/** Branch id the current profile manages (branch_managers row). Null for owner/none. */
+export async function fetchManagedBranchId(profileId: string): Promise<string | null> {
+  const { data, error } = await sb()
+    .from('branch_managers')
+    .select('branch_id')
+    .eq('profile_id', profileId)
+    .limit(1)
+  if (error) throw mapRpcError(error)
+  const row = (data?.[0] ?? null) as { branch_id: string } | null
+  return row?.branch_id ?? null
+}
+
+/**
+ * Month view: assignments for every roster week overlapping the calendar month
+ * of `monthAnchor` (any date inside that month), scoped to `branchId`.
+ * Read-only — unlike the week bundle it never creates weeks.
+ */
+export async function fetchMonthAssignments(
+  branchId: string,
+  monthAnchor: string, // "YYYY-MM-DD" inside the target month
+): Promise<AssignmentRow[]> {
+  const client = sb()
+  const [y, m] = monthAnchor.split('-').map(Number)
+  const first = new Date(Date.UTC(y, m - 1, 1))
+  const last = new Date(Date.UTC(y, m, 0))
+  const padStart = (first.getUTCDay() + 6) % 7 // Mon-start pad
+  const padEnd = 7 - ((last.getUTCDay() + 6) % 7) - 1
+  const start = new Date(first)
+  start.setUTCDate(start.getUTCDate() - padStart)
+  const end = new Date(last)
+  end.setUTCDate(end.getUTCDate() + padEnd)
+  const startStr = start.toISOString().slice(0, 10)
+  const endStr = end.toISOString().slice(0, 10)
+
+  const { data: weeks, error } = await client
+    .from('roster_weeks')
+    .select('id')
+    .eq('branch_id', branchId)
+    .gte('week_start', startStr)
+    .lte('week_start', endStr)
+  if (error) throw mapRpcError(error)
+  const ids = (weeks ?? []).map((w: { id: string }) => w.id)
+  if (ids.length === 0) return []
+
+  const { data: assignments, error: aErr } = await client
+    .from('assignments')
+    .select('*')
+    .in('roster_week_id', ids)
+  if (aErr) throw mapRpcError(aErr)
+  return (assignments ?? []) as AssignmentRow[]
+}
+
 /** Fetch-or-create the draft week for `weekStart`, plus all board inputs. */
 export async function fetchWeekData(
   branchId: string,
@@ -177,10 +229,7 @@ export async function addAssignments(
 ): Promise<AssignmentRow[]> {
   const { data, error } = await sb()
     .from('assignments')
-    .insert(
-      rows.map((r) => ({ ...r, notes: r.notes ?? '', roster_week_id: rosterWeekId })),
-      { returning: 'representation' },
-    )
+    .insert(rows.map((r) => ({ ...r, notes: r.notes ?? '', roster_week_id: rosterWeekId })))
     .select('*')
   if (error) throw mapRpcError(error)
   return (data ?? []) as AssignmentRow[]
