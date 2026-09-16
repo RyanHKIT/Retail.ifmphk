@@ -284,6 +284,10 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'entrances.sevenDayOut': '7日離',
     'audience.title': '客群畫像',
     'audience.range': '本月至今',
+    'compare.title': '同期對比',
+    'compare.subtitle': '選定日 · 上週同曜日 · 去年同期',
+    'holidays.title': '節假日',
+    'holidays.note': '港曆節日標籤疊加示例流量（匿名同級店舖）',
   },
   en: {
     'product.name': 'IFMP Retail',
@@ -570,5 +574,9 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'entrances.sevenDayOut': '7d out',
     'audience.title': 'Audience',
     'audience.range': 'Month to date',
+    'compare.title': 'Compare',
+    'compare.subtitle': 'Selected · last week same weekday · YoY',
+    'holidays.title': 'Holidays',
+    'holidays.note': 'HK holiday labels overlaid on sample traffic (anonymized comparable store)',
   },
 }
