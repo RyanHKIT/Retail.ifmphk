@@ -8,8 +8,8 @@
 // role, so a caller cannot influence the prompt content ??only which tab and
 // which day it is about.
 
-import { complete, isAiConfigured } from 'shared/aiClient.ts'
-import { fetchTabAggregates } from 'shared/aggregates.ts'
+import { complete, isAiConfigured } from '../_shared/aiClient.ts'
+import { fetchTabAggregates } from '../_shared/aggregates.ts'
 import {
   authorize,
   digestInput,
@@ -19,14 +19,14 @@ import {
   jsonResponse,
   recordUsage,
   serviceClient,
-} from 'shared/guards.ts'
+} from '../_shared/guards.ts'
 import {
   buildInsightMessages,
   isLocale,
   isTabKey,
   parseInsight,
   PROMPT_VERSION,
-} from 'shared/prompts.ts'
+} from '../_shared/prompts.ts'
 
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 

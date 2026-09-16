@@ -11,7 +11,7 @@
 import type { AiMessage } from './aiClient.ts'
 import { METRIC_GLOSSARY } from './schemaDigest.ts'
 
-export const PROMPT_VERSION = 1
+export const PROMPT_VERSION = 3
 
 export const TAB_KEYS = [
   'overview',
@@ -71,6 +71,24 @@ Rules:
 - confidence: "low" when the input is thin or distorted — a single day, a partial
   week, a near-empty chart, or a holiday-dominated period. Otherwise "normal".
 - Never introduce a number that is not in the input. Do not estimate or extrapolate.
+
+Number discipline — this is the rule most easily broken, and breaking it makes
+the whole briefing untrustworthy:
+- Copy every number exactly as it appears in the input. If a field says 2637,
+  write 2637. Never write a similar-looking number.
+- Never round, approximate, or tidy a figure. 956 is not "約1000".
+- Do not do arithmetic in prose. Do not subtract, add, or average two values
+  yourself. To describe a difference, cite changeFromPriorWeekdayPercent or
+  changeFromPriorPeakPercent. Never write the absolute size of a gap such as
+  "低1000人" or "down 1000" — if you need to express that, use the percentage.
+  For a baseline, use priorWeekdayAverageInCount for a normal working day and
+  priorPeakInCount for the busiest prior day.
+- A number may appear only if it is literally in the input, or is one of the
+  precomputed fields the input already supplies (shares, ratios, percentages,
+  averages, lifts). Those are already computed for you.
+- Never put a hedge word in front of a number: not 約, 大約, 逾, 超過, 近, about,
+  approximately, over, roughly, or around. If the exact figure is unavailable,
+  cite the field that is available instead of describing it approximately.
 - Do not restate the chart. Say what it means.
 - No markdown, no bullet characters, no headings inside the strings.`
 
@@ -109,6 +127,8 @@ Data day: ${day}
 
 Question this analysis must answer:
 ${TAB_QUESTIONS[tabKey]}
+
+Every number you write must be copied from the aggregates below.
 
 Aggregates (JSON):
 ${JSON.stringify(data, null, 2)}`

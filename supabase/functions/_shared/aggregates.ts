@@ -5,7 +5,7 @@
 // body. Everything below runs under the service role, and only derived
 // aggregates leave this module — never a raw row, never a name.
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import type { TabKey } from './prompts.ts'
 
 /** Cap on rows folded into a prompt. Keeps a bad seed from blowing the budget. */
@@ -94,6 +94,37 @@ async function overview(service: SupabaseClient, branchId: string, day: string) 
       ? Math.round(sum(priorDays.map((row) => row.in_count)) / priorDays.length)
       : null
 
+  // Weekends run about 36% busier than weekdays in this store, so a baseline
+  // that mixes them makes a normal Wednesday look like a collapse. That baseline
+  // is supplied explicitly because the first live run, given only the mixed
+  // average, invented a weekday figure of its own ("約2630人" where the real
+  // value is 2637) and presented it as the normal level.
+  const priorWeekdays = priorDays.filter((row) => {
+    const weekday = new Date(`${row.day}T00:00:00Z`).getUTCDay()
+    return weekday >= 1 && weekday <= 5
+  })
+  const priorWeekdayAvgIn =
+    priorWeekdays.length > 0
+      ? Math.round(sum(priorWeekdays.map((row) => row.in_count)) / priorWeekdays.length)
+      : null
+
+  // The busiest prior day, so a "down on the peak" comparison can cite a real
+  // figure instead of rounding a subtraction into an invented one.
+  const priorPeakInCount =
+    priorDays.length > 0 ? Math.max(...priorDays.map((row) => row.in_count)) : null
+
+  // Supplied because the model cannot otherwise express "how much down" without
+  // subtracting two counts in prose, which is how "低約1000人" (really 956) got
+  // into a briefing. A percentage is computed here so there is nothing to invent.
+  const changeFromPriorWeekdayPercent =
+    priorWeekdayAvgIn && priorWeekdayAvgIn > 0
+      ? Math.round(((totalIn - priorWeekdayAvgIn) / priorWeekdayAvgIn) * 1000) / 10
+      : null
+  const changeFromPriorPeakPercent =
+    priorPeakInCount && priorPeakInCount > 0
+      ? Math.round(((totalIn - priorPeakInCount) / priorPeakInCount) * 1000) / 10
+      : null
+
   const genderTotals: Record<string, number> = {}
   const ageTotals: Record<string, number> = {}
   for (const row of audience) {
@@ -129,6 +160,13 @@ async function overview(service: SupabaseClient, branchId: string, day: string) 
       : null,
     weekDaily: week.map((row) => ({ day: row.day, inCount: row.in_count })),
     priorDaysAverageInCount: priorAvgIn,
+    // The baseline to prefer when the comparison is "a normal working day".
+    priorWeekdayAverageInCount: priorWeekdayAvgIn,
+    // The busiest prior day, for "down on the peak" comparisons.
+    priorPeakInCount,
+    // Precomputed deltas. Cite these to describe a difference; never subtract.
+    changeFromPriorWeekdayPercent,
+    changeFromPriorPeakPercent,
     // Excluded from the age/gender totals above on purpose: age rows are keyed
     // with gender 'unknown' and vice versa, so summing across both dimensions
     // would double-count the same visitor. Reported separately, never added.

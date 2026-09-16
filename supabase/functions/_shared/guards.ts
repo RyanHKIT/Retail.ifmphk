@@ -5,7 +5,7 @@
 // model proxy by an anonymous caller, so rejection has to happen before tokens
 // are spent.
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
 
 export type AiKind = 'insight' | 'ask'
 
