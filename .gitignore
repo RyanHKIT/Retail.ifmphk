@@ -20,3 +20,13 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Agent process artifacts (briefs, reports, review diffs). Not product code.
+.superpowers/
+
+# Extracted handoff dump and third-party reference codebases. Not product code.
+_handoff_extract/
+_reference/
+
+# Generated render output for decks.
+output/
