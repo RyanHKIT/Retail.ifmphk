@@ -123,6 +123,17 @@ Deno.serve(async (req) => {
 
           const { prose, metadata } = splitAskStream(accumulated)
           const meta = parseAskMeta(metadata)
+
+          // The hold-back withholds the last ASK_DELIMITER.length - 1 characters
+          // until the stream ends, because they might still grow into the
+          // delimiter. When no delimiter ever arrives, those characters are
+          // ordinary prose and must be released here. Without this flush every
+          // answer whose trailer is missing is silently truncated by its tail.
+          if (metadata === null && prose.length > sentLength) {
+            controller.enqueue(sse('delta', { text: prose.slice(sentLength) }))
+            sentLength = prose.length
+          }
+
           const answer = prose.trim()
 
           if (answer.length === 0) {
