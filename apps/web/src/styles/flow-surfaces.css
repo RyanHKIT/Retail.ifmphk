@@ -767,3 +767,36 @@ table.roster-grid td {
   font-size: 13px;
   padding: 3px 8px;
 }
+
+/* ===== Settings page (Phase 5, Task 5) ===== */
+
+.settings-page {
+  max-width: 560px;
+}
+
+.settings-page h1 {
+  font-size: 20px;
+  margin: 0 0 20px;
+}
+
+.settings-page h2 {
+  font-size: 13px;
+  color: var(--flow-muted);
+  margin: 20px 0 8px;
+}
+
+.settings-page section label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 16px;
+  min-height: 32px;
+}
+
+.settings-page [data-testid='settings-honesty'] {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--flow-muted);
+  line-height: 1.5;
+}
+

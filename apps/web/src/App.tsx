@@ -28,6 +28,7 @@ import { AudiencePage } from '@/pages/flow/Audience'
 import { ComparePage } from '@/pages/flow/Compare'
 import { HolidaysPage } from '@/pages/flow/Holidays'
 import { DevicesPage } from '@/pages/flow/Devices'
+import { SettingsPage as FlowSettingsPage } from '@/pages/flow/Settings'
 import { FlowStubPage } from '@/pages/flow/FlowStubPage'
 import { WeekBoardPage } from '@/pages/flow/roster/WeekBoard'
 import { StaffPage } from '@/pages/flow/roster/Staff'
@@ -188,6 +189,7 @@ export default function App() {
             <Route path="compare" element={<ComparePage />} />
             <Route path="holidays" element={<HolidaysPage />} />
             <Route path="devices" element={<DevicesPage />} />
+            <Route path="settings" element={<FlowSettingsPage />} />
             <Route path="roster" element={<WeekBoardPage />} />
             <Route path="roster/staff" element={<StaffPage />} />
             <Route path="roster/templates" element={<TemplatesPage />} />
