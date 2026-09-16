@@ -871,3 +871,48 @@ table.roster-grid td {
   padding: 10px 14px;
   font-size: 12px;
 }
+
+.flow-heat {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--flow-panel-2);
+}
+
+.flow-heat--hero {
+  min-height: 420px;
+}
+
+.flow-heat--compact {
+  min-height: 200px;
+}
+
+.flow-heat-plan {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: saturate(0.35) brightness(1.05);
+}
+
+.flow-heat-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.flow-heat-hit {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.flow-heat-hit[aria-pressed='true'] {
+  outline: 2px solid var(--flow-accent);
+}
