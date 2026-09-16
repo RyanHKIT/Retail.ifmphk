@@ -21,6 +21,8 @@ import { RequireManager } from '@/components/flow/RequireManager'
 import { FlowShell } from '@/components/flow/FlowShell'
 import { LoginPage } from '@/pages/flow/Login'
 import { OverviewPage as FlowOverviewPage } from '@/pages/flow/Overview'
+import { EntrancesPage } from '@/pages/flow/Entrances'
+import { AudiencePage } from '@/pages/flow/Audience'
 import { FlowStubPage } from '@/pages/flow/FlowStubPage'
 import { WeekBoardPage } from '@/pages/flow/roster/WeekBoard'
 import { StaffPage } from '@/pages/flow/roster/Staff'
@@ -173,6 +175,8 @@ export default function App() {
         <Route element={<RequireManager />}>
           <Route element={<FlowShell />}>
             <Route index element={<FlowOverviewPage />} />
+            <Route path="entrances" element={<EntrancesPage />} />
+            <Route path="audience" element={<AudiencePage />} />
             <Route path="roster" element={<WeekBoardPage />} />
             <Route path="roster/staff" element={<StaffPage />} />
             <Route path="roster/templates" element={<TemplatesPage />} />
