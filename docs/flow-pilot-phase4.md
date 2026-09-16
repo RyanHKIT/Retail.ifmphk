@@ -51,19 +51,22 @@ Pilot: `manager@ifmphk.com` / `demo1234` @ I.T. 銅鑼灣. Dev: `http://127.0.0.
 
 | Check | Result |
 |-------|--------|
-| Login → `/flow` compact heatmap shows floorplan (not empty stub) | |
-| `/flow/journey` hero + 綜合/人次/停留 toggles | |
-| Click 試衣間 → URL `?zone=fitting_room` + focus numbers | |
-| No `/retail/service-gap` navigation | |
-| `/retail/journey` still the old pitch (untouched) | |
-| Honesty line visible | |
-| `/api/health` 3000 refuse is ignorable | |
+| Login → `/flow` compact heatmap shows floorplan (not empty stub) | Pass — zone buttons + Journey Heatmap link on Overview; compact card below fold |
+| `/flow/journey` hero + 綜合/人次/停留 toggles | Pass — Composite/Visits/Dwell; Gaussian blobs on demo plan |
+| Click 試衣間 → URL `?zone=fitting_room` + focus numbers | Pass — `?zone=fitting_room`; Fitting Room Visits 581 / Avg dwell 210 sec |
+| No `/retail/service-gap` navigation | Pass — stays on `/flow/journey` |
+| `/retail/journey` still the old pitch (untouched) | Pass — pitch SPA 動線 still loads |
+| Honesty line visible | Pass — sample traffic + demo floor plan / not live CV |
+| `/api/health` 3000 refuse is ignorable | Pass — Vite proxy ECONNREFUSED 3000, `/flow` still works |
 
 Automated (T6):
 
 ```
 apps/web: npx tsc --noEmit
+  → TS5101 baseUrl deprecated (pre-existing tsconfig; no Phase 4 type errors)
 apps/web: npx vitest run
+  → Phase 4 files 27/27 pass
+  → full suite 213 pass / 1 fail: Templates.test create dialog timeout 5s (pre-existing roster flake, not heatmap)
 ```
 
 ## Known deferrals

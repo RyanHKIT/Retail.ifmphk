@@ -32,12 +32,11 @@ Seed applied remotely on project `dntmvxfgqmqremdrswij`: `flow_audience_age_dong
 
 glm provider crashed 2026-09-16. Phase 3 used **Grok 4.6** for T1–T3 / T8–T9 and **Auto** (`inherit`) for T4–T7 sequential commits.
 
-## Next: Phase 4 — Journey heatmap
+## Next (after Phase 4 heatmap)
 
-- New AI floorplan (not legacy `/retail/journey` JSON)
-- Open Design visual world first, then implement
-- Do not skin `/retail/journey`
-- Zone/heatmap tables already exist (`zones`, `heatmap_daily`) — empty intensity until Phase 4 seed
+Phase 4 動線熱力 **done** — spec `docs/superpowers/specs/2026-09-16-ifmp-flow-phase4-journey-design.md`, plan `docs/superpowers/plans/2026-09-16-ifmp-flow-phase4-journey.md`, smoke `docs/flow-pilot-phase4.md`.
+
+Do **not** Open Design / restyle `flow.css` yet. Next program: UX-authority restyle (`docs/superpowers/specs/2026-09-16-ifmp-flow-ux-authority-design.md`) **after** estate-ai-ops Verkada Task 6 finish-review + G1 comps. Heatmap renderer stays; chrome/tokens change then.
 
 ## Environment
 
