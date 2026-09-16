@@ -255,3 +255,45 @@ The Gemini document's Part C still describes 18 slides and does not contain the
 AI slide. If the Gemini trial goes ahead, Part C must be rebuilt from
 `deck_content.py`, which is now the single source of truth for slide order and
 copy.
+
+---
+
+## Amendment 2026-09-17 — the action layer adds one slide
+
+The action-layer spec and plan were reviewed against the deck to decide whether
+the deck needed more content. Both files describe work that is **entirely
+unbuilt**: no routes in `App.tsx`, no `apps/web/src/lib/action`, no migrations,
+no `Action` nav group, and the spec is still `Draft for owner review`. So the
+additions belong on the roadmap layer only, with no screenshots.
+
+### Two accuracy problems, fixed in both cases
+
+1. The roadmap said **"高停留區域連續約 2 分鐘無人服務"**. The spec's rule is
+   `required_staff = ceil(zone visits ÷ target visits per staff)` compared against
+   rostered headcount, for two consecutive buckets. That is a *staffing-capacity*
+   shortfall, not detection of an unattended customer, and the "2 minutes" comes
+   from a different rule (first-contact SLA breach at `avg_first_contact_sec > 120`).
+   The wording merged the two and implied computer vision that does not exist.
+2. The roadmap said **"服務教練：缺口與片段帶入週會"**. The spec defers real
+   video playback and says clip thumbnails are placeholders labelled
+   `示範片段 / Demo clip`. "片段" is therefore not delivered, and would have
+   contradicted the deck's own honesty slide.
+
+### What was added
+
+| Change | Reason |
+|---|---|
+| New slide **行動層（開發中）** — the 缺口 → 調度 → 教練 loop, plus the efficiency work | Page 2 asks why seeing is not enough and the deck never answered it. This is the payoff |
+| Roadmap gains the **cost and efficiency** items | The spec scope table marks 5 of 9 features as cost-reducing, and the deck mentioned none of them |
+| **刻意不做** grows from 4 to 7 rows | Three deferrals from spec §4.2 pre-empt the obvious client questions |
+| Roadmap 開發中 and 路線圖 reworded | Accuracy, per above |
+
+The new slide is placed *after* the roadmap slide so the roadmap states what is
+live and what is next, and the following slide zooms into what is next. A
+fourth roadmap column was rejected: at 33.87 cm wide, four columns leave 7.2 cm
+each, which wraps 繁體 copy badly. The cost items are listed on the roadmap and
+detailed on the new slide instead.
+
+The deck is now **20 slides**. The action layer stays out of the deck entirely
+until it ships; when `/flow/service-gap`, `/flow/dispatch` and `/flow/coach`
+exist, the loop slide takes screenshots and the roadmap shrinks.

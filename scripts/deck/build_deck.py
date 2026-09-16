@@ -507,7 +507,7 @@ def render_roadmap(slide, spec, page: int) -> None:
     for i, (head, items, color, fill) in enumerate(columns):
         left = MARGIN_L + i * (col_w + gap)
         card = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE, cx(left), cx(BODY_TOP + 0.2), cx(col_w), cx(10.6)
+            MSO_SHAPE.ROUNDED_RECTANGLE, cx(left), cx(BODY_TOP + 0.2), cx(col_w), cx(11.2)
         )
         card.fill.solid()
         card.fill.fore_color.rgb = fill
@@ -516,12 +516,82 @@ def render_roadmap(slide, spec, page: int) -> None:
         card.shadow.inherit = False
         card.adjustments[0] = 0.06
 
-        _, tf = add_box(slide, left + 0.7, BODY_TOP + 1.0, col_w - 1.4, 9.0)
+        _, tf = add_box(slide, left + 0.7, BODY_TOP + 1.0, col_w - 1.4, 10.3)
         add_line(tf, head, 19, color, bold=True, first=True, space_after=14)
         for item in items:
             add_line(tf, f"· {item}", 14, BODY, space_after=9, line_spacing=1.28)
 
-    add_closing_line(slide, spec["closing"], BODY_TOP + 11.2)
+    add_closing_line(slide, spec["closing"], BODY_TOP + 11.5)
+
+
+def render_loop(slide, spec, page: int) -> None:
+    """Three-step operational loop plus the efficiency work that ships with it.
+
+    This is the slide that answers the deck's own second-page question about
+    seeing not being enough. Everything on it is unbuilt, so it carries no
+    screenshot and says so in the closing line.
+    """
+    steps = spec["loop"]
+    gap = 1.0
+    card_w = (CONTENT_W - gap * (len(steps) - 1)) / len(steps)
+    card_h = 4.0
+    top = BODY_TOP + 0.15
+    for i, (head, text) in enumerate(steps):
+        left = MARGIN_L + i * (card_w + gap)
+        card = slide.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, cx(left), cx(top), cx(card_w), cx(card_h)
+        )
+        card.fill.solid()
+        card.fill.fore_color.rgb = PALE
+        card.line.color.rgb = ACCENT
+        card.line.width = Pt(1)
+        card.shadow.inherit = False
+        card.adjustments[0] = 0.08
+
+        _, tf = add_box(slide, left + 0.7, top + 0.5, card_w - 1.4, card_h - 1.0)
+        add_line(tf, head, 18, INK, bold=True, first=True, space_after=10)
+        add_line(tf, text, 14, BODY, space_after=0, line_spacing=1.3)
+
+        if i < len(steps) - 1:
+            _, atf = add_box(slide, left + card_w, top, gap, card_h)
+            atf.vertical_anchor = MSO_ANCHOR.MIDDLE
+            add_line(atf, "▶", 13, ACCENT, first=True, space_after=0, align=PP_ALIGN.CENTER)
+
+    _, ntf = add_box(slide, MARGIN_L, top + card_h + 0.2, CONTENT_W, 0.8)
+    add_line(ntf, spec["loop_note"], 15, INK, first=True, space_after=0)
+
+    _, etf = add_box(slide, MARGIN_L, top + card_h + 1.15, CONTENT_W, 0.8)
+    add_line(etf, spec["efficiency_title"], 19, INK, bold=True, first=True, space_after=0)
+
+    items = spec["efficiency"]
+    row_h = 1.0
+    row_gap = 0.15
+    list_top = top + card_h + 2.05
+    label_w = 7.0
+    for i, (head, text) in enumerate(items):
+        y = list_top + i * (row_h + row_gap)
+        bar = slide.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, cx(MARGIN_L), cx(y), cx(CONTENT_W), cx(row_h)
+        )
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = PALE if i % 2 == 0 else WHITE
+        bar.line.color.rgb = LINE
+        bar.line.width = Pt(0.75)
+        bar.shadow.inherit = False
+        bar.adjustments[0] = 0.10
+
+        _, htf = add_box(slide, MARGIN_L + 0.8, y + 0.15, label_w, row_h - 0.3)
+        htf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        add_line(htf, head, 16, INK, bold=True, first=True, space_after=0)
+
+        _, ttf = add_box(
+            slide, MARGIN_L + label_w + 1.6, y + 0.15, CONTENT_W - label_w - 2.4, row_h - 0.3
+        )
+        ttf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        add_line(ttf, text, 14, BODY, first=True, space_after=0, line_spacing=1.25)
+
+    bottom = list_top + len(items) * row_h + (len(items) - 1) * row_gap
+    add_closing_line(slide, spec["closing"], bottom + 0.3)
 
 
 def render_services(slide, spec, page: int) -> None:
@@ -594,6 +664,7 @@ RENDERERS = {
     "image_pair": render_image_pair,
     "roster": render_roster,
     "roadmap": render_roadmap,
+    "loop": render_loop,
     "services": render_services,
     "steps": render_steps,
 }
