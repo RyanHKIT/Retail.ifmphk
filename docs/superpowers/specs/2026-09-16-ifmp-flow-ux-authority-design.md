@@ -1,7 +1,7 @@
 # IFMP Retail (Flow) — UX authority: light Verkada density
 
 > **Date:** 2026-09-16
-> **Status:** Approved 2026-09-16. **Amended same day:** tools-first restored. Phase 4 heatmap ships on current `/flow` chrome. Verkada restyle is **after** Phase 4, gated on estate-ai-ops Task 6 — not a Phase 4 blocker.
+> **Status:** Approved 2026-09-16. **Amended same day:** tools-first restored. Phase 4 heatmap ships on current `/flow` chrome. Full Verkada harvest remains after estate-ai-ops Task 6. **Amended again:** Phase 5 ships a **reduced** `pilot-v1` chrome now (`docs/superpowers/specs/2026-09-16-ifmp-flow-pilot-v1-chrome-design.md`) so the pilot is demo-able; that folder is delete-able.
 > **Product:** IFMP Retail pilot (`/flow` in `apps/web`)
 > **Parent:** `docs/superpowers/specs/2026-09-15-ifmp-flow-design.md`
 > **Supersedes in parent:** §6 shell line “Verkada-inspired dark ops” (look target, not Phase 4 work). Parent §8 step 6 Open Design stays **after** Phase 4 tools.
@@ -110,9 +110,9 @@ DongQia 駐留 is not a Phase 4 page. Dwell is a metric toggle on the same five 
 
 ## 10. Open decisions (must not invent in code)
 
-- Exact rail: icon-only 56px vs labeled slim (~208px). Decide on comps.
-- Whether command palette ships in the first restyle or the pass after heatmap.
-- Precise paper/ink hex beyond Signal Blue — take from estate-ai-ops Paper Deck after Task 6, then pin in Flow DESIGN.md.
+- Exact rail for the **next** shell after Task 6 + G1: icon-only 56px vs labeled slim. **`pilot-v1` (Phase 5) is labeled 208px** — see chrome design spec.
+- Whether command palette ships in that later restyle. **Phase 5: no palette.**
+- Precise paper/ink hex for the **next** shell may come from estate-ai-ops Paper Deck. **`pilot-v1` hex is already pinned** in Phase 5 §6.3.
 
 ---
 
