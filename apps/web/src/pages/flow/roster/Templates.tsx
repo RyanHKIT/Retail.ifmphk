@@ -386,6 +386,7 @@ export function TemplatesPage() {
                     name={c}
                     aria-label={c}
                     title={c}
+                    aria-pressed={form.color.toLowerCase() === c.toLowerCase()}
                     className="roster-palette-swatch"
                     style={{ background: c }}
                     onClick={() => setForm((f) => ({ ...f, color: c }))}

@@ -824,6 +824,178 @@ table.roster-grid td {
   font-weight: 600;
 }
 
+/* ===== Roster page intro (shared explainer) ===== */
+
+/*
+ * Short "what this page does" paragraph at the top of every roster page. Reads
+ * as guidance rather than content: quiet background, accent rule on the leading
+ * edge, and a hard measure cap so the line length stays comfortable.
+ */
+.roster-page-intro {
+  border: 1px solid var(--flow-line);
+  border-left: 3px solid var(--flow-accent);
+  border-radius: 8px;
+  background: var(--flow-panel-2);
+  padding: 12px 16px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--flow-muted);
+  max-width: 80ch;
+}
+
+.roster-page-intro strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--flow-text);
+}
+
+.roster-page-intro ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.roster-page-intro li + li {
+  margin-top: 2px;
+}
+
+/* Inline secondary text used across roster rows and the toolbar. */
+.roster-sub {
+  font-size: 12px;
+  color: var(--flow-muted);
+}
+
+/* ===== Shift templates (Phase 5) ===== */
+
+.roster-templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.roster-template-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--flow-line);
+  border-radius: 10px;
+  background: var(--flow-panel);
+  padding: 14px 16px;
+}
+
+.roster-template-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.roster-template-head .swatch {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.roster-template-name {
+  min-width: 0;
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--flow-text);
+  overflow-wrap: anywhere;
+}
+
+.roster-template-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.roster-template-actions .roster-btn,
+.roster-template-actions .roster-icon-btn {
+  padding: 4px 9px;
+  font-size: 11.5px;
+}
+
+.roster-template-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--flow-text);
+}
+
+.roster-template-meta.muted {
+  font-size: 12px;
+  color: var(--flow-muted);
+}
+
+.roster-template-times {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.roster-template-times .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.roster-palette {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.roster-palette-swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--flow-line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.roster-palette-swatch[aria-pressed='true'] {
+  box-shadow: 0 0 0 2px var(--flow-panel), 0 0 0 4px var(--flow-accent);
+}
+
+/* ===== Swap approval (Phase 5) ===== */
+
+.roster-swap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roster-swap-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--flow-line);
+  border-radius: 10px;
+  background: var(--flow-panel);
+  padding: 14px 16px;
+}
+
+/*
+ * Field/value pairs flow into as many columns as fit, so a wide screen shows
+ * the whole request on one line instead of a cramped stack.
+ */
+.roster-swap-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 4px 24px;
+}
+
+.roster-swap-row .roster-dialog-actions {
+  margin-top: 0;
+}
+
 @media (max-width: 900px) {
   .overview-grid {
     grid-template-columns: 1fr;
