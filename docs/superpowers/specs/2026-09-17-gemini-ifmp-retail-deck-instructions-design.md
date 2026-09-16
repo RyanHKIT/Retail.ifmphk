@@ -160,3 +160,98 @@ Placeholder ids actually used: `golden-path`, `overview`, `entrances`, `journey`
 | User pastes template tokens wrongly, deck looks off-brand | Token table asks for values copied from `設計 > 佈景主題` inspector, not eyeballed |
 | Two-pass gate skipped, wasted generation | Gate is the first instruction in Section A |
 | Screenshots not yet captured when deck is generated | Placeholder ids fixed in Section C and listed as a follow-up checklist in Section D |
+
+---
+
+## Amendment 2026-09-17 — the deck is now built directly on the template
+
+The requirement changed to "a deck needing the fewest possible manual
+adjustments". That rules out the Gemini route as the primary path: a generated
+`.pptx` carries no slide master, so every one of the 19 slides would have to be
+re-imported, re-laid-out and re-typed. That is the most adjustment, not the
+least.
+
+### What changed
+
+- **Primary path is now `python-pptx` against the corporate template.** The
+  template was provided at `docs/presentation/company-template.pptx` and is
+  git-ignored (it is the company's file, not ours). Slides are created on the
+  template's own layouts, so the master background, logo, theme colours and
+  fonts are inherited rather than reproduced.
+- **The Gemini instruction document is demoted to a fallback.** It remains at
+  `docs/presentation/2026-09-17-gemini-ifmp-retail-instructions.md` for the
+  separate Gemini trial. Its Part C is now out of date — see "Drift" below.
+
+### What the template turned out to be
+
+Measured with `scripts/deck/inspect_template.py`, not assumed:
+
+- 16:9, 33.87 × 19.05 cm, 12 stock Office layouts, one empty title slide.
+- Theme is the stock **Office** scheme: Calibri, and accent1 `4F81BD`,
+  dk2 `1F497D`. No corporate colour or font set exists in it.
+- The master carries three images. Only one produces visible ink: the
+  **百度智能雲 | HKIT lockup in the top-right corner**, x 24.6–32.5 cm,
+  y 0.4–1.3 cm. A pale hexagon sits top-left. Nothing below y 1.9 cm is darker
+  than 200/255, so the whole lower slide is usable for content.
+- Consequence: no brand assets need to be drawn or placed, and the stock layout
+  geometry is safe. The East Asian theme face is empty, which falls back to
+  新細明體, so 微軟正黑體 is set explicitly on every run.
+
+### Screenshots
+
+Eleven captures at 1920×1080 in `docs/presentation/shots/`, taken from the
+running app on 5174 with the manager session. `browser_take_screenshot` returns
+only the visible browser pane (1031×1080), so captures go through
+`Page.captureScreenshot` with `captureBeyondViewport` instead.
+
+Product truth as at this date, verified against `App.tsx`:
+
+- **AI analysis is shipped and live**, contrary to the `awaiting approval`
+  status on `2026-09-17-ifmp-flow-ai-insights-design.md`. It is a real slide,
+  not a roadmap line.
+- Service gap, dispatch and coach remain unbuilt. The action-layer draft
+  (`2026-09-17-ifmp-flow-action-layer-design.md`) is still under review, so they
+  stay on the roadmap slide with no screenshot.
+
+That takes the deck from 18 to **19 slides**: the AI slide is new, and the
+roadmap slide drops AI analysis and platform Q&A from its roadmap column.
+
+### Verification
+
+Adjustment happens when a deck is only checked by eye. `scripts/deck/` therefore
+verifies before hand-over:
+
+| Script | Purpose |
+|---|---|
+| `inspect_template.py` | Reports template size, layouts, theme, media usage |
+| `build_deck.py` | Builds the deck from template + content |
+| `verify_deck.py` | Out-of-bounds shapes, footer-band collisions, estimated text overflow, text-over-image and text-over-text overlaps, and `rPr` child order |
+| `make_contact_sheet.py` | Contact sheets for review |
+
+`verify_deck.py` found one real defect (a strip caption row running off the
+slide) and one latent one: `a:cs` was being written before `a:ea` inside `rPr`,
+which is out of schema order and a repair-prompt risk. Both are fixed, and the
+order rule is now checked automatically. The deck renders through PowerPoint COM
+to PNG for a visual pass.
+
+Current state: 19 slides, 0 findings.
+
+### Regeneration
+
+```powershell
+python scripts/deck/build_deck.py
+python scripts/deck/verify_deck.py docs/presentation/IFMP-Retail-deck-v1.pptx
+```
+
+Copy lives in `scripts/deck/deck_content.py`, separate from layout code, so the
+copy can be edited without touching geometry. This matters because the action
+layer is expected soon: when `/flow/service-gap`, `/flow/dispatch` and
+`/flow/coach` ship, the roadmap slide shrinks, those features get their own
+screenshots, and the deck is regenerated in one command.
+
+### Drift
+
+The Gemini document's Part C still describes 18 slides and does not contain the
+AI slide. If the Gemini trial goes ahead, Part C must be rebuilt from
+`deck_content.py`, which is now the single source of truth for slide order and
+copy.

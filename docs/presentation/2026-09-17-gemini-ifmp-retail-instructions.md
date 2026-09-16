@@ -1,5 +1,14 @@
 ﻿# IFMP Retail · Gemini 簡報生成指令
 
+> **狀態（2026-09-17 更新）：本文件已降為後備方案。**
+> 正式簡報改為直接在公司模板上以 `python-pptx` 生成，因為模板世代嘅 `.pptx` 唔會繼承
+> 投影片母版，19 頁都要人手重新匯入、套版面、改字型，改動量最大。
+> 正式產出：`docs/presentation/IFMP-Retail-deck-v1.pptx`（19 頁）。
+> 內容唯一來源：`scripts/deck/deck_content.py`。
+> **本文件 Part C 仍然寫 18 頁，而且未有 AI 分析頁，已過時。**
+> 如仍要試 Gemini 路線，請先由 `deck_content.py` 重建 Part C。
+> 設計記錄見 `docs/superpowers/specs/2026-09-17-gemini-ifmp-retail-deck-instructions-design.md`。
+
 **用途：** 將本文件整份貼入 Gemini，生成對 **I.T. 時裝零售** 的 IFMP Retail 平台介紹簡報。
 **產出：** 一個 `.pptx`（18 頁）。生成後需人手套回公司模板。
 **對象：** I.T. 時裝零售（香港）— 已進行試點之客戶
