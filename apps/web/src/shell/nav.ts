@@ -27,7 +27,9 @@ export const FLOW_NAV: FlowNavGroup[] = [
   {
     groupKey: 'nav.roster',
     items: [
-      { to: '/flow/roster', labelKey: 'nav.roster' },
+      // `end` keeps this from prefix-matching every roster sub-page, which
+      // would leave 排班 highlighted alongside the page actually open.
+      { to: '/flow/roster', labelKey: 'nav.roster', end: true },
       { to: '/flow/roster/staff', labelKey: 'nav.rosterStaff' },
       { to: '/flow/roster/templates', labelKey: 'nav.rosterTemplates' },
       { to: '/flow/roster/policies', labelKey: 'nav.rosterPolicies' },
