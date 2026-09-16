@@ -42,3 +42,15 @@ test('landing page links to the pilot and no longer to /retail', () => {
   expect(screen.queryByRole('link', { name: /零售營運分析 Demo/ })).not.toBeInTheDocument()
   expect(screen.getAllByRole('link', { name: /pilot/ }).length).toBeGreaterThan(0)
 })
+
+test('an unmatched top-level path reaches the flow surface, not a blank page', async () => {
+  render(
+    <MemoryRouter initialEntries={['/flwo']}>
+      <App />
+    </MemoryRouter>,
+  )
+
+  // /flow is gated by auth, so the login screen proves the catch-all resolved
+  // to the product rather than rendering an empty document.
+  expect(await screen.findByTestId('login-submit')).toBeInTheDocument()
+})

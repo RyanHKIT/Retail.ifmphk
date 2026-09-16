@@ -36,6 +36,17 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    host: '127.0.0.1',
+    port: 4174,
+    strictPort: true,
+    // `vite preview` serves the production build, and it is what the Cloudflare
+    // tunnel points at for the demo. It needs the same host-header tolerance as
+    // the dev server: the tunnel forwards the public hostname rather than
+    // localhost, and Vite rejects unknown hosts by default. Without this the
+    // tunnel returns "Blocked request. This host is not allowed."
+    allowedHosts: true,
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

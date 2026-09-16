@@ -123,6 +123,10 @@ export default function App() {
       {/* The retail demo was removed once /flow superseded it. Keep old links
           and bookmarks alive instead of rendering a blank page. */}
       <Route path="/retail/*" element={<Navigate to="/flow" replace />} />
+      {/* Any other unmatched path would otherwise render nothing at all, which
+          reads as a broken site if someone mistypes the URL or follows a stale
+          link. Send them to the product instead of a blank page. */}
+      <Route path="*" element={<Navigate to="/flow" replace />} />
       <Route
         path="/flow"
         element={
