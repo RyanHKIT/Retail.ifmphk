@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { FlowFloorHeatmap } from '@/components/flow/FlowFloorHeatmap'
 import {
   AudienceCharts,
   CompareChart,
@@ -17,6 +19,7 @@ import {
   fetchCompare,
   fetchEntranceHourly,
   fetchHolidayAnalysis,
+  fetchJourney,
   fetchMonthDaily,
   fetchTodayHourly,
   fetchTodayUnique,
@@ -27,9 +30,11 @@ import {
   type EntranceHourly,
   type HolidayRow,
   type HourlyPoint,
+  type JourneyPayload,
   type MonthDayPoint,
   type UniqueKpi,
   type WeekdayAvg,
+  type ZoneKey,
 } from '@/lib/footfall/api'
 import { fetchManagedBranchId } from '@/lib/roster/api'
 
@@ -49,11 +54,12 @@ function isEmptyArray(v: unknown): boolean {
 
 /**
  * /flow — manager 主控台 (Phase 3 Task T4).
- * Eight footfall widgets with per-card load/error/retry + honesty footnote.
+ * Nine widgets (eight footfall + compact journey heatmap) with per-card load/error/retry + honesty footnote.
  */
 export function OverviewPage() {
   const { profile } = useFlowAuth()
   const { t, locale } = useFlowLocale()
+  const navigate = useNavigate()
 
   const [branchId, setBranchId] = useState<string | null>(null)
   const [branchResolved, setBranchResolved] = useState(false)
@@ -66,6 +72,7 @@ export function OverviewPage() {
   const [unique, setUnique] = useState<CardState<UniqueKpi>>(initialCard)
   const [audience, setAudience] = useState<CardState<AudienceRow[]>>(initialCard)
   const [compare, setCompare] = useState<CardState<CompareSeries>>(initialCard)
+  const [journey, setJourney] = useState<CardState<JourneyPayload>>(initialCard)
 
   useEffect(() => {
     if (!profile) return
@@ -143,6 +150,18 @@ export function OverviewPage() {
     return loadCard(setCompare, () => fetchCompare(branchId, hkToday()))
   }, [branchId, loadCard])
 
+  const loadJourney = useCallback(() => {
+    if (!branchId) return
+    return loadCard(setJourney, () => fetchJourney(branchId))
+  }, [branchId, loadCard])
+
+  const handleHeatmapZoneClick = useCallback(
+    (key: ZoneKey) => {
+      void navigate(`/flow/journey?zone=${key}`)
+    },
+    [navigate],
+  )
+
   useEffect(() => {
     if (!branchId) return
     void loadHourly()
@@ -153,6 +172,7 @@ export function OverviewPage() {
     void loadUnique()
     void loadAudience()
     void loadCompare()
+    void loadJourney()
   }, [
     branchId,
     loadHourly,
@@ -163,6 +183,7 @@ export function OverviewPage() {
     loadUnique,
     loadAudience,
     loadCompare,
+    loadJourney,
   ])
 
   if (branchId === null && branchResolved && profile) {
@@ -290,6 +311,40 @@ export function OverviewPage() {
           onRetry={loadCompare}
         >
           {compare.data ? <CompareChart data={compare.data} /> : null}
+        </WidgetCard>
+
+        <WidgetCard
+          testId="overview-widget-heatmap"
+          title={t('overview.widget.heatmap')}
+          loading={waitingBranch || journey.loading}
+          error={journey.error}
+          empty={
+            !journey.loading &&
+            !journey.error &&
+            journey.data != null &&
+            journey.data.heat.length === 0
+          }
+          onRetry={loadJourney}
+          wide
+        >
+          {journey.data && journey.data.heat.length > 0 ? (
+            <>
+              <Link
+                to="/flow/journey"
+                data-testid="overview-heatmap-link"
+                style={{ fontSize: 13, color: 'var(--flow-accent)', alignSelf: 'flex-start' }}
+              >
+                {t('journey.title')}
+              </Link>
+              <FlowFloorHeatmap
+                payload={journey.data}
+                metric="composite"
+                compact
+                focusedKey={null}
+                onZoneClick={handleHeatmapZoneClick}
+              />
+            </>
+          ) : null}
         </WidgetCard>
       </div>
 

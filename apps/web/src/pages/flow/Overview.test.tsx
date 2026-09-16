@@ -1,10 +1,12 @@
-// Phase 3 Task T4: Overview 主控台 renders 8 footfall widgets;
+// Phase 3 Task T4 + Phase 4 T5: Overview 主控台 renders 9 widgets (incl. journey heatmap);
 // skeleton → data; per-card retry. Footfall api + auth mocked.
 
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
+import type { JourneyPayload } from '@/lib/footfall/api'
 import { OverviewPage } from './Overview'
 
 const h = vi.hoisted(() => {
@@ -33,6 +35,7 @@ const h = vi.hoisted(() => {
       unique: null as Deferred<unknown> | null,
       audience: null as Deferred<unknown> | null,
       compare: null as Deferred<unknown> | null,
+      journey: null as Deferred<JourneyPayload> | null,
       uniqueFailOnce: false,
       uniqueCalls: 0,
     },
@@ -105,6 +108,10 @@ vi.mock('@/lib/footfall/api', () => ({
     h.state.compare = h.deferred()
     return h.state.compare.promise
   }),
+  fetchJourney: vi.fn(() => {
+    h.state.journey = h.deferred()
+    return h.state.journey.promise
+  }),
 }))
 
 const FIXTURES = {
@@ -151,6 +158,27 @@ const FIXTURES = {
     lastWeek: [{ day: '2026-09-09', inCount: 180, uniqueVisitors: 140 }],
     yoy: [{ day: '2025-09-16', inCount: 190, uniqueVisitors: 145 }],
   },
+  journey: {
+    floorPlanUrl: '/assets/floor-plans/it-cwb-demo.png',
+    floorPlanLabelZh: '示範平面圖（樣本）',
+    floorPlanLabelEn: 'Demo floor plan (sample)',
+    day: '2026-09-16',
+    zones: [
+      {
+        id: 'e',
+        zoneKey: 'entrance',
+        nameZh: '入口',
+        nameEn: 'Entrance',
+        zoneType: 'entrance',
+        anchorX: 50,
+        anchorY: 92,
+        anchorR: 12,
+      },
+    ],
+    heat: [
+      { zoneId: 'e', zoneKey: 'entrance', visitCount: 100, avgDwellSec: 20, intensity: 1 },
+    ],
+  } satisfies JourneyPayload,
 }
 
 function resolveAllOk() {
@@ -164,13 +192,16 @@ function resolveAllOk() {
   }
   h.state.audience?.resolve(FIXTURES.audience)
   h.state.compare?.resolve(FIXTURES.compare)
+  h.state.journey?.resolve(FIXTURES.journey)
 }
 
 function renderPage() {
   return render(
-    <FlowLocaleProvider>
-      <OverviewPage />
-    </FlowLocaleProvider>,
+    <MemoryRouter>
+      <FlowLocaleProvider>
+        <OverviewPage />
+      </FlowLocaleProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -183,6 +214,7 @@ const TITLES_ZH = [
   '今日去重客流',
   '客群畫像',
   '客流同期對比',
+  '動線熱力',
 ]
 
 describe('OverviewPage', () => {
@@ -195,15 +227,31 @@ describe('OverviewPage', () => {
     h.state.unique = null
     h.state.audience = null
     h.state.compare = null
+    h.state.journey = null
     h.state.uniqueFailOnce = false
     h.state.uniqueCalls = 0
+    class ResizeObserverMock {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    }
+    vi.stubGlobal('ResizeObserver', ResizeObserverMock)
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      clearRect: vi.fn(),
+      putImageData: vi.fn(),
+    } as unknown as CanvasRenderingContext2D)
   })
 
-  it('shows 8 widget skeletons then data + honesty footnote', async () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  it('shows 9 widget skeletons then data + honesty footnote', async () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getAllByTestId(/^overview-widget-/)).toHaveLength(8)
+      expect(screen.getAllByTestId(/^overview-widget-/)).toHaveLength(9)
     })
 
     for (const title of TITLES_ZH) {
@@ -215,13 +263,15 @@ describe('OverviewPage', () => {
       expect(h.state.hourly).not.toBeNull()
       expect(h.state.unique).not.toBeNull()
     })
-    expect(screen.getAllByLabelText('載入中…').length).toBeGreaterThanOrEqual(8)
+    expect(screen.getAllByLabelText('載入中…').length).toBeGreaterThanOrEqual(9)
 
     resolveAllOk()
 
     await waitFor(() => {
       expect(screen.getByText('420')).toBeInTheDocument()
     })
+    expect(screen.getByTestId('overview-widget-heatmap')).toBeInTheDocument()
+    expect(screen.getByTestId('overview-heatmap-link')).toHaveAttribute('href', '/flow/journey')
     expect(screen.queryAllByLabelText('載入中…')).toHaveLength(0)
     expect(screen.getByTestId('overview-honesty')).toHaveTextContent(
       '示例流量（匿名同級店舖）',
