@@ -6,9 +6,11 @@
    squashed into a square box, which is what happens if only a height is set on
    an image whose intrinsic ratio differs from its container.
 
-   The assets themselves are shared with the IFMP console. See
-   `components/flow/BrandLogo.tsx` for provenance and for why the light and
-   night lockups are two files. */
+   The assets themselves are shared with the IFMP console, except the two
+   `mark-rail-*` files, which are our derivatives of the console's emblem. See
+   `components/flow/BrandLogo.tsx` for provenance, for the measured contrast of
+   each variant, and for why the rail uses a derivative while the login and the
+   gate keep the authentic artwork. */
 
 .brand-lockup,
 .brand-mark {

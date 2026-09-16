@@ -21,24 +21,32 @@
        IntelliBuild IFMP". Retail's name has to be visible, so it lives in that
        same subtitle line as "登入 IFMP Retail".
      - The console's grid uses white lines over a near-white field, which is
-       invisible. Here the lines are green-tinted instead, since a grid nobody
-       can see is not worth the paint.
+       invisible. Here the field is dark, so the same white lines read; the
+       grid is kept because it is visible now, not removed because it was not.
      - The console's footnote is 11px. 12px here, for the same reason.
 
-   On the green. The console's own palette already contains the greens used
-   below: `#15803d` is Tailwind green-700, the scale position of its
-   `--primary` (blue-600), and `#22c55e` is its `--online` / `--chart-2` in dark.
-   So this is that palette with one hue swapped, not a second design language.
+   On the green. The greens are the console's own Tailwind scale: `#166534` is
+   green-800, `#14532d` is green-900 and `#22c55e` is green-500, which the
+   console already uses as its `--online` / `--chart-2` in dark. So this is
+   that palette with one hue swapped, not a second design language.
 
-   The backdrop stays in a light, low-saturation green on purpose. The form is
-   not on a card, so every label, note and error sits directly on the backdrop
-   and has to clear 4.5:1 against its darkest stop (`#cfe9da` in light). A
-   saturated full-bleed green cannot do that without turning the text white and
-   losing the quiet, instrument-like feel the rest of the product has.
+   The backdrop is a deep, saturated green rather than a tint, so the page reads
+   as unmistakably green instead of mint-tinted off-white. That forces the form
+   onto light ink, and it inverts which end of the backdrop is the risky one:
+   the form is not on a card, so every label, note and error sits directly on
+   the backdrop, and light text fails against the *lightest* region it lands on,
+   not the darkest. Every ratio quoted in the palette blocks below is against
+   that lightest stop (`#166534`), and each was confirmed against the rendered
+   page rather than assumed from the declared stops.
 
-   On the brand mark. The IFMP logo is blue-indigo and is left untouched. A
-   wordmark is read as the brand, not as an accent, so it does not fight the
-   green here; recolouring a mark to match a page would not be ours to do.
+   On the brand mark. `logo-lockup-light.png` is dark-ink artwork drawn for pale
+   surfaces. On this backdrop its ink measures about 1.1:1 and vanishes, so the
+   login asks for `logo-lockup-dark.png` -- the light-ink member of the same
+   authentic pair -- in both themes. The login is a dark-surface page in both
+   themes now, so the theme no longer decides which ink the lockup uses. Nothing
+   is recoloured: the same two authentic files are selected by surface instead
+   of by theme. See `components/flow/BrandLogo.tsx` for the rail mark, which is
+   the one place a derivative asset is used, and why.
    ========================================================================= */
 
 /* Specificity note. The shell declares its light palette on
@@ -53,31 +61,47 @@
 .flow-app[data-theme='light'].flow-login {
   /* Re-point the shared accent so the shell's own `::selection` and
      `:focus-visible` rules turn green here without being restated. Scoped to
-     this page, so the rest of the product stays Signal Blue. */
-  --flow-accent: #15803d;
-  --flow-accent-soft: rgba(21, 128, 61, 0.2);
-  --flow-accent-selection: rgba(21, 128, 61, 0.22);
-  --flow-text: #0f2a1a;
+     this page, so the rest of the product stays Signal Blue. Green-400 is used
+     as the accent because it is the one green that stays visible on the deep
+     backdrop: 4.09:1 against `#166534`. */
+  --flow-accent: #4ade80;
+  --flow-accent-soft: rgba(74, 222, 128, 0.24);
+  --flow-accent-selection: rgba(74, 222, 128, 0.32);
+  --flow-text: #ffffff;
 
-  --login-accent: #15803d;
-  --login-accent-strong: #166534;
-  /* White on green-700 measures 4.56:1. Green-500 would be 3.3:1, which fails
-     AA for 14px text, so the lighter green is reserved for the dark theme
-     where the text can flip to near-black instead. */
-  --login-accent-on: #ffffff;
-  --login-ring: rgba(21, 128, 61, 0.2);
-  --login-field: rgba(255, 255, 255, 0.86);
-  --login-field-line: rgba(21, 128, 61, 0.22);
-  --login-line: rgba(21, 128, 61, 0.18);
-  --login-text: #0f2a1a;
-  --login-muted: #46604f;
-  --login-danger: #b91c1c;
-  --login-glow-strong: rgba(22, 163, 74, 0.22);
-  --login-glow-soft: rgba(22, 163, 74, 0.1);
-  --login-bg-1: #f3fbf6;
-  --login-bg-2: #e4f5ea;
-  --login-bg-3: #cfe9da;
-  --login-grid: rgba(21, 128, 61, 0.06);
+  /* The submit button is green-500, not the deep backdrop green, because a
+     backdrop-green button on a backdrop-green page has no edge. Green-500
+     separates from the lightest stop at 3.13:1 and from the region the button
+     actually sits in (`#0d3f24`) at 5.25:1. Its label is near-black green:
+     7.28:1 on green-500, where white would be 2.9:1. */
+  --login-accent: #22c55e;
+  --login-accent-strong: #4ade80;
+  --login-accent-on: #04240f;
+  --login-ring: rgba(74, 222, 128, 0.45);
+  /* The field fill sits at 1.26:1 against the backdrop -- a dark fill on a dark
+     page cannot do better without turning into a grey card. The *boundary* is
+     therefore carried by the border, which is white at 55%: 3.35:1 against the
+     lightest stop, so the inputs are unambiguously bounded. */
+  --login-field: rgba(255, 255, 255, 0.12);
+  --login-field-line: rgba(255, 255, 255, 0.55);
+  --login-line: rgba(255, 255, 255, 0.3);
+  /* White on `#166534` is 7.13:1 and on `#0d3f24` 11.97:1. */
+  --login-text: #ffffff;
+  /* 12px labels, the 14px subtitle and the footnote all use this. 5.90:1 on
+     `#166534`, 9.91:1 on `#0d3f24`. Nothing dimmer clears AA on the lightest
+     stop, which is why the muted tone is this pale rather than a mid green. */
+  --login-muted: #dceee3;
+  /* Red at 4.93:1 on `#166534`. The old `#b91c1c` measured about 1.3:1 here and
+     was unreadable on the deep backdrop. */
+  --login-danger: #fecaca;
+  /* Kept low: the glow lightens the top-left corner, and every ratio above is
+     already quoted against the lightest stop it can produce. */
+  --login-glow-strong: rgba(74, 222, 128, 0.12);
+  --login-glow-soft: rgba(74, 222, 128, 0.06);
+  --login-bg-1: #166534;
+  --login-bg-2: #14532d;
+  --login-bg-3: #0d3f24;
+  --login-grid: rgba(255, 255, 255, 0.07);
 
   position: relative;
   display: flex;
@@ -108,29 +132,37 @@
 }
 
 .flow-app[data-theme='night'].flow-login {
-  --flow-accent: #22c55e;
-  --flow-accent-soft: rgba(34, 197, 94, 0.24);
-  --flow-accent-selection: rgba(34, 197, 94, 0.3);
-  --flow-text: #e6f3e9;
+  --flow-accent: #4ade80;
+  --flow-accent-soft: rgba(74, 222, 128, 0.28);
+  --flow-accent-selection: rgba(74, 222, 128, 0.34);
+  --flow-text: #ffffff;
 
+  /* Same button in both themes: green-500 with a near-black green label. It
+     separates from the night backdrop at 6.50:1, so unlike the light theme it
+     needs no extra help to be found. */
   --login-accent: #22c55e;
   --login-accent-strong: #4ade80;
-  /* Near-black green on green-500 measures 6.5:1. White on the same green
-     would be 2.2:1, so dark theme inverts the button rather than dimming it. */
   --login-accent-on: #04240f;
-  --login-ring: rgba(34, 197, 94, 0.26);
-  --login-field: rgba(255, 255, 255, 0.05);
-  --login-field-line: rgba(34, 197, 94, 0.26);
-  --login-line: rgba(34, 197, 94, 0.22);
-  --login-text: #e6f3e9;
-  --login-muted: #93b3a0;
-  --login-danger: #fca5a5;
-  --login-glow-strong: rgba(34, 197, 94, 0.2);
-  --login-glow-soft: rgba(34, 197, 94, 0.09);
-  --login-bg-1: #06150d;
-  --login-bg-2: #07210f;
-  --login-bg-3: #04130a;
-  --login-grid: rgba(134, 239, 172, 0.05);
+  --login-ring: rgba(74, 222, 128, 0.5);
+  /* Night is the deeper, near-black end of the same green family rather than a
+     second palette. The field fill is 1.20:1 against it, so as in light the
+     boundary is the border: white at 45% gives 4.14:1, up from 1.17:1 before,
+     which is the fix for the unbounded inputs this theme shipped with. */
+  --login-field: rgba(255, 255, 255, 0.07);
+  --login-field-line: rgba(255, 255, 255, 0.45);
+  --login-line: rgba(255, 255, 255, 0.24);
+  /* White on `#0a2e19` is 14.8:1. */
+  --login-text: #ffffff;
+  /* 8.06:1 on `#0a2e19`. Dimmer than the light theme's muted tone on purpose,
+     because the ground is much darker; it still clears AA with room. */
+  --login-muted: #a9c6b5;
+  --login-danger: #fecaca;
+  --login-glow-strong: rgba(74, 222, 128, 0.1);
+  --login-glow-soft: rgba(74, 222, 128, 0.05);
+  --login-bg-1: #0a2e19;
+  --login-bg-2: #072414;
+  --login-bg-3: #04170c;
+  --login-grid: rgba(134, 239, 172, 0.06);
 }
 
 /* ---- Backdrop -----------------------------------------------------------

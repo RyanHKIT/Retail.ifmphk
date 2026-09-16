@@ -75,12 +75,36 @@ test('theme toggle sets data-theme night and localStorage', async () => {
   expect(localStorage.getItem('flow-theme')).toBe('night')
 })
 
-test('nav brand pairs the IFMP mark with the product word', async () => {
+test('nav brand pairs the high-contrast mark with the product word', async () => {
   renderShell()
 
+  // The rail uses the derivative mark, not the authentic emblem: against this
+  // white panel the authentic artwork only gets 55.5% of its pixels past the
+  // 3:1 bar, the derivative 99.8%. Asserting the filename is the point of the
+  // test -- a silent revert to `mark.png` would otherwise pass unnoticed.
+  const mark = await screen.findByTestId('brand-rail-mark')
   // Decorative, because the wordmark text beside it already names the product.
-  expect(await screen.findByTestId('brand-mark')).toHaveAttribute('alt', '')
+  expect(mark).toHaveAttribute('alt', '')
+  expect(mark).toHaveAttribute('src', '/brand/mark-rail-light.png')
   expect(screen.getByText('零售營運主控台')).toBeInTheDocument()
+})
+
+test('rail mark swaps to the dark-surface variant with the theme', async () => {
+  const userEvent = (await import('@testing-library/user-event')).default
+  const user = userEvent.setup()
+  renderShell()
+
+  expect(await screen.findByTestId('brand-rail-mark')).toHaveAttribute(
+    'src',
+    '/brand/mark-rail-light.png',
+  )
+
+  await user.click(screen.getByTestId('flow-theme-toggle'))
+
+  expect(screen.getByTestId('brand-rail-mark')).toHaveAttribute(
+    'src',
+    '/brand/mark-rail-dark.png',
+  )
 })
 
 test('collapsing the rail keeps the mark and drops the words', async () => {
@@ -93,7 +117,7 @@ test('collapsing the rail keeps the mark and drops the words', async () => {
   // The mark is the whole brand at 64px; the words would not fit, and the nav
   // element's aria-label carries the name instead.
   expect(screen.getByRole('navigation', { name: 'IFMP Retail' })).toBeInTheDocument()
-  expect(screen.getByTestId('brand-mark')).toBeInTheDocument()
+  expect(screen.getByTestId('brand-rail-mark')).toBeInTheDocument()
   expect(screen.queryByText('IFMP Retail')).not.toBeInTheDocument()
   expect(screen.queryByText('零售營運主控台')).not.toBeInTheDocument()
 })

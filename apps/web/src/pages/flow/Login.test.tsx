@@ -141,6 +141,13 @@ test('login shows the IFMP lockup, the retail subtitle and the staff note', () =
   expect(screen.getByAltText('IFMP Retail')).toBeInTheDocument()
   expect(lockups.filter((img) => img.getAttribute('aria-hidden') === 'true')).toHaveLength(1)
 
+  // Both lockups must be the light-ink artwork. The login ground is a deep green
+  // in both themes, where the pale-surface file's ink measures about 1.1:1 and
+  // vanishes; asserting the filename stops a silent revert to it.
+  for (const img of lockups) {
+    expect(img).toHaveAttribute('src', '/brand/logo-lockup-dark.png')
+  }
+
   expect(screen.getByRole('heading', { name: '登入 IFMP Retail' })).toBeInTheDocument()
   expect(screen.getByText('I.T. 銅鑼灣')).toBeInTheDocument()
   expect(screen.getByText('僅限授權人員')).toBeInTheDocument()
