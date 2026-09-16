@@ -1,13 +1,16 @@
 # IFMP Retail (pilot) — Phase 3 Design Spec: 主控台 (Overview widgets 1–8 + ETL)
 
 > **Date:** 2026-09-16
-> **Status:** Draft — awaiting product-owner approval (data-source decision §3)
+> **Status:** Draft — awaiting product-owner approval (§3 credentials + age-bucket)
 > **Parent spec:** `docs/superpowers/specs/2026-09-15-ifmp-flow-design.md` (§4.2 tables, §5 widget mandate, §4.3 data strategy)
 > **Plan:** `docs/superpowers/plans/2026-09-16-ifmp-flow-overview.md`
+> **Vendor API:** 客流管家云平台 Open API `oapi.dongqia.cn` (docs: `http://cloud.keliuguanjia.com/#/views/develop/doc`, v1.0.3 2025-08-02)
 
 ## 1. Summary
 
-Phase 3 delivers the **manager 主控台** under `/flow`: overview page with the eight mandated footfall widgets, drill routes (出入口 / 客群畫像 / 同期對比 / 節假日), a devices stub, and the Uniqlo-period traffic **ETL pipeline** into the Phase 1 Supabase schema. All bilingual (zh-HK + en). No schema rewrite — tables exist since migration `20260915000002`; this phase only fills them and reads them.
+Phase 3 delivers the **manager 主控台** under `/flow`: overview page with the eight mandated footfall widgets, drill routes (出入口 / 客群畫像 / 同期對比 / 節假日), a devices page, and a **DongQia Open API → Supabase ETL**. Browser never calls DongQia (parent §4.3). Display tenant stays **I.T. Causeway Bay**; numbers are 北京优衣库-period traffic with the honesty footnote.
+
+Schema from migration `20260915000002` is kept. One small align: `audience_daily.age_group` CHECK currently uses Western 6-buckets (`0-17`…`55+`) that DongQia cannot fill — Phase 3 migrates the CHECK to DongQia's 5 life-stage buckets + unknown (decision §3.3).
 
 ## 2. Scope
 
@@ -18,7 +21,7 @@ Phase 3 delivers the **manager 主控台** under `/flow`: overview page with the
 | 客群畫像 drill | `/flow/audience` | Gender × age-group distributions |
 | 同期對比 drill | `/flow/compare` | 上週同曜日 + 去年同期 |
 | 節假日 drill | `/flow/holidays` | Holiday vs normal-day traffic table |
-| 設備 | `/flow/devices` | Read-only device list (stub-grade) |
+| 設備 | `/flow/devices` | Read-only device list from ETL |
 
 Widgets (parent spec §5, all bilingual):
 
@@ -34,32 +37,84 @@ Widgets (parent spec §5, all bilingual):
 ### Out of scope (deferrals)
 
 - 動線熱力 hero + compact heatmap card → Phase 4 (needs new floorplan asset per parent §4.3)
-- Real-time streaming / webhook ingest → pilot reads stored rows only
+- Real-time streaming / webhook ingest → batch ETL only (cron later, not this phase)
 - Manager editing of footfall data — ETL-only writes (RLS already enforces)
 - Alerts UI beyond an empty-state card → later phase
 - `retail.ifmphk.com` cutover → after Phase 4
+- Browser-side DongQia calls — forbidden (parent non-goal)
 
-## 3. Data strategy (decision required)
+## 3. Data strategy
 
-Parent §4.3: numeric source of truth = **北京优衣庫-period traffic via 客流管家/DongQia export**, relabeled I.T. Causeway Bay, honesty label "sample traffic (anonymized comparable store)" until a real feed exists. The planned DongQia export sample has **not arrived**. Two options:
+Parent §4.3: numeric SoT = **北京优衣库 via 客流管家 API**, relabeled I.T. Causeway Bay. Honesty label until a live I.T. feed exists: "示例流量（匿名同級店舖）/ Sample traffic (anonymized comparable store)".
 
-- **A (recommended): synthesize now, verify mapping later.** Deterministic SQL-generated dataset (Uniqlo-Causeway-Bay-plausible magnitudes: ~2,000–4,000 in-count/day, weekend uplift, holiday uplift, lunch/after-work peaks, two-gate split ~70/30, age skew 18–34) covering **16 months** (YoY needs 去年同期). ETL importer is built against a documented CSV contract; when the real export lands, rerun importer — widgets never change.
-- **B: block on real sample.** Spec/plan wait; nothing buildable until operator provides the file.
+Vendor is **not a CSV dump**. It is REST JSON at `https://oapi.dongqia.cn` (docs also allow HTTP). ETL is a Node script using **appID / appSecret** (env only, never git, never client).
 
-Both honor the honesty rule: UI shows the sample-traffic footnote while `provenance = sample`.
+### 3.1 DongQia Open API (locked from vendor docs v1.0.3)
 
-### ETL contract (CSV, DongQia-export-shaped)
+Auth: `POST /api/Token` `{appID, appSecret}` → `{token, expires_in, token_type:"Bearer"}`. All other calls send `Authorization: Bearer <token>` (space after Bearer).
 
-```
-date,hour,entrance,in_count,out_count,passersby,unique_visitors,gender,age_group
-2026-09-15,10,正門,312,298,540,280,,
-2026-09-15,10,正門,,,,,male,25-34
-```
+| Call | Use for us |
+|---|---|
+| `GET /api/GetAccStores?accOrgCode=` | Resolve store (实体) code + timezone |
+| `GET /api/GetVDDatasByAs?ObjCodes=&BeginDate=&EndDate=` | Entrance (出入口) summary sanity-check |
+| `POST /api/GetDatas` `objTypes:1` `timeType:3` | Entity **hourly** → `footfall_hourly` |
+| `POST /api/GetDatas` `objTypes:1` `timeType:4` | Entity **daily** → `footfall_daily` |
+| `POST /api/GetDatas` `objTypes:2` `timeType:3` | Entrance **hourly** → `entrance_hourly` |
+| `GET /api/GetAccDevices?ObjCodes=` | Device list → `devices` |
 
-- Rows with `entrance` set → `entrance_hourly`; aggregate rows (blank entrance) → `footfall_hourly`; `gender`/`age_group` rows → `audience_daily` (day-level, summed).
-- `footfall_daily` derived: sum hourly per HK calendar day (UTC+8 boundary), passersby/unique summed with dedup factor noted in ETL README.
-- Importer: `scripts/footfall-etl.mjs` (Node), reads CSV, **upserts via service-role key from `.env.local`** (never committed, never in client), idempotent `ON CONFLICT` semantics, `--dry-run` mode printing row counts per table. Column mapping tolerant (zh or en headers).
-- Timezone: all `hour_start` stored as timestamptz at HK local hour (UTC+8); "today" in API queries = HK calendar day.
+Paging limits (vendor): hourly span **≤ 60 days** per call; daily span **≤ 1 year**. YoY widgets need ~16 months → ETL pages hourly in 60-day chunks.
+
+`dataList[]` fields we persist:
+
+| DongQia | Supabase |
+|---|---|
+| `date` | `hour_start` (timestamptz, vendor local hour) or `day` (date) |
+| `inSum` | `in_count` |
+| `outSum` | `out_count` |
+| `passbySum` | `passersby_count` |
+| `inNoDupSum` | `unique_visitors` (今日去重 = unique, **not** 回頭客) |
+| `sexManSum` / `sexWomanSum` / `sexUnknownSum` | `audience_daily.gender` male/female/unknown |
+| `ageToddlerSum` … `ageElderlySum` / `ageUnknownSum` | `audience_daily.age_group` (see §3.3) |
+
+`GetAccDevices` map: `onLine=false` → `offline`; `status=2` (预警) → `degraded`; else `online`. `newlySendDate` → `last_seen_at`. `title` → `name`.
+
+Timezone: vendor store `TimeZone` is China Standard Time (UTC+8) for 北京优衣库 — same offset as HK. Store `hour_start` as timestamptz at that local hour; "today" in the FE = **HK calendar day** (UTC+8), which coincides.
+
+Known honesty limit: `calendar_days` is **HK holidays**; traffic is **Beijing-period**. Holiday widget overlays HK labels on Beijing numbers — do not claim a true HK holiday effect. Footnote covers this.
+
+### 3.2 Credentials (blocked until operator provides)
+
+ETL needs, all in `.env.local` / CI secret store — **never committed**:
+
+- `DONGQIA_APP_ID`
+- `DONGQIA_APP_SECRET`
+- `DONGQIA_ORG_CODE` (组织编号)
+- `DONGQIA_STORE_CODE` (实体编号 — 北京优衣库)
+- `DONGQIA_ENTRANCE_CODES` (出入口编号 list, mapped to our `entrances.id`)
+- `SUPABASE_SERVICE_ROLE_KEY` (existing; writes only)
+
+Public vendor docs include example `appID`/`appSecret` strings. Treat as documentation dummies. **Do not copy them into this repo.** Use the operator's own application credentials from 客流管家云平台.
+
+Until credentials arrive: T1 builds the importer + recorded JSON fixtures (from vendor example shapes); T2 loads a deterministic SQL seed so widgets can be built. First live pull is T8.
+
+### 3.3 Age buckets (decision required)
+
+Phase 1 CHECK: `'0-17','18-24','25-34','35-44','45-54','55+'`.
+
+DongQia: `ageToddlerSum` 幼儿, `ageTeenagerSum` 儿童, `ageYouthSum` 青年, `ageMiddleAgedSum` 中年, `ageElderlySum` 老人, `ageUnknownSum` 未知. Exact year ranges are **not in the vendor doc**.
+
+- **A (recommended):** migrate CHECK to DongQia keys `toddler|teenager|youth|middle_aged|elderly|unknown`. UI labels 幼兒 / 兒童 / 青年 / 中年 / 長者 / 未知 — no invented year ranges.
+- **B:** lossy-map 5 buckets onto the 6 Western bands (youth split across 18–24 and 25–34 would be fabricated). Rejected unless product insists on the original bands.
+
+### 3.4 Importer
+
+`scripts/footfall-etl.mjs`:
+
+- `--dry-run` prints per-table upsert counts, no writes
+- `--from-fixture <json>` for tests (vendor-shaped `GetDatas` payload, no network)
+- live mode: token → paged `GetDatas` → upsert `ON CONFLICT`
+- idempotent; rerun 0 new rows
+- never logs secrets
 
 ## 4. Widget data contract (api layer)
 
@@ -75,26 +130,28 @@ New `apps/web/src/lib/footfall/api.ts` — typed, singleton client, SELECT-only:
 | `fetchTodayUnique(branchId)` | `footfall_hourly.unique_visitors` sum + 7-day trend | number + spark series |
 | `fetchAudience(branchId, range)` | `audience_daily` | gender split + age-group split |
 | `fetchCompare(branchId, day)` | `footfall_daily` | series: selected day, 上週同曜日, 去年同期 ±7d window |
+| `fetchDevices(branchId)` | `devices` | `[{name, status, lastSeenAt}]` |
 
-Shared conventions: HK-day boundaries computed in TS (no DB timezone assumptions); every fn throws `RosterError`-style typed errors; all rows scoped `branch_id` (RLS double-guards).
+Shared conventions: HK-day boundaries computed in TS (no DB timezone assumptions); every fn throws typed errors; all rows scoped `branch_id` (RLS double-guards).
 
 ## 5. UI contract
 
-- Overview = responsive 2-col grid of widget cards (KPI card for #6 spans, charts for the rest); Verkada-inspired dark ops via existing `flow.css` tokens; recharts (already a dependency) with dark-adapted `chartStyle`-like theming — **no new design system, no Open Design yet** (parent §9).
-- Every string via `t()` from `FlowLocaleContext`; new keys under `overview.*` + `nav.*` additions in `flowMessages.ts` (zh-HK + en).
-- Loading skeletons per card; error banner + retry per card (parent §7); empty states bilingual ("尚未匯入資料 — Phase 3 ETL").
-- Honesty footnote on overview: "示例流量（匿名同級店舖）/ Sample traffic (anonymized comparable store)" while provenance = sample.
+- Overview = responsive 2-col grid of widget cards (KPI card for #6 spans, charts for the rest); Verkada-inspired dark ops via existing `flow.css` tokens; recharts (already a dependency) with dark-adapted theming — **no new design system, no Open Design yet** (parent §9).
+- Every string via `t()` from `FlowLocaleContext`; new keys under `overview.*` + drill namespaces in `flowMessages.ts` (zh-HK + en).
+- Loading skeletons per card; error banner + retry per card (parent §7); empty states bilingual ("尚未匯入資料").
+- Honesty footnote on overview while provenance = sample.
 - Drill pages reuse the same card components at full width.
 - Branch resolution reuses the `branchResolved` gate pattern from Phase 2 (no FORBIDDEN flash — lesson `0829905`).
 
 ## 6. Quality bar
 
-- Unit: `footfall/api.test.ts` with mocked supabase client — **column names verified against migration `20260915000002` in review** (lesson: T9 assumed a nonexistent column and unit mocks hid it).
+- Unit: `footfall/api.test.ts` with mocked supabase client — **column names verified against migration `20260915000002` (+ age-group alter) in review** (lesson: T9 assumed a nonexistent column and unit mocks hid it).
 - Component: overview renders 8 widget cards from mocked api; one drill page render + retry path; skeleton-then-data.
-- SQL: seed migration verified via MCP `execute_sql` (row counts, HK-day sums, holiday rows).
-- ETL: `--dry-run` on fixture CSV asserts per-table row counts; full run against pilot DB then re-run asserts idempotency (0 new rows).
+- SQL: seed (or live ETL) verified via MCP `execute_sql` (row counts, HK-day sums).
+- ETL: `--dry-run` on vendor-shaped JSON fixture asserts per-table counts; full run then re-run asserts idempotency (0 new rows).
 - Typecheck + full vitest green; `/retail` untouched.
+- No DongQia credentials in git, client bundle, or commit messages.
 
 ## 7. Acceptance (manual smoke)
 
-Manager signs in → `/flow` shows all 8 widgets with sample data + honesty footnote → 出入口 drill shows two gates → 客群畫像 shows gender/age splits → 同期對比 overlays last-week + YoY lines → 節假日 lists holidays vs normals → 設備 shows stub list → zh/en toggle flips every label → empty-state branch renders bilingual hint when ETL not yet run.
+Manager signs in → `/flow` shows all 8 widgets with data + honesty footnote → 出入口 drill shows mapped gates → 客群畫像 shows gender + DongQia age labels → 同期對比 overlays last-week + YoY lines → 節假日 lists HK holidays vs normals (honesty: Beijing-period numbers) → 設備 shows ETL device list → zh/en toggle flips every label → empty-state branch renders bilingual hint when ETL not yet run.
