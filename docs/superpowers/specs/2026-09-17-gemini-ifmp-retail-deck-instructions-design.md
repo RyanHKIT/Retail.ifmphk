@@ -74,51 +74,75 @@ when the user reports a defect (e.g. "slide 7 spills", "font wrong on act 3").
 **Two-pass gate.** Section A instructs Gemini to first return only the slide list and a
 one-line summary per slide, and to wait for explicit approval before generating the deck.
 
-## Locked slide map
+## Amendment 2026-09-17 — slide map re-cut against the shipped product
+
+The first draft of this spec was written from `docs/PRODUCT.md`, which describes the
+retired `/retail` demo. The shipped product is `/flow` and its surfaces differ. Verified
+against `apps/web/src/App.tsx` routes, `src/i18n/flowMessages.ts` nav labels, and
+`docs/flow-pilot-phase5.md`:
+
+- Service gap and Coach are **not shipped** and have no route. There is no page to
+  screenshot, so a slide promising "服務缺口 → 一鍵調度" would be an unbacked claim.
+- AI analysis and platform Q&A are `awaiting approval` in
+  `docs/superpowers/specs/2026-09-17-ifmp-flow-ai-insights-design.md` — not shipped.
+- Shipped surfaces are richer than PRODUCT.md implies: roster carries a full governance
+  set (week board, staff registry, shift templates, hour policies, swap approval, audit),
+  plus Compare, Holidays and Devices, none of which PRODUCT.md lists.
+
+User decision: **re-cut to shipped surfaces.** Service gap, dispatch, coach, AI, POS,
+multi-store and energy move to a single roadmap slide, explicitly labelled 未上線, with no
+screenshot. This keeps every product screenshot in the deck backed by a real page.
+
+## Locked slide map (re-cut, 18 slides)
 
 **Act 1 · Why talk (S1–S4)**
-1. Cover — IFMP Retail｜店內客流與營運智能化; HKIT 智域 × 百度一見
+1. 封面 — IFMP Retail｜零售營運主控台; I.T. 方案介紹 · 示範畫面; HKIT 智域 × 百度一見
 2. 本日三項重點
 3. 現場四項痛點
 4. 常見失敗模式（類型對照，不點名競品）
 
-**Act 2 · What the platform is (S5–S8)**
+**Act 2 · What the platform is (S5–S7)**
 5. 方案一句話
-6. 架構一頁 — 門禁計數／鏡頭 → 一見（感知）→ IFMP（規則＋看板＋行動）→ 店長工作流程
-7. 為何選擇本方案（對照表）
-8. 誠實邊界 — 刻意不做的事項
+6. 架構一頁 — 門禁計數／鏡頭 → 一見（感知）→ IFMP（營運）→ 店長工作流程
+7. 誠實邊界 — 刻意不做的事項
 
-**Act 3 · How the service lands (S9–S15)**
-9. Golden path 總覽
-10. 總覽 Overview
-11. 客流 Footfall
-12. 動線 Journey（熱力）
-13. 服務缺口 → 一鍵調度
-14. 排班建議 Roster
-15. 服務教練 Coach
+**Act 3 · How the service lands (S8–S14)**
+8. 平台導覽（橫向故事板）
+9. 主控台
+10. 出入口
+11. 動線熱力
+12. 客群畫像 與 同期對比
+13. 節假日 與 設備
+14. 排班與管治（週板 + 名冊／模板／政策／調更／審計）
 
-**Act 4 · Delivery and next step (S16–S18)**
-16. 能源 — 降本短節、誠實表述
-17. 套餐地圖 A／B（主推）／C／D + HKIT 實施服務（標定、Webhook 對接、工服庫、培訓、支援）
-18. 試點如何開始 + 下一步 + 封底
+**Act 4 · Delivery and next step (S15–S18)**
+15. 已上線 與 路線圖（服務缺口、調度、教練、AI、POS、多店、能源，明標未上線）
+16. HKIT 實施服務（現場標定、平台對接、平面圖與區域設定、人員識別基礎、培訓與支援）
+17. 試點如何開始（四步 + 請貴司決定事項）
+18. 封底
 
-Removed relative to the 2026-09-13 map: the standalone capability slide (old S17), folded
-into slide 17. Package C is roadmap-only and stays off the main line.
+Dropped from the 2026-09-13 map: the standalone capability slide (folded into 15) and the
+separate energy slide (folded into 15). Package C stays roadmap-only. Package packaging
+(A 看見／B 行動／C 閉環／D 綠色) is described by scope, never by price.
 
-Placeholder ids: `[[SHOT: overview]]`, `footfall`, `journey`, `service-gap`, `roster`,
-`coach`, `energy`, `architecture`.
+Placeholder ids actually used: `golden-path`, `overview`, `entrances`, `journey`,
+`audience`, `compare`, `holidays`, `devices`, `roster-week`, `roster-swaps`,
+`roster-audit`, `architecture`.
 
 ## Acceptance criteria
 
 - The instruction document can be pasted into Gemini with no missing context and no
   reference to files Gemini cannot see.
 - Every slide in the map has title, layout type, body copy, placeholder list, speaker note.
+- **Every product screenshot placeholder maps to a route that exists in `App.tsx`.** Any
+  capability not shipped appears on slide 15 only, labelled 未上線, with no placeholder.
 - Section B is complete enough that a user with the template open can fill it in under
   five minutes.
 - Banned-content rules appear in both Section A and Section D (so they survive a long
   generation).
 - The two-pass gate is unambiguous about stopping after the slide list.
 - No pricing figures, no dates, no competitor names appear anywhere in the locked copy.
+- No Cantonese colloquial characters in slide body copy (嘅／咗／喺／唔／係／嗰／啲).
 
 ## Out of scope
 
