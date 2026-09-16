@@ -27,6 +27,12 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'auth.password': '密碼',
     'auth.invalid': '電郵或密碼不正確，請重試。',
     'auth.required': '請輸入電郵及密碼。',
+    'auth.signingIn': '登入中…',
+    // Mirrors the console's own `loginSubtitle` ("登入智築 IFMP"), with the
+    // retail product name in its place.
+    'auth.loginSubtitle': '登入 IFMP Retail',
+    // Wording taken from the console's login footnote.
+    'auth.staffOnly': '僅限授權人員',
     'common.comingSoon': '即將推出',
     'common.loading': '載入中…',
     'common.retry': '重試',
@@ -377,6 +383,12 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'auth.password': 'Password',
     'auth.invalid': 'Invalid email or password. Please try again.',
     'auth.required': 'Email and password are required.',
+    'auth.signingIn': 'Signing in…',
+    // Mirrors the console's own `loginSubtitle` ("Sign in to IntelliBuild
+    // IFMP"), with the retail product name in its place.
+    'auth.loginSubtitle': 'Sign in to IFMP Retail',
+    // Wording taken from the console's login footnote.
+    'auth.staffOnly': 'Authorized staff only',
     'common.comingSoon': 'Coming soon',
     'common.loading': 'Loading…',
     'common.retry': 'Retry',

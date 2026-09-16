@@ -52,7 +52,7 @@ Output goes to `apps/web/dist/`.
 ## Serving a build
 
 `vite preview` is configured on port 4174, but it needs this repository present.
-For a machine that only has the built files, use the bundled server:
+For a deployment the bundled server is used instead:
 
 ```powershell
 node scripts/serve-flow.mjs --dir apps/web/dist --port 4174
@@ -61,12 +61,19 @@ node scripts/serve-flow.mjs --dir apps/web/dist --port 4174
 It needs only Node and `dist/`. Unknown paths return `index.html` with a 200, so
 deep links survive a refresh.
 
-This is the fallback path. The pilot is hosted on Cloudflare Pages, which needs
-no local process. See `docs/deploy-retail.ifmphk.com.md`.
+In production this is not started by hand. The `IFMP Flow Server` scheduled task
+runs `scripts/serve-flow-task.ps1` at logon, which supervises `serve-flow.mjs`,
+writes both stdout and stderr to `%LOCALAPPDATA%\ifmp-flow\serve-flow.log`, and
+restarts the server if it exits. See `docs/deploy-retail.ifmphk.com.md`.
+
+`retail.ifmphk.com` is a Cloudflare Tunnel pointing at that server on port 4174.
+The server reads `dist` on every request, so a rebuilt bundle is live on the next
+refresh with no deploy step and no restart.
 
 ## Deployment
 
-- Tunnel, hosting and manager instructions: `docs/deploy-retail.ifmphk.com.md`
+- Tunnel hosting, the auto-start task, and manager instructions:
+  `docs/deploy-retail.ifmphk.com.md`
 - AI Edge Functions: `docs/flow-ai-deploy.md`
 - Pilot smoke checklist: `docs/flow-pilot-phase5.md`
 
@@ -87,3 +94,7 @@ no local process. See `docs/deploy-retail.ifmphk.com.md`.
   UI states this on the Overview tab.
 - `_handoff_extract`, `_reference` and `output` are development references, not
   runtime files.
+- The pilot is served from the machine that runs the Cloudflare Tunnel, so the
+  site is only reachable while that machine is awake. The tunnel and the server
+  both auto-start, but the route has not been verified across a reboot: check
+  `https://retail.ifmphk.com/flow` after the next one.

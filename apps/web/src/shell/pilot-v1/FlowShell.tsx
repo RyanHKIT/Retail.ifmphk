@@ -3,6 +3,7 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
 import { useFlowTheme } from '@/context/FlowThemeContext'
+import { BrandMark } from '@/components/flow/BrandLogo'
 import { ChatPanel } from '@/components/flow/ChatPanel'
 import { FLOW_NAV } from '@/shell/nav'
 import { navIcon } from './navIcons'
@@ -37,8 +38,13 @@ export function FlowShell() {
       >
         <div className="flow-nav-head">
           <div className="flow-nav-brand">
-            {collapsed ? t('product.name').slice(0, 1) : t('product.name')}
-            {!collapsed && <small>{t('product.subtitle')}</small>}
+            {/* The mark is decorative in both states: expanded, the wordmark
+                text below carries the name; collapsed, the nav element's own
+                aria-label does. */}
+            <BrandMark decorative />
+            {!collapsed && (
+              <span className="flow-nav-wordmark">{t('product.name')}</span>
+            )}
           </div>
           {isRailCapable && (
             <button
@@ -60,6 +66,10 @@ export function FlowShell() {
             </button>
           )}
         </div>
+
+        {/* Outside the head so it gets the full rail width instead of sharing
+            it with the collapse button. */}
+        {!collapsed && <div className="flow-nav-subtitle">{t('product.subtitle')}</div>}
 
         {FLOW_NAV.map((group) => (
           <div key={group.groupKey} className="flow-nav-section">

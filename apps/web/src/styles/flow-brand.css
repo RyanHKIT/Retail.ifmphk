@@ -1,0 +1,25 @@
+/* ===== Brand marks =======================================================
+   Sizing only, so every placement starts from the same box. Contexts override
+   the height they need: the login lockup is large, the nav mark is small.
+
+   `width: auto` plus `object-fit: contain` keeps a wide wordmark from being
+   squashed into a square box, which is what happens if only a height is set on
+   an image whose intrinsic ratio differs from its container.
+
+   The assets themselves are shared with the IFMP console. See
+   `components/flow/BrandLogo.tsx` for provenance and for why the light and
+   night lockups are two files. */
+
+.brand-lockup,
+.brand-mark {
+  display: block;
+  width: auto;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* The lockup is wide; the mark is close to square. Neither is ever stretched,
+   so both keep their own ratio whatever box they land in. */
+.brand-lockup {
+  max-width: 100%;
+}

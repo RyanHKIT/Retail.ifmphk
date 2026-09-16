@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
+import { BrandMark } from '@/components/flow/BrandLogo'
 
 /**
  * Route gate for the Flow pilot.
@@ -17,6 +18,9 @@ export function RequireManager() {
   if (loading || (session && resolvingProfile)) {
     return (
       <div className="flow-app flow-gate-loading">
+        {/* Decorative: this is a transient boot state, and the product name is
+            already in the document title. */}
+        <BrandMark decorative />
         <p>{t('common.loading')}</p>
       </div>
     )

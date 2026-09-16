@@ -74,3 +74,26 @@ test('theme toggle sets data-theme night and localStorage', async () => {
   expect(root).toHaveAttribute('data-theme', 'night')
   expect(localStorage.getItem('flow-theme')).toBe('night')
 })
+
+test('nav brand pairs the IFMP mark with the product word', async () => {
+  renderShell()
+
+  // Decorative, because the wordmark text beside it already names the product.
+  expect(await screen.findByTestId('brand-mark')).toHaveAttribute('alt', '')
+  expect(screen.getByText('零售營運主控台')).toBeInTheDocument()
+})
+
+test('collapsing the rail keeps the mark and drops the words', async () => {
+  const userEvent = (await import('@testing-library/user-event')).default
+  const user = userEvent.setup()
+  renderShell()
+
+  await user.click(screen.getByTestId('flow-nav-collapse'))
+
+  // The mark is the whole brand at 64px; the words would not fit, and the nav
+  // element's aria-label carries the name instead.
+  expect(screen.getByRole('navigation', { name: 'IFMP Retail' })).toBeInTheDocument()
+  expect(screen.getByTestId('brand-mark')).toBeInTheDocument()
+  expect(screen.queryByText('IFMP Retail')).not.toBeInTheDocument()
+  expect(screen.queryByText('零售營運主控台')).not.toBeInTheDocument()
+})

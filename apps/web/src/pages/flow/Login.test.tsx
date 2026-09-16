@@ -130,3 +130,30 @@ test('RequireManager redirects unauthenticated users to login', async () => {
 
   expect(await screen.findByText('LOGIN PAGE')).toBeInTheDocument()
 })
+
+test('login shows the IFMP lockup, the retail subtitle and the staff note', () => {
+  renderLogin()
+
+  // Two lockups: one in the top bar, one naming the column. Only the column one
+  // is announced, so a screen reader hears the product name once, not twice.
+  const lockups = screen.getAllByTestId('brand-lockup')
+  expect(lockups).toHaveLength(2)
+  expect(screen.getByAltText('IFMP Retail')).toBeInTheDocument()
+  expect(lockups.filter((img) => img.getAttribute('aria-hidden') === 'true')).toHaveLength(1)
+
+  expect(screen.getByRole('heading', { name: '登入 IFMP Retail' })).toBeInTheDocument()
+  expect(screen.getByText('I.T. 銅鑼灣')).toBeInTheDocument()
+  expect(screen.getByText('僅限授權人員')).toBeInTheDocument()
+})
+
+test('the language pill retranslates the login before sign-in', async () => {
+  const userEvent = (await import('@testing-library/user-event')).default
+  const user = userEvent.setup()
+  renderLogin()
+
+  await user.click(screen.getByTestId('login-locale-toggle'))
+
+  expect(screen.getByRole('heading', { name: 'Sign in to IFMP Retail' })).toBeInTheDocument()
+  expect(screen.getByText('Email')).toBeInTheDocument()
+  expect(screen.getByText('Authorized staff only')).toBeInTheDocument()
+})

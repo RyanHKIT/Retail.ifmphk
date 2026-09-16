@@ -110,19 +110,40 @@
   padding: 16px 12px;
 }
 
+/* Brand lockup: the console's `mark.png` beside the product word. The word
+   stays real text rather than being baked into an image so that "Retail" is
+   selectable and translatable, and so the rail can drop to the mark alone when
+   it collapses. */
 .flow-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 2px 0 0 10px;
+}
+
+.flow-nav-brand .brand-mark {
+  flex: 0 0 auto;
+  height: 24px;
+}
+
+.flow-nav-wordmark {
+  min-width: 0;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  padding: 4px 10px 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.flow-nav-brand small {
-  display: block;
+/* Sits below the head rather than inside it. The head only has ~184px to
+   share with the collapse button, and the English descriptor needs most of it. */
+.flow-nav-subtitle {
   font-size: 11px;
   font-weight: 400;
   color: var(--flow-muted);
-  margin-top: 2px;
+  padding: 2px 10px 12px;
 }
 
 .flow-nav-group {
@@ -210,9 +231,18 @@
 }
 
 .flow-nav.is-collapsed .flow-nav-brand {
+  justify-content: center;
   padding: 4px 0 0;
-  font-size: 16px;
-  text-align: center;
+}
+
+.flow-nav.is-collapsed .flow-nav-brand .brand-mark {
+  height: 22px;
+}
+
+/* The descriptor is not rendered when collapsed, so the head carries the gap
+   that `.flow-nav-subtitle` supplies when it is. */
+.flow-nav.is-collapsed .flow-nav-head {
+  padding-bottom: 12px;
 }
 
 .flow-nav.is-collapsed .flow-nav-collapse {
@@ -338,115 +368,25 @@
 }
 
 /* Login */
-.flow-login {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
-
-.flow-login-card {
-  width: 360px;
-  background: var(--flow-panel);
-  border: 1px solid var(--flow-line);
-  border-radius: 12px;
-  padding: 28px;
-}
-
-.flow-login-brand {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--flow-accent);
-  margin-bottom: 8px;
-}
-
-.flow-login-title {
-  font-size: 20px;
-  margin-bottom: 2px;
-}
-
-.flow-login-site {
-  font-size: 12px;
-  color: var(--flow-muted);
-  margin-bottom: 18px;
-}
-
-.flow-login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.flow-login-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--flow-muted);
-}
-
-.flow-login-form input {
-  background: var(--flow-bg);
-  border: 1px solid var(--flow-line);
-  border-radius: 6px;
-  color: var(--flow-text);
-  padding: 8px 10px;
-  font-size: 13px;
-}
-
-.flow-login-form input {
-  transition:
-    border-color var(--flow-dur-fast) var(--flow-ease-out),
-    box-shadow var(--flow-dur-fast) var(--flow-ease-out);
-}
-
-/* Text inputs must show focus on click too, so this is :focus, not
-   :focus-visible. The outline is dropped only for pointer focus, where the
-   ring already communicates the state. */
-.flow-login-form input:focus {
-  border-color: var(--flow-accent);
-  box-shadow: 0 0 0 3px var(--flow-accent-soft);
-}
-
-.flow-login-form input:focus:not(:focus-visible) {
-  outline: none;
-}
-
-.flow-login-form button {
-  background: var(--flow-accent);
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  padding: 9px 10px;
-  font-size: 13px;
-  cursor: pointer;
-  margin-top: 4px;
-  transition:
-    background-color var(--flow-dur-fast) var(--flow-ease-out),
-    transform var(--flow-dur-press) var(--flow-ease-out);
-}
-
-.flow-login-form button:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.flow-login-form button:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.flow-login-error {
-  color: var(--flow-danger);
-  font-size: 12px;
-}
+/* The login page owns its own stylesheet: `styles/flow-login.css`. It is a
+   whole-page surface rather than chrome, and the console-matching backdrop it
+   needs has nothing in common with the app shell's panels. */
 
 .flow-gate-loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   min-height: 100vh;
   color: var(--flow-muted);
+}
+
+/* The gate is the first thing a returning manager sees while the session
+   resolves, so it is a legitimate place for the mark rather than bare text.
+   Decorative: the product name is already in the document title. */
+.flow-gate-loading .brand-mark {
+  height: 36px;
 }
 
 
@@ -463,6 +403,16 @@
   }
   .flow-nav-brand {
     width: 100%;
+  }
+  /* The rail becomes a wrapping row here, and the default `align-self: stretch`
+     then makes the head and the descriptor as tall as the entire first flex
+     line — 187px at 820px wide. The head centres its contents, so the brand
+     drifted down to the middle of an empty box while the descriptor's text was
+     stranded at the very top. Content height keeps them on the same line and
+     gives the nav back ~180px of vertical space. */
+  .flow-nav-head,
+  .flow-nav-subtitle {
+    align-self: flex-start;
   }
   .flow-nav-group {
     display: none;

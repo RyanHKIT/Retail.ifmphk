@@ -1,4 +1,8 @@
 /* Compatibility aggregator. Chrome lives in shell/pilot-v1; surfaces stay here. */
+@import './flow-brand.css';
 @import '../shell/pilot-v1/shell.css';
 @import './flow-surfaces.css';
 @import './flow-ai.css';
+/* Last on purpose: the login repaints the page background and the page-level
+   accent, so it has to beat the shell's `.flow-app` defaults. */
+@import './flow-login.css';

@@ -1,0 +1,360 @@
+/* ===== /flow login — IFMP Retail ==========================================
+   Sibling of the IFMP console login at ifmphk.com/login, which is the same
+   organisation's own product. The two are meant to read as one family.
+
+   Copied from the console, so the two pages share a skeleton:
+     - a cardless single column centred in the viewport, max width 384px
+     - a top bar carrying the brand lockup on the left and a language pill on
+       the right
+     - the lockup repeated large in the column, with one muted line under it
+     - the form separated from that lockup by a hairline top border
+     - 44px inputs with a 12px label above each, full-width 44px submit
+     - a very small centred footnote under the form
+     - a 48px grid overlay and two radial glows behind everything
+     - Geist for Latin, falling back to PingFang / YaHei / Noto Sans TC for CJK
+
+   Deliberately different from the console:
+     - The backdrop is green, because Retail is the green sibling. The console
+       is blue-grey. Nothing inside the app changed: post-login the surfaces
+       keep Signal Blue.
+     - The console shows no product word on its login, only "Sign in to
+       IntelliBuild IFMP". Retail's name has to be visible, so it lives in that
+       same subtitle line as "登入 IFMP Retail".
+     - The console's grid uses white lines over a near-white field, which is
+       invisible. Here the lines are green-tinted instead, since a grid nobody
+       can see is not worth the paint.
+     - The console's footnote is 11px. 12px here, for the same reason.
+
+   On the green. The console's own palette already contains the greens used
+   below: `#15803d` is Tailwind green-700, the scale position of its
+   `--primary` (blue-600), and `#22c55e` is its `--online` / `--chart-2` in dark.
+   So this is that palette with one hue swapped, not a second design language.
+
+   The backdrop stays in a light, low-saturation green on purpose. The form is
+   not on a card, so every label, note and error sits directly on the backdrop
+   and has to clear 4.5:1 against its darkest stop (`#cfe9da` in light). A
+   saturated full-bleed green cannot do that without turning the text white and
+   losing the quiet, instrument-like feel the rest of the product has.
+
+   On the brand mark. The IFMP logo is blue-indigo and is left untouched. A
+   wordmark is read as the brand, not as an accent, so it does not fight the
+   green here; recolouring a mark to match a page would not be ours to do.
+   ========================================================================= */
+
+/* Specificity note. The shell declares its light palette on
+   `.flow-app[data-theme='light']`, which is (0,2,0) — heavier than a bare
+   `.flow-login` (0,1,0). So a plain `.flow-login` block silently loses
+   `background`, `color` and `font-family` to the shell, and the page keeps the
+   app's blue-grey chrome and Segoe UI. That is exactly what happened on the
+   first attempt. These selectors match the shell's weight, and the bare
+   `.flow-app.flow-login` comes first so a page rendered without a theme
+   attribute still gets the light palette rather than the shell's. */
+.flow-app.flow-login,
+.flow-app[data-theme='light'].flow-login {
+  /* Re-point the shared accent so the shell's own `::selection` and
+     `:focus-visible` rules turn green here without being restated. Scoped to
+     this page, so the rest of the product stays Signal Blue. */
+  --flow-accent: #15803d;
+  --flow-accent-soft: rgba(21, 128, 61, 0.2);
+  --flow-accent-selection: rgba(21, 128, 61, 0.22);
+  --flow-text: #0f2a1a;
+
+  --login-accent: #15803d;
+  --login-accent-strong: #166534;
+  /* White on green-700 measures 4.56:1. Green-500 would be 3.3:1, which fails
+     AA for 14px text, so the lighter green is reserved for the dark theme
+     where the text can flip to near-black instead. */
+  --login-accent-on: #ffffff;
+  --login-ring: rgba(21, 128, 61, 0.2);
+  --login-field: rgba(255, 255, 255, 0.86);
+  --login-field-line: rgba(21, 128, 61, 0.22);
+  --login-line: rgba(21, 128, 61, 0.18);
+  --login-text: #0f2a1a;
+  --login-muted: #46604f;
+  --login-danger: #b91c1c;
+  --login-glow-strong: rgba(22, 163, 74, 0.22);
+  --login-glow-soft: rgba(22, 163, 74, 0.1);
+  --login-bg-1: #f3fbf6;
+  --login-bg-2: #e4f5ea;
+  --login-bg-3: #cfe9da;
+  --login-grid: rgba(21, 128, 61, 0.06);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* dvh so the mobile browser chrome does not push the footnote off-screen. */
+  min-height: 100dvh;
+  /* Only the horizontal axis is clipped, to keep the decorative layers from
+     ever widening the page. Vertically the page still scrolls: on a short
+     window the column is taller than the viewport, and the console's plain
+     `overflow: hidden` would put the top of that column out of reach. */
+  overflow-x: hidden;
+  background: linear-gradient(
+    165deg,
+    var(--login-bg-1) 0%,
+    var(--login-bg-2) 48%,
+    var(--login-bg-3) 100%
+  );
+  color: var(--login-text);
+  font-family:
+    Geist,
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Noto Sans TC',
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+.flow-app[data-theme='night'].flow-login {
+  --flow-accent: #22c55e;
+  --flow-accent-soft: rgba(34, 197, 94, 0.24);
+  --flow-accent-selection: rgba(34, 197, 94, 0.3);
+  --flow-text: #e6f3e9;
+
+  --login-accent: #22c55e;
+  --login-accent-strong: #4ade80;
+  /* Near-black green on green-500 measures 6.5:1. White on the same green
+     would be 2.2:1, so dark theme inverts the button rather than dimming it. */
+  --login-accent-on: #04240f;
+  --login-ring: rgba(34, 197, 94, 0.26);
+  --login-field: rgba(255, 255, 255, 0.05);
+  --login-field-line: rgba(34, 197, 94, 0.26);
+  --login-line: rgba(34, 197, 94, 0.22);
+  --login-text: #e6f3e9;
+  --login-muted: #93b3a0;
+  --login-danger: #fca5a5;
+  --login-glow-strong: rgba(34, 197, 94, 0.2);
+  --login-glow-soft: rgba(34, 197, 94, 0.09);
+  --login-bg-1: #06150d;
+  --login-bg-2: #07210f;
+  --login-bg-3: #04130a;
+  --login-grid: rgba(134, 239, 172, 0.05);
+}
+
+/* ---- Backdrop -----------------------------------------------------------
+   Both layers are decorative and inert to pointer events, so a stray click on
+   the field never lands on them instead of the page. */
+
+.flow-login-glow,
+.flow-login-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.flow-login-glow {
+  background:
+    radial-gradient(ellipse at 20% 10%, var(--login-glow-strong), transparent 50%),
+    radial-gradient(ellipse at 80% 90%, var(--login-glow-soft), transparent 45%);
+}
+
+.flow-login-grid {
+  background-image:
+    linear-gradient(var(--login-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--login-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ---- Top bar ------------------------------------------------------------- */
+
+.flow-login-top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.flow-login-top .brand-lockup {
+  height: 32px;
+}
+
+.flow-login-lang {
+  flex: 0 0 auto;
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--login-text);
+  background: transparent;
+  border: 1px solid var(--login-line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    border-color var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+@media (hover: hover) {
+  .flow-login-lang:hover {
+    background: var(--login-glow-soft);
+    border-color: var(--login-accent);
+  }
+}
+
+/* ---- Column -------------------------------------------------------------- */
+
+.flow-login-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* `safe` keeps the top of the column reachable when the window is shorter
+     than the form. Plain centring pins the overflow above the scroll origin,
+     so the first fields cannot be scrolled to at all. */
+  justify-content: safe center;
+  padding: 0 20px 64px;
+}
+
+.flow-login-panel {
+  width: 100%;
+  max-width: 384px;
+}
+
+.flow-login-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.flow-login-lockup .brand-lockup {
+  height: 56px;
+}
+
+/* The heading is small text on purpose: the lockup above it is what labels the
+   page visually, and the console does the same. Keeping a real `h1` here rather
+   than dropping the text still gives the document one clear heading. */
+.flow-login-subtitle {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--login-muted);
+}
+
+.flow-login-site {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--login-muted);
+}
+
+/* ---- Form ---------------------------------------------------------------- */
+
+.flow-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--login-line);
+  padding-top: 24px;
+}
+
+.flow-login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flow-login-field > span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--login-muted);
+}
+
+.flow-login-form input {
+  height: 44px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--login-text);
+  background: var(--login-field);
+  border: 1px solid var(--login-field-line);
+  border-radius: 10px;
+  transition:
+    border-color var(--flow-dur-fast) var(--flow-ease-out),
+    box-shadow var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+.flow-login-form input::placeholder {
+  color: var(--login-muted);
+}
+
+/* Text inputs must show focus on click too, so this is :focus, not
+   :focus-visible. The outline is dropped only for pointer focus, where the
+   ring already communicates the state; keyboard focus keeps the shared
+   :focus-visible outline from the shell. */
+.flow-login-form input:focus {
+  border-color: var(--login-accent);
+  box-shadow: 0 0 0 3px var(--login-ring);
+}
+
+.flow-login-form input:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.flow-login-form button[type='submit'] {
+  height: 44px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 10px;
+  background: var(--login-accent);
+  color: var(--login-accent-on);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    transform var(--flow-dur-press) var(--flow-ease-out);
+}
+
+@media (hover: hover) {
+  .flow-login-form button[type='submit']:hover:not(:disabled) {
+    background: var(--login-accent-strong);
+  }
+}
+
+.flow-login-form button[type='submit']:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.flow-login-form button[type='submit']:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.flow-login-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--login-danger);
+}
+
+.flow-login-foot {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--login-muted);
+}
+
+@media (min-width: 640px) {
+  .flow-login-top {
+    padding: 16px 32px;
+  }
+
+  .flow-login-top .brand-lockup {
+    height: 36px;
+  }
+
+  .flow-login-lockup .brand-lockup {
+    height: 64px;
+  }
+}
