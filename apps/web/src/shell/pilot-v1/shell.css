@@ -114,12 +114,13 @@
    rather than being baked into an image so that "Retail" is selectable and
    translatable, and so the rail can drop to the mark alone when it collapses.
 
-   The mark here is `mark-rail-*`, a high-contrast derivative of the authentic
+   The mark here is `mark-hc-*`, a high-contrast derivative of the authentic
    emblem, because the authentic one only gets 55.5% of its pixels past the 3:1
-   bar against this white panel. The login and the gate keep the authentic
-   artwork. The two-variant decision is documented in
-   `components/flow/BrandLogo.tsx`; both files keep the `brand-mark` class, so
-   the sizing rules below need no variant-specific copy. */
+   bar against this white panel. The route gate uses the same derivative for the
+   same reason, and the login keeps its own light monochrome lockup. The
+   two-variant decision is documented in `components/flow/BrandLogo.tsx`; both
+   files keep the `brand-mark` class, so the sizing rules below need no
+   variant-specific copy. */
 .flow-nav-brand {
   display: flex;
   align-items: center;
@@ -390,7 +391,10 @@
 
 /* The gate is the first thing a returning manager sees while the session
    resolves, so it is a legitimate place for the mark rather than bare text.
-   Decorative: the product name is already in the document title. */
+   Decorative: the product name is already in the document title.
+   It uses the same high-contrast derivative as the nav rail, because it shares
+   the light shell background: the authentic mark clears 3:1 on only 53.3% of
+   its pixels here. See `components/flow/BrandLogo.tsx`. */
 .flow-gate-loading .brand-mark {
   height: 36px;
 }

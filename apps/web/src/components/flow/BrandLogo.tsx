@@ -4,65 +4,83 @@ import { useFlowTheme, type FlowTheme } from '@/context/FlowThemeContext'
 /**
  * IFMP brand marks.
  *
- * The four files under `public/brand/` that came from the console are the same
- * assets the IFMP console serves, from the same paths. That is deliberate reuse
- * of one organisation's own identity across two of its own products, not
- * borrowed third-party work. `mark-rail-*.png` are our own derivatives; see
- * "Two marks" below.
+ * The assets from the console under `public/brand/` are the same four files the
+ * IFMP console serves, from the same paths. That is deliberate reuse of one
+ * organisation's own identity across two of its own products, not borrowed
+ * third-party work. `logo-lockup-login.png` and `mark-hc-*.png` are our own
+ * derivatives; both are explained below.
  *
- * The lockups are baked rasters with a fixed ink colour, so light and night
- * need separate files rather than a CSS filter: `logo-lockup-light.png` is
- * drawn for pale surfaces, `logo-lockup-dark.png` for dark ones.
+ * Three surfaces, three inks.
  *
- * Which lockup a page needs is a property of the *surface*, not the theme. The
- * login backdrop is a deep green in both themes now, so the login asks for the
- * dark-surface lockup explicitly through `onDark`; on that backdrop the pale
- * surface lockup's ink measures about 1.1:1 and disappears.
+ * The authentic assets are fixed-colour rasters, so the file has to match the
+ * ground it sits on. There are three grounds in the pilot, and each needs a
+ * different ink:
  *
- * Two marks, and why.
+ *   pale surface  -> `logo-lockup-light.png` (dark navy ink)
+ *   dark surface  -> `logo-lockup-dark.png`  (light ink)
+ *   login green   -> `logo-lockup-login.png` (our light monochrome derivative)
  *
- * `mark.png` is a detailed emblem: a solid badge, 73.6% of it fully opaque,
- * whose internal structure is carried by colour and not by alpha. Measured
- * against our `rgb(255,255,255)` nav it averages 4.11:1 but only 55.5% of its
- * pixels clear the 3:1 bar for a graphical object, because its pale interior
- * tones sit close to the white behind them. At the 19x24 the rail actually
- * renders it, that interior structure is sub-pixel and averages away anyway.
+ * `lockupSrcFor` names the surface rather than the theme, because the surface
+ * is what actually decides legibility. The login is the case that proves it: its
+ * ground is the same deep green in both themes, so the theme cannot select the
+ * ink. Nothing is recoloured to achieve this -- the authentic files are picked
+ * by ground. `logo-lockup-light.png` is the default for a pale surface and is
+ * kept for that, though every lockup placement in the pilot currently sits on a
+ * dark or green ground.
  *
- * So the rail uses a derivative, `mark-rail-*.png`, and the rest of the product
- * keeps the authentic artwork. The derivatives hold the original alpha and
- * silhouette and remap the original per-pixel luminance onto a high-contrast
- * ramp, which preserves the emblem's structure instead of flattening it to a
- * silhouette. On the white nav `mark-rail-light.png` averages 10.04:1 with
- * 99.8% of pixels at or above 3:1, against 4.11:1 and 55.5% for the original.
- * On the `#151c2e` night nav `mark-rail-dark.png` averages 8.70:1 with 100% at
- * or above 3:1 and a floor of 3.97:1, against 6.14:1 and 71.3% for the
- * original. Recolouring at this size costs nothing measurable, whereas at the
- * 64px login lockup the authentic artwork is legible and is kept untouched.
+ * Why the login needs a derivative.
+ *
+ * `logo-lockup-dark.png` is a two-tone composite, not a single ink: of its
+ * opaque pixels, roughly 19% are pale cyan and 13% near-black. That is why no
+ * near-uniform ground can satisfy both halves -- measured on the login, its
+ * badge cleared 3:1 on 0.9% of pixels and its wordmark on 61.7%. Rather than
+ * recolour a brand asset by hand, `logo-lockup-login.png` is derived
+ * mechanically: the original alpha and silhouette are untouched and each opaque
+ * pixel's luminance is remapped onto a single pale-green-to-white ramp. That
+ * keeps the structure (it is a monotonic remap, not a flattening) and moves
+ * every solid ink pixel to 3.38:1 or better against the lightest region of the
+ * real login ground, 100% of them at 3:1 or better.
+ *
+ * Why the compact mark has a derivative too.
+ *
+ * `mark.png` is a detailed emblem: 73.6% of it is fully opaque and its internal
+ * structure is carried by colour rather than by alpha. Measured against a white
+ * panel it averages 4.11:1 but only 55.5% of its pixels clear the 3:1 bar for a
+ * graphical object, because its pale interior tones sit close to the white
+ * behind them. At the 19x24 the rail renders it, that interior detail is
+ * sub-pixel and averages away anyway, so `mark-hc-*.png` apply the same
+ * luminance remap for a high-contrast result: 99.8% of pixels at 3:1 or better
+ * on white against 55.5% for the original. The rail and the route gate both use
+ * these, because both sit on the light shell background; the authentic
+ * `mark.png` is kept for placements large enough to show its detail.
  *
  * This module deliberately sits outside `shell/pilot-v1/`. Brand identity
- * outlives any one chrome, and both the login page and the route gate need to
+ * outlives any one chrome, and the login page and the route gate both need to
  * draw it without depending on a shell that is designed to be deleted.
  */
 
 const LOCKUP_LIGHT = '/brand/logo-lockup-light.png'
 const LOCKUP_DARK = '/brand/logo-lockup-dark.png'
+/** Derivative: light monochrome, for the login's deep green in either theme. */
+const LOCKUP_LOGIN = '/brand/logo-lockup-login.png'
 
 /** The authentic emblem. Used wherever it is large enough to be read. */
 const MARK = '/brand/mark.png'
 
-/** Rail-only high-contrast derivatives of `MARK`. See "Two marks" above. */
-const MARK_RAIL_LIGHT = '/brand/mark-rail-light.png'
-const MARK_RAIL_DARK = '/brand/mark-rail-dark.png'
+/** High-contrast derivatives of `MARK`. See "Why the compact mark" above. */
+const MARK_HC_LIGHT = '/brand/mark-hc-light.png'
+const MARK_HC_DARK = '/brand/mark-hc-dark.png'
 
 /**
- * Exported so non-image uses (a favicon, a canvas) can pick the same file.
- *
- * `onDark` names the surface the lockup will sit on, for pages whose ground the
- * theme alone does not describe -- the login backdrop is deep green in both
- * themes.
+ * The ground a mark will sit on. Not the theme: the login's green is the same
+ * in both themes, so the ground is the honest input.
  */
-export function lockupSrcFor(theme: FlowTheme, onDark = false): string {
-  return theme === 'night' || onDark ? LOCKUP_DARK : LOCKUP_LIGHT
+export type BrandSurface = 'light' | 'dark' | 'login'
+
+/** Exported so non-image uses (a favicon, a canvas) can pick the same file. */
+export function lockupSrcFor(surface: BrandSurface): string {
+  if (surface === 'login') return LOCKUP_LOGIN
+  return surface === 'dark' ? LOCKUP_DARK : LOCKUP_LIGHT
 }
 
 type BrandLogoProps = {
@@ -75,18 +93,27 @@ type BrandLogoProps = {
 }
 
 type BrandLockupProps = BrandLogoProps & {
-  /** Force the light-ink artwork. Set on the login, whose ground is dark. */
-  onDark?: boolean
+  /**
+   * Which ground the lockup sits on. Defaults to the current theme -- pass
+   * `login` on the login page, whose green ground the theme does not describe.
+   */
+  surface?: 'theme' | BrandSurface
 }
 
 /** The full IFMP wordmark, for roomy placements. */
-export function BrandLockup({ decorative = false, onDark = false }: BrandLockupProps) {
+export function BrandLockup({ decorative = false, surface = 'theme' }: BrandLockupProps) {
   const { t } = useFlowLocale()
   const { theme } = useFlowTheme()
 
+  // `theme` is the fallback rather than a required input so callers that do sit
+  // on a themed shell surface do not have to restate what the theme already
+  // says.
+  const resolved: BrandSurface =
+    surface === 'theme' ? ((theme as FlowTheme) === 'night' ? 'dark' : 'light') : surface
+
   return (
     <img
-      src={lockupSrcFor(theme, onDark)}
+      src={lockupSrcFor(resolved)}
       alt={decorative ? '' : t('product.name')}
       className="brand-lockup"
       aria-hidden={decorative || undefined}
@@ -98,7 +125,7 @@ export function BrandLockup({ decorative = false, onDark = false }: BrandLockupP
 
 /**
  * The authentic compact IFMP glyph. Kept for placements large enough to show
- * its detail -- currently the route gate's loading state.
+ * its detail; prefer `BrandHighContrastMark` on the shell's light background.
  */
 export function BrandMark({ decorative = false }: BrandLogoProps) {
   const { t } = useFlowLocale()
@@ -116,22 +143,23 @@ export function BrandMark({ decorative = false }: BrandLogoProps) {
 }
 
 /**
- * The rail's high-contrast mark. Same silhouette and same accessible-name
- * contract as `BrandMark`; only the ink differs. Carries `brand-mark` as well
- * so the rail's existing sizing rules apply unchanged.
+ * The compact mark at high contrast, for the light shell background (the nav
+ * rail and the route-gate loading state). Same silhouette and same
+ * accessible-name contract as `BrandMark`; only the ink differs. Carries
+ * `brand-mark` as well so the existing sizing rules apply unchanged.
  */
-export function BrandRailMark({ decorative = false }: BrandLogoProps) {
+export function BrandHighContrastMark({ decorative = false }: BrandLogoProps) {
   const { t } = useFlowLocale()
   const { theme } = useFlowTheme()
 
   return (
     <img
-      src={theme === 'night' ? MARK_RAIL_DARK : MARK_RAIL_LIGHT}
+      src={theme === 'night' ? MARK_HC_DARK : MARK_HC_LIGHT}
       alt={decorative ? '' : t('product.name')}
-      className="brand-mark brand-mark-rail"
+      className="brand-mark brand-mark-hc"
       aria-hidden={decorative || undefined}
       draggable={false}
-      data-testid="brand-rail-mark"
+      data-testid="brand-hc-mark"
     />
   )
 }

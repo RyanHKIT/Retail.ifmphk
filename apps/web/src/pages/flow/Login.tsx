@@ -54,9 +54,10 @@ export function LoginPage() {
       <header className="flow-login-top">
         {/* Decorative: the lockup in the column below carries the accessible
             name, so announcing this one too would just repeat it.
-            `onDark` because this page's ground is a deep green in both themes,
-            where the pale-surface lockup's ink is about 1.1:1. */}
-        <BrandLockup decorative onDark />
+            `surface="login"` because this page's ground is a deep green in both
+            themes. The authentic pale-surface artwork measures about 1.1:1
+            there, so the login uses the light monochrome derivative. */}
+        <BrandLockup decorative surface="login" />
         {/* The console puts the language control in this bar, and it is the
             first place a manager can use it: the preference is applied before
             they can reach the shell's own toggle. */}
@@ -73,7 +74,7 @@ export function LoginPage() {
       <main className="flow-login-main">
         <div className="flow-login-panel">
           <div className="flow-login-lockup">
-            <BrandLockup onDark />
+            <BrandLockup surface="login" />
             <h1 className="flow-login-subtitle">{t('auth.loginSubtitle')}</h1>
             <p className="flow-login-site">{t('site.name')}</p>
           </div>

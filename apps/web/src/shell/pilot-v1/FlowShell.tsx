@@ -3,7 +3,7 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
 import { useFlowTheme } from '@/context/FlowThemeContext'
-import { BrandRailMark } from '@/components/flow/BrandLogo'
+import { BrandHighContrastMark } from '@/components/flow/BrandLogo'
 import { ChatPanel } from '@/components/flow/ChatPanel'
 import { FLOW_NAV } from '@/shell/nav'
 import { navIcon } from './navIcons'
@@ -38,12 +38,12 @@ export function FlowShell() {
       >
         <div className="flow-nav-head">
           <div className="flow-nav-brand">
-            {/* The rail mark is a high-contrast derivative of the emblem, not
-                the authentic artwork: at this size the authentic version only
-                gets 55.5% of its pixels past the 3:1 bar. See BrandLogo.tsx.
-                Decorative in both states: expanded, the wordmark text carries
-                the name; collapsed, the nav element's own aria-label does. */}
-            <BrandRailMark decorative />
+            {/* The high-contrast mark, not the authentic artwork: at this size
+                the authentic version only gets 55.5% of its pixels past the 3:1
+                bar on this white panel. See BrandLogo.tsx. Decorative in both
+                states: expanded, the wordmark text carries the name; collapsed,
+                the nav element's own aria-label does. */}
+            <BrandHighContrastMark decorative />
             {!collapsed && (
               <span className="flow-nav-wordmark">{t('product.name')}</span>
             )}

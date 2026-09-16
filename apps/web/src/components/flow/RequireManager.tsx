@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
-import { BrandMark } from '@/components/flow/BrandLogo'
+import { BrandHighContrastMark } from '@/components/flow/BrandLogo'
 
 /**
  * Route gate for the Flow pilot.
@@ -19,8 +19,12 @@ export function RequireManager() {
     return (
       <div className="flow-app flow-gate-loading">
         {/* Decorative: this is a transient boot state, and the product name is
-            already in the document title. */}
-        <BrandMark decorative />
+            already in the document title.
+            The high-contrast mark, not the authentic artwork: this state sits on
+            the same light shell background as the nav rail, where the authentic
+            version only gets 53.3% of its pixels past the 3:1 bar. Same
+            treatment as the rail rather than a second derivation. */}
+        <BrandHighContrastMark decorative />
         <p>{t('common.loading')}</p>
       </div>
     )

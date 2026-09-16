@@ -82,10 +82,10 @@ test('nav brand pairs the high-contrast mark with the product word', async () =>
   // white panel the authentic artwork only gets 55.5% of its pixels past the
   // 3:1 bar, the derivative 99.8%. Asserting the filename is the point of the
   // test -- a silent revert to `mark.png` would otherwise pass unnoticed.
-  const mark = await screen.findByTestId('brand-rail-mark')
+  const mark = await screen.findByTestId('brand-hc-mark')
   // Decorative, because the wordmark text beside it already names the product.
   expect(mark).toHaveAttribute('alt', '')
-  expect(mark).toHaveAttribute('src', '/brand/mark-rail-light.png')
+  expect(mark).toHaveAttribute('src', '/brand/mark-hc-light.png')
   expect(screen.getByText('零售營運主控台')).toBeInTheDocument()
 })
 
@@ -94,16 +94,16 @@ test('rail mark swaps to the dark-surface variant with the theme', async () => {
   const user = userEvent.setup()
   renderShell()
 
-  expect(await screen.findByTestId('brand-rail-mark')).toHaveAttribute(
+  expect(await screen.findByTestId('brand-hc-mark')).toHaveAttribute(
     'src',
-    '/brand/mark-rail-light.png',
+    '/brand/mark-hc-light.png',
   )
 
   await user.click(screen.getByTestId('flow-theme-toggle'))
 
-  expect(screen.getByTestId('brand-rail-mark')).toHaveAttribute(
+  expect(screen.getByTestId('brand-hc-mark')).toHaveAttribute(
     'src',
-    '/brand/mark-rail-dark.png',
+    '/brand/mark-hc-dark.png',
   )
 })
 
@@ -117,7 +117,7 @@ test('collapsing the rail keeps the mark and drops the words', async () => {
   // The mark is the whole brand at 64px; the words would not fit, and the nav
   // element's aria-label carries the name instead.
   expect(screen.getByRole('navigation', { name: 'IFMP Retail' })).toBeInTheDocument()
-  expect(screen.getByTestId('brand-rail-mark')).toBeInTheDocument()
+  expect(screen.getByTestId('brand-hc-mark')).toBeInTheDocument()
   expect(screen.queryByText('IFMP Retail')).not.toBeInTheDocument()
   expect(screen.queryByText('零售營運主控台')).not.toBeInTheDocument()
 })

@@ -39,14 +39,16 @@
    that lightest stop (`#166534`), and each was confirmed against the rendered
    page rather than assumed from the declared stops.
 
-   On the brand mark. `logo-lockup-light.png` is dark-ink artwork drawn for pale
-   surfaces. On this backdrop its ink measures about 1.1:1 and vanishes, so the
-   login asks for `logo-lockup-dark.png` -- the light-ink member of the same
-   authentic pair -- in both themes. The login is a dark-surface page in both
-   themes now, so the theme no longer decides which ink the lockup uses. Nothing
-   is recoloured: the same two authentic files are selected by surface instead
-   of by theme. See `components/flow/BrandLogo.tsx` for the rail mark, which is
-   the one place a derivative asset is used, and why.
+   On the brand mark. The login lockup is our own light monochrome derivative
+   (`logo-lockup-login.png`), not one of the two authentic files. The authentic
+   pair are two-tone composites with both pale and near-black ink, so the pale
+   ground needs one half and the deep green needs the other: on this backdrop
+   `logo-lockup-light.png` measures about 1.1:1 and `logo-lockup-dark.png` clears
+   3:1 on only 0.9% of its badge pixels. The derivative keeps the original alpha,
+   silhouette and structure and puts 100% of solid ink pixels at 3:1 or better
+   against the lightest region of this ground. It is used in both themes,
+   because this page is a dark-surface page either way. See
+   `components/flow/BrandLogo.tsx` for the derivation and the measurements.
    ========================================================================= */
 
 /* Specificity note. The shell declares its light palette on
