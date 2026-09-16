@@ -58,8 +58,8 @@ vi.mock('@/lib/roster/api', () => ({
     }
   },
   fetchManagedBranchId: vi.fn(async () => 'b1'),
-  fetchSwaps: vi.fn(async (branchId?: string) => {
-    h.state.calls.fetchSwaps.push(branchId)
+  fetchSwaps: vi.fn(async () => {
+    h.state.calls.fetchSwaps.push(undefined)
     if (h.state.failLoad) throw new Error('boom')
     return h.state.swaps.map((s) => ({ ...s }))
   }),
@@ -194,8 +194,8 @@ describe('Swaps (Task 9 contract)', () => {
     expect(within(rowById('sw2')).getByText('公開招募')).toBeInTheDocument()
     expect(rowById('sw3')).toHaveTextContent('陳大文')
 
-    // api scoped to the managed branch
-    expect(h.state.calls.fetchSwaps.at(-1)).toBe('b1')
+    // api no longer takes a branchId (RLS + employees join handle scope)
+    expect(h.state.calls.fetchSwaps.at(-1)).toBeUndefined()
   })
 
   it('approve targeted swap: dialog + notes then reviewSwap(id, true, notes)', async () => {

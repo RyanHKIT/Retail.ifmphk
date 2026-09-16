@@ -287,11 +287,15 @@ describe('swaps + audit queries', () => {
     })
   })
 
-  it('fetchSwaps orders newest first', async () => {
+  it('fetchSwaps orders newest first (branch scope via employees join)', async () => {
     h.results.swap_requests = { data: [], error: null }
     await fetchSwaps()
     const qb = (h.client.from as any).mock.results[0].value
     expect(qb.order).toHaveBeenCalledWith('created_at', { ascending: false })
+    expect(qb.select).toHaveBeenCalledWith(
+      '*, requester:requester_employee_id(branch_id), target:target_employee_id(branch_id)',
+    )
+    expect(qb.eq).not.toHaveBeenCalled()
   })
 
   it('fetchAudit pages by created_at desc + range', async () => {

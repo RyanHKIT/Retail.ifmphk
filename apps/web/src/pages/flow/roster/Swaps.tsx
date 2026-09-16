@@ -68,7 +68,7 @@ export function SwapsPage() {
     setLoadError(null)
     try {
       const [sw, emps] = await Promise.all([
-        fetchSwaps(branchId),
+        fetchSwaps(),
         fetchEmployees(branchId),
       ])
       setSwaps(sw)

@@ -74,6 +74,8 @@ export function TemplatesPage() {
   const { t } = useFlowLocale()
 
   const [branchId, setBranchId] = useState<string | null>(null)
+  /** False until fetchManagedBranchId resolves — distinguishes "resolving" from "no branch". */
+  const [branchResolved, setBranchResolved] = useState(false)
   const [templates, setTemplates] = useState<ShiftTemplateRow[]>([])
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -106,7 +108,10 @@ export function TemplatesPage() {
     let cancelled = false
     void (async () => {
       const id = await fetchManagedBranchId(profile.id)
-      if (!cancelled) setBranchId(id)
+      if (!cancelled) {
+        setBranchId(id)
+        setBranchResolved(true)
+      }
     })()
     return () => {
       cancelled = true
@@ -193,7 +198,7 @@ export function TemplatesPage() {
     }
   }
 
-  if (branchId === null && profile) {
+  if (branchId === null && branchResolved && profile) {
     return (
       <div className="roster-board">
         <div className="roster-error-banner">

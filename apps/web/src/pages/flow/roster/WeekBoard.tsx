@@ -71,6 +71,8 @@ export function WeekBoardPage() {
 
   // data state
   const [branchId, setBranchId] = useState<string | null>(null)
+  /** False until fetchManagedBranchId resolves — distinguishes "resolving" from "no branch". */
+  const [branchResolved, setBranchResolved] = useState(false)
   const [bundle, setBundle] = useState<WeekBundle | null>(null)
   const [monthAssignments, setMonthAssignments] = useState<AssignmentRow[]>([])
   const [loading, setLoading] = useState(false)
@@ -179,7 +181,10 @@ export function WeekBoardPage() {
     let cancelled = false
     void (async () => {
       const id = await fetchManagedBranchId(profile.id)
-      if (!cancelled) setBranchId(id)
+      if (!cancelled) {
+        setBranchId(id)
+        setBranchResolved(true)
+      }
     })()
     return () => {
       cancelled = true
@@ -396,7 +401,7 @@ export function WeekBoardPage() {
     return monthLabel(y, m - 1, locale)
   }, [monthAnchor, locale])
 
-  if (branchId === null && profile) {
+  if (branchId === null && branchResolved && profile) {
     return (
       <div className="roster-board">
         <div className="roster-error-banner">
@@ -580,7 +585,7 @@ export function WeekBoardPage() {
         </div>
       )}
 
-      {loading ? (
+      {(!branchResolved || loading || (viewMode === 'week' && !bundle)) ? (
         <div className="roster-skeleton" aria-label={t('common.loading')}>
           {Array.from({ length: 4 }, (_, i) => (
             <div key={i} className="bar" />

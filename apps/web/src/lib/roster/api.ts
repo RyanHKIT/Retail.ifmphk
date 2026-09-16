@@ -279,12 +279,22 @@ export async function reviewSwap(
   if (error) throw mapRpcError(error)
 }
 
-export async function fetchSwaps(branchId?: string): Promise<SwapRequestRow[]> {
-  let q = sb().from('swap_requests').select('*')
-  if (branchId) q = q.eq('branch_id', branchId)
-  const { data, error } = await q.order('created_at', { ascending: false })
+export async function fetchSwaps(): Promise<SwapRequestRow[]> {
+  // swap_requests has no branch_id column — scope via the requester/target
+  // employee's branch. RLS already restricts managers to their own branch
+  // (private.get_user_role), so this filter is defense-in-depth for the UI.
+  const { data, error } = await sb()
+    .from('swap_requests')
+    .select('*, requester:requester_employee_id(branch_id), target:target_employee_id(branch_id)')
+    .order('created_at', { ascending: false })
   if (error) throw mapRpcError(error)
-  return (data ?? []) as SwapRequestRow[]
+  return (data ?? []).map((row) => {
+    const { requester, target, ...rest } = row as Record<string, unknown> & {
+      requester?: { branch_id: string } | null
+      target?: { branch_id: string } | null
+    }
+    return rest as unknown as SwapRequestRow
+  })
 }
 
 export async function fetchAudit(options: {

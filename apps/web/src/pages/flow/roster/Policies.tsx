@@ -23,6 +23,8 @@ export function PoliciesPage() {
   const zh = locale === 'zh-HK'
 
   const [branchId, setBranchId] = useState<string | null>(null)
+  /** False until fetchManagedBranchId resolves — distinguishes "resolving" from "no branch". */
+  const [branchResolved, setBranchResolved] = useState(false)
   const [employees, setEmployees] = useState<EmployeeRow[]>([])
   const [policies, setPolicies] = useState<HourPolicyRow[]>([])
   const [loading, setLoading] = useState(false)
@@ -82,9 +84,13 @@ export function PoliciesPage() {
     void (async () => {
       try {
         const id = await fetchManagedBranchId(profile.id)
-        if (!cancelled) setBranchId(id)
+        if (!cancelled) {
+          setBranchId(id)
+          setBranchResolved(true)
+        }
       } catch (err) {
         if (!cancelled) {
+          setBranchResolved(true)
           setLoadError(
             err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'),
           )
@@ -147,7 +153,7 @@ export function PoliciesPage() {
     }
   }
 
-  if (branchId === null && profile && !loading && !loadError) {
+  if (branchId === null && branchResolved && profile && !loading && !loadError) {
     return (
       <div className="roster-board">
         <div className="roster-error-banner">
