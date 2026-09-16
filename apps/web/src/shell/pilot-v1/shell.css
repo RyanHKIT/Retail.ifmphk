@@ -11,6 +11,7 @@
   --flow-muted: #5c6b82;
   --flow-accent: #2563eb;
   --flow-accent-soft: rgba(37, 99, 235, 0.12);
+  --flow-accent-selection: rgba(37, 99, 235, 0.22);
   --flow-danger: #dc2626;
 
   min-height: 100vh;
@@ -30,7 +31,36 @@
   --flow-muted: #93a0b8;
   --flow-accent: #3b82f6;
   --flow-accent-soft: rgba(59, 130, 246, 0.16);
+  --flow-accent-selection: rgba(59, 130, 246, 0.34);
   --flow-danger: #e5534b;
+}
+
+/* Motion tokens are theme-invariant. Durations stay short so the console reads
+   as an instrument: state changes confirm input, they do not perform. */
+.flow-app {
+  --flow-dur-press: 90ms;
+  --flow-dur-fast: 130ms;
+  --flow-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Native controls (theme radios, checkboxes) inherit Signal Blue instead of
+     the browser default blue. */
+  accent-color: var(--flow-accent);
+  caret-color: var(--flow-accent);
+}
+
+.flow-app ::selection {
+  background: var(--flow-accent-selection);
+  color: var(--flow-text);
+}
+
+/* Keyboard affordances. Text inputs are handled separately so they keep a
+   visible ring on click focus, where :focus-visible would not match. */
+.flow-app a:focus-visible,
+.flow-app button:focus-visible,
+.flow-app input[type='radio']:focus-visible,
+.flow-app input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--flow-accent);
+  outline-offset: 2px;
 }
 
 .flow-shell {
@@ -80,16 +110,28 @@
   color: var(--flow-muted);
   text-decoration: none;
   font-size: 13px;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    color var(--flow-dur-fast) var(--flow-ease-out);
 }
 
-.flow-nav a:hover {
+/* Nav rows never scale — a full-width row sliding under the cursor reads as
+   broken layout. Press is expressed as a colour step instead. */
+.flow-nav a:active {
   background: var(--flow-panel-2);
-  color: var(--flow-text);
+}
+
+@media (hover: hover) {
+  .flow-nav a:hover {
+    background: var(--flow-panel-2);
+    color: var(--flow-text);
+  }
 }
 
 .flow-nav a.active {
   background: var(--flow-accent-soft);
-  color: var(--flow-text);
+  color: var(--flow-accent);
+  font-weight: 600;
 }
 
 /* Top bar */
@@ -132,11 +174,25 @@
   cursor: pointer;
   font-size: 12px;
   text-decoration: none;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    border-color var(--flow-dur-fast) var(--flow-ease-out),
+    color var(--flow-dur-fast) var(--flow-ease-out),
+    transform var(--flow-dur-press) var(--flow-ease-out);
 }
 
-.flow-topbar-actions button:hover,
-.flow-topbar-actions a:hover {
-  color: var(--flow-text);
+@media (hover: hover) {
+  .flow-topbar-actions button:hover,
+  .flow-topbar-actions a:hover {
+    background: var(--flow-bg);
+    border-color: var(--flow-accent);
+    color: var(--flow-text);
+  }
+}
+
+.flow-topbar-actions button:active,
+.flow-topbar-actions a:active {
+  transform: scale(0.97);
 }
 
 /* Content */
@@ -217,8 +273,22 @@
   font-size: 13px;
 }
 
+.flow-login-form input {
+  transition:
+    border-color var(--flow-dur-fast) var(--flow-ease-out),
+    box-shadow var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+/* Text inputs must show focus on click too, so this is :focus, not
+   :focus-visible. The outline is dropped only for pointer focus, where the
+   ring already communicates the state. */
 .flow-login-form input:focus {
-  outline: 1px solid var(--flow-accent);
+  border-color: var(--flow-accent);
+  box-shadow: 0 0 0 3px var(--flow-accent-soft);
+}
+
+.flow-login-form input:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .flow-login-form button {
@@ -230,6 +300,13 @@
   font-size: 13px;
   cursor: pointer;
   margin-top: 4px;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    transform var(--flow-dur-press) var(--flow-ease-out);
+}
+
+.flow-login-form button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .flow-login-form button:disabled {
@@ -271,5 +348,22 @@
   .flow-nav a {
     padding: 6px 10px;
     font-size: 12px;
+  }
+}
+
+/* Motion is a confirmation, never information. With reduce requested we keep
+   the colour changes and drop every movement. */
+@media (prefers-reduced-motion: reduce) {
+  .flow-app *,
+  .flow-app *::before,
+  .flow-app *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .flow-app button:active,
+  .flow-app a:active {
+    transform: none !important;
   }
 }
