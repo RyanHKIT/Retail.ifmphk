@@ -1,13 +1,26 @@
-﻿# IFMP Retail（I.T. 零售示範）
+﻿# IFMP Retail — pilot
 
-獨立示範用前端：Vite + React，資料來自 `public/mock/retail` 的 mock JSON（無正式後端）。
+Front end for the IFMP Retail pilot: a Vite + React single-page app that reads
+live data from Supabase. The product lives at **`/flow`**.
 
-## 需求
+> **Note on history.** An earlier `/retail` demo was a static mock-up with no
+> backend. It has been deleted and `/retail/*` now redirects to `/flow`. Some
+> documents under `docs/superpowers/` still describe it; they are historical
+> records, not current instructions.
 
-- Node.js **20** 或以上
+## Requirements
+
+- Node.js **20** or above
 - npm
 
-## 本機開發
+## Local development
+
+Create `apps/web/.env` from the example, and fill in the two Supabase values:
+
+```powershell
+Copy-Item apps\web\.env.example apps\web\.env
+# then edit apps\web\.env
+```
 
 ```powershell
 cd apps\web
@@ -15,32 +28,59 @@ npm install
 npm run dev
 ```
 
-瀏覽器開啟：**http://127.0.0.1:5174/retail**（Overview 總覽）；簡報可加 **`?demo=1`** 顯示 golden-path 節拍與 sticky SpineNav。
+Open **http://127.0.0.1:5174/flow**. The root path redirects there.
 
-開發伺服器固定綁定 `127.0.0.1:5174`；靜態資源目錄為 repo 根目錄的 `public/`。
+The dev server binds to `127.0.0.1:5174` and proxies `/api` to the existing
+Express console on `:3000`. `/flow` does not use that proxy.
 
-## 建置與測試
+Set `VITE_AI_ENABLED=1` in `apps/web/.env` to show the per-tab analysis blocks
+and the platform Q&A panel. Those features also need the Edge Functions
+deployed; see `docs/flow-ai-deploy.md`.
+
+## Build and test
 
 ```powershell
 cd apps\web
 npm ci
 npm test
 npm run build
+npm run typecheck
 ```
 
-產出位於 `apps/web/dist/`。本機預覽：`npm run preview -- --host 127.0.0.1 --port 5174`
+Output goes to `apps/web/dist/`.
 
-## 對外展示
+## Serving a build
 
-- 靜態部署與 `retail.ifmphk.com`：`docs/deploy-retail.ifmphk.com.md`
-- I.T. 現場簡報腳本（Beat 0–8）：`docs/demo-script.md`
+`vite preview` is configured on port 4174, but it needs this repository present.
+For a machine that only has the built files, use the bundled server:
 
-## 文件
+```powershell
+node scripts/serve-flow.mjs --dir apps/web/dist --port 4174
+```
 
-- 產品範圍：`docs/PRODUCT.md`
-- 設計規格：`docs/superpowers/specs/2026-09-04-ifmp-retail-demo-design.md`
+It needs only Node and `dist/`. Unknown paths return `index.html` with a 200, so
+deep links survive a refresh.
 
-## 注意
+## Deployment
 
-- 請勿提交 `.env` 或任何密鑰；mock 示範無需環境變數。
-- `_handoff_extract`、`_reference` 僅供開發參考，非執行必要檔案。
+- Tunnel, hosting and manager instructions: `docs/deploy-retail.ifmphk.com.md`
+- AI Edge Functions: `docs/flow-ai-deploy.md`
+- Pilot smoke checklist: `docs/flow-pilot-phase5.md`
+
+## Documents
+
+- Product scope: `docs/PRODUCT.md`
+- Design authority: `docs/superpowers/specs/2026-09-16-ifmp-flow-ux-authority-design.md`
+- Shell contract, so the chrome can be replaced without touching screens:
+  `docs/superpowers/specs/2026-09-16-ifmp-flow-pilot-v1-chrome-design.md`
+
+## Notes
+
+- Never commit `.env` or any key. `apps/web/.env` is gitignored. Every
+  `VITE_*` value is compiled into the public bundle, so a secret placed there is
+  published. Provider keys belong in Supabase secrets, not here.
+- The demo day is pinned to `2026-09-16` in
+  `apps/web/src/lib/footfall/api.ts`, so the seeded data does not run out. The
+  UI states this on the Overview tab.
+- `_handoff_extract`, `_reference` and `output` are development references, not
+  runtime files.

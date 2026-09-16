@@ -101,3 +101,9 @@ supabase migration up
 - `Templates.test.tsx` has a 5-second timeout. Do not treat as a Phase 5 regression.
 - TypeScript emits deprecation warning `TS5101 baseUrl` (pre-existing). Add `--ignoreDeprecations 6.0` to silence.
 - Vite build warns about a single JS chunk > 500 kB (pre-existing monolith; not addressed in this phase).
+- The full suite is load-sensitive. Under CPU contention roughly 15 tests across 10 files
+  fail on jsdom timeouts, and the run takes about 27s instead of 8s. Seen once on
+  2026-09-17 and re-run clean. Treat a sudden mass failure with no code change as
+  contention: check the duration first, and re-run before investigating. Fixing it
+  properly means changing the Vitest pool (`vmThreads`) or `isolate`, which is
+  out of scope here.

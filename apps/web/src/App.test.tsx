@@ -31,9 +31,22 @@ test('legacy /retail links redirect to /flow', async () => {
   expect(await screen.findByTestId('login-submit')).toBeInTheDocument()
 })
 
-test('landing page links to the pilot and no longer to /retail', () => {
+test('the root path goes straight to the product, not the dev scaffold', async () => {
   render(
     <MemoryRouter initialEntries={['/']}>
+      <App />
+    </MemoryRouter>,
+  )
+
+  // /flow is gated by auth, so the login screen proves the root resolved to the
+  // product rather than rendering the internal scaffold page.
+  expect(await screen.findByTestId('login-submit')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Frontend Next' })).not.toBeInTheDocument()
+})
+
+test('the retained scaffold page renders and no longer links to /retail', () => {
+  render(
+    <MemoryRouter initialEntries={['/home']}>
       <App />
     </MemoryRouter>,
   )

@@ -119,7 +119,12 @@ function HomePage() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      {/* The product is /flow, and the bare hostname is what someone will type.
+          Send it straight to the app rather than to internal scaffolding. */}
+      <Route path="/" element={<Navigate to="/flow" replace />} />
+      {/* The scaffold page is kept for local development only. It is not linked
+          from anywhere, and it is no longer the root of the site. */}
+      <Route path="/home" element={<HomePage />} />
       {/* The retail demo was removed once /flow superseded it. Keep old links
           and bookmarks alive instead of rendering a blank page. */}
       <Route path="/retail/*" element={<Navigate to="/flow" replace />} />
