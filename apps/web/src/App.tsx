@@ -22,6 +22,7 @@ import { FlowShell } from '@/components/flow/FlowShell'
 import { LoginPage } from '@/pages/flow/Login'
 import { OverviewPage as FlowOverviewPage } from '@/pages/flow/Overview'
 import { EntrancesPage } from '@/pages/flow/Entrances'
+import { JourneyPage as FlowJourneyPage } from '@/pages/flow/Journey'
 import { AudiencePage } from '@/pages/flow/Audience'
 import { ComparePage } from '@/pages/flow/Compare'
 import { HolidaysPage } from '@/pages/flow/Holidays'
@@ -179,6 +180,7 @@ export default function App() {
           <Route element={<FlowShell />}>
             <Route index element={<FlowOverviewPage />} />
             <Route path="entrances" element={<EntrancesPage />} />
+            <Route path="journey" element={<FlowJourneyPage />} />
             <Route path="audience" element={<AudiencePage />} />
             <Route path="compare" element={<ComparePage />} />
             <Route path="holidays" element={<HolidaysPage />} />
