@@ -24,6 +24,10 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Wrangler local state, created by `wrangler pages dev` and `wrangler login`.
+# Machine-specific and never needed for a deploy.
+.wrangler/
+
 # Editor
 .idea/
 .vscode/*

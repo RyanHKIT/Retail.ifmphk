@@ -61,6 +61,9 @@ node scripts/serve-flow.mjs --dir apps/web/dist --port 4174
 It needs only Node and `dist/`. Unknown paths return `index.html` with a 200, so
 deep links survive a refresh.
 
+This is the fallback path. The pilot is hosted on Cloudflare Pages, which needs
+no local process. See `docs/deploy-retail.ifmphk.com.md`.
+
 ## Deployment
 
 - Tunnel, hosting and manager instructions: `docs/deploy-retail.ifmphk.com.md`
