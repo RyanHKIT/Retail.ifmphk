@@ -359,8 +359,10 @@ export function OverviewPage() {
         }}
       >
         {FLOW_DEMO_DAY
-          ? t('overview.honesty').replace('{day}', FLOW_DEMO_DAY)
-          : t('overview.honesty').replace(' — 定格於 {day}', '').replace(' frozen at {day}', '')}
+          ? t('overview.honesty').replaceAll('{day}', FLOW_DEMO_DAY)
+          : t('overview.honesty')
+              .replace(' — 定格於 {day}', '')
+              .replace(' frozen at {day}', '')}
       </p>
     </div>
   )
