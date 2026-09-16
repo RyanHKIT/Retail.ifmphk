@@ -19,6 +19,8 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'nav.rosterAudit': '審計',
     'nav.devices': '設備',
     'nav.settings': '設定',
+    'nav.collapse': '收起側欄',
+    'nav.expand': '展開側欄',
     'auth.signIn': '登入',
     'auth.signOut': '登出',
     'auth.email': '電郵',
@@ -222,6 +224,12 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'roster.swaps.status.approved': '已批准',
     'roster.swaps.status.rejected': '已拒絕',
     'roster.swaps.status.cancelled': '已取消',
+    'roster.swaps.intro':
+      '員工提出調更後，申請會在此排隊等候審批。預設只顯示待審批的申請；切換到「全部」可查看已處理的紀錄。批准一對一調更會即時對換兩人的更段；批准公開招募只會結束該申請，不會改動更表。',
+    'roster.table.actions': '操作',
+    'roster.table.request': '申請',
+    'roster.table.review': '審批紀錄',
+    'roster.intro.label': '如何運作',
 
     // ---- roster: audit ----
     'roster.audit.title': '審計記錄',
@@ -338,6 +346,8 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'nav.rosterAudit': 'Audit Log',
     'nav.devices': 'Devices',
     'nav.settings': 'Settings',
+    'nav.collapse': 'Collapse sidebar',
+    'nav.expand': 'Expand sidebar',
     'auth.signIn': 'Sign in',
     'auth.signOut': 'Sign out',
     'auth.email': 'Email',
@@ -543,6 +553,12 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'roster.swaps.status.approved': 'Approved',
     'roster.swaps.status.rejected': 'Rejected',
     'roster.swaps.status.cancelled': 'Cancelled',
+    'roster.swaps.intro':
+      'Employee swap requests queue here for approval. Only pending requests show by default; switch to All to see reviewed ones. Approving a one-to-one swap exchanges the two shifts immediately. Approving an open bid only closes the request and leaves the roster unchanged.',
+    'roster.table.actions': 'Actions',
+    'roster.table.request': 'Request',
+    'roster.table.review': 'Review',
+    'roster.intro.label': 'How this works',
 
     // ---- roster: audit ----
     'roster.audit.title': 'Audit Log',

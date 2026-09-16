@@ -14,6 +14,12 @@
   --flow-accent-selection: rgba(37, 99, 235, 0.22);
   --flow-danger: #dc2626;
 
+  /* Hover and press wash. Derived from the accent rather than a grey panel,
+     because a grey block on a white surface reads as a filled chip and
+     competes with the active row. Kept low enough to stay atmospheric. */
+  --flow-hover: rgba(37, 99, 235, 0.055);
+  --flow-press: rgba(37, 99, 235, 0.1);
+
   /* Chart series. These were previously only defined on the retired retail
      shell, so flow charts resolved var() to nothing and painted solid black.
      Signal Blue leads; Slate stays neutral for comparison series. */
@@ -46,6 +52,8 @@
   --flow-accent-soft: rgba(59, 130, 246, 0.16);
   --flow-accent-selection: rgba(59, 130, 246, 0.34);
   --flow-danger: #e5534b;
+  --flow-hover: rgba(96, 165, 250, 0.1);
+  --flow-press: rgba(96, 165, 250, 0.17);
 
   --chart-1: #60a5fa;
   --chart-2: #93c5fd;
@@ -126,7 +134,9 @@
 }
 
 .flow-nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 10px;
   margin: 1px 0;
   border-radius: 6px;
@@ -138,15 +148,104 @@
     color var(--flow-dur-fast) var(--flow-ease-out);
 }
 
+.flow-nav-icon {
+  flex: 0 0 auto;
+}
+
+.flow-nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Width is animated so the label does not reflow mid-transition; the labels
+   themselves are removed from the DOM when collapsed. */
+.flow-nav {
+  transition: width var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+.flow-nav-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-nav-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--flow-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    color var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+@media (hover: hover) {
+  .flow-nav-collapse:hover {
+    background: var(--flow-hover);
+    color: var(--flow-text);
+  }
+}
+
+/* ---- Collapsed rail ---- */
+
+.flow-nav.is-collapsed {
+  width: 64px;
+  padding: 16px 8px;
+}
+
+.flow-nav.is-collapsed .flow-nav-head {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow-nav.is-collapsed .flow-nav-brand {
+  padding: 4px 0 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.flow-nav.is-collapsed .flow-nav-collapse {
+  margin-left: 0;
+}
+
+/* Section headings become a hairline separator, so grouping survives without
+   the words. */
+.flow-nav.is-collapsed .flow-nav-group {
+  height: 1px;
+  padding: 0;
+  margin: 10px 6px 8px;
+  background: var(--flow-line);
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  letter-spacing: 0;
+}
+
+.flow-nav.is-collapsed a {
+  justify-content: center;
+  padding: 9px 0;
+}
+
 /* Nav rows never scale — a full-width row sliding under the cursor reads as
    broken layout. Press is expressed as a colour step instead. */
 .flow-nav a:active {
-  background: var(--flow-panel-2);
+  background: var(--flow-press);
 }
 
 @media (hover: hover) {
   .flow-nav a:hover {
-    background: var(--flow-panel-2);
+    background: var(--flow-hover);
     color: var(--flow-text);
   }
 }
@@ -207,7 +306,7 @@
 @media (hover: hover) {
   .flow-topbar-actions button:hover,
   .flow-topbar-actions a:hover {
-    background: var(--flow-bg);
+    background: var(--flow-hover);
     border-color: var(--flow-accent);
     color: var(--flow-text);
   }
