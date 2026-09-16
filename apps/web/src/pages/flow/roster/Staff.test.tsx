@@ -228,4 +228,80 @@ describe('StaffPage (Task 6 contract)', () => {
       expect(screen.getByTestId('staff-row-e1')).toHaveTextContent('離職'),
     )
   })
+
+  it('CSV import: template downloads, valid file imports 2 rows, bad rows block', async () => {
+    renderStaff()
+    await screen.findByTestId('staff-table')
+
+    // template download
+    const urlSpy = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockReturnValue('blob:mock')
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {})
+    await userEvent.click(screen.getByTestId('staff-import'))
+    const dialog = await screen.findByTestId('staff-import-dialog')
+    await userEvent.click(
+      within(dialog).getByTestId('staff-import-template'),
+    )
+    expect(urlSpy).toHaveBeenCalled()
+    expect(clickSpy).toHaveBeenCalled()
+    urlSpy.mockRestore()
+    clickSpy.mockRestore()
+
+    // valid file → confirm button enabled with count → 2 createEmployee calls
+    const goodCsv = [
+      'name_zh,name_en,phone,station,employment_type,min_hours_per_week,max_hours_per_week',
+      '王強,Wong Keung,,收銀,part_time,0,24',
+      '張三,,,試衣,full_time,8,40',
+    ].join('\n')
+    const file = new File([goodCsv], 'staff.csv', { type: 'text/csv' })
+    await userEvent.upload(within(dialog).getByTestId('staff-import-file'), file)
+
+    const confirm = await within(dialog).findByTestId('staff-import-confirm')
+    await waitFor(() => expect(confirm).toBeEnabled())
+    expect(confirm).toHaveTextContent('匯入 2 人')
+    await userEvent.click(confirm)
+    await waitFor(() => expect(h.state.calls.create).toHaveLength(2))
+    expect(h.state.calls.create[0][1]).toMatchObject({
+      name_zh: '王強',
+      station: '收銀',
+      employment_type: 'part_time',
+      max_hours_per_week: 24,
+    })
+    expect(await screen.findByTestId('staff-import-done')).toHaveTextContent(
+      '已匯入 2 人',
+    )
+  })
+
+  it('CSV import: rows with problems are listed and confirm stays disabled', async () => {
+    renderStaff()
+    await screen.findByTestId('staff-table')
+    await userEvent.click(screen.getByTestId('staff-import'))
+    const dialog = await screen.findByTestId('staff-import-dialog')
+
+    const badCsv = [
+      'name_zh,name_en,phone,station,employment_type,min_hours_per_week,max_hours_per_week',
+      '好人,Good,,樓面,full_time,0,48',
+      ',缺名字,,樓面,full_time,0,48',
+      '壞崗位,Bad,,倉庫,full_time,0,48',
+    ].join('\n')
+    await userEvent.upload(
+      within(dialog).getByTestId('staff-import-file'),
+      new File([badCsv], 'bad.csv', { type: 'text/csv' }),
+    )
+
+    const errors = await within(dialog).findByTestId('staff-import-errors')
+    expect(errors).toHaveTextContent('2 行有問題')
+    expect(errors).toHaveTextContent('第 3 行')
+    expect(errors).toHaveTextContent('name_zh')
+    expect(errors).toHaveTextContent('第 4 行')
+    expect(errors).toHaveTextContent('station')
+    // valid row counted but confirm blocked while any error exists
+    expect(
+      within(dialog).getByTestId('staff-import-confirm'),
+    ).toBeDisabled()
+    expect(h.state.calls.create).toHaveLength(0)
+  })
 })

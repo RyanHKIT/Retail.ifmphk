@@ -17,6 +17,7 @@ import {
   type NewEmployee,
 } from '@/lib/roster/api'
 import type { EmployeeRow, Station } from '@/lib/roster/types'
+import { parseEmployeesCsv, staffCsvTemplate, type CsvRowError, type ParsedEmployee } from './csvImport'
 
 const STATIONS: Station[] = ['樓面', '試衣', '收銀']
 
@@ -58,6 +59,13 @@ export function StaffPage() {
   const [deactivateTarget, setDeactivateTarget] = useState<EmployeeRow | null>(null)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+
+  // CSV bulk import state
+  const [importOpen, setImportOpen] = useState(false)
+  const [importRows, setImportRows] = useState<ParsedEmployee[]>([])
+  const [importErrors, setImportErrors] = useState<CsvRowError[] | null>(null)
+  const [importDone, setImportDone] = useState<string | null>(null)
+  const [importBusy, setImportBusy] = useState(false)
 
   // ---- data loading ----
   const load = useCallback(
@@ -176,6 +184,62 @@ export function StaffPage() {
     }
   }
 
+  // ---- CSV bulk import ----
+  function openImport() {
+    setImportRows([])
+    setImportErrors(null)
+    setImportDone(null)
+    setImportOpen(true)
+  }
+
+  function downloadTemplate() {
+    const bom = '\uFEFF'
+    const blob = new Blob([bom + staffCsvTemplate()], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'staff_import_template.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function handleImportFile(file: File) {
+    setImportDone(null)
+    try {
+      const text = await file.text()
+      const { rows, errors } = parseEmployeesCsv(text)
+      setImportRows(rows)
+      setImportErrors(errors.length > 0 ? errors : null)
+    } catch {
+      setImportRows([])
+      setImportErrors([{ row: 1, reason: 'unreadable file' }])
+    }
+  }
+
+  async function handleImportConfirm() {
+    if (!branchId || importBusy || importRows.length === 0) return
+    setImportBusy(true)
+    setActionError(null)
+    let ok = 0
+    try {
+      for (const r of importRows) {
+        const input: NewEmployee = { ...r }
+        await createEmployee(branchId, input)
+        ok += 1
+      }
+      setImportRows([])
+      setImportErrors(null)
+      setImportDone(t('roster.staff.importDone').replace('{count}', String(ok)))
+      await load(branchId)
+    } catch (err) {
+      setActionError(
+        err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'),
+      )
+    } finally {
+      setImportBusy(false)
+    }
+  }
+
   return (
     <div className="roster-board">
       {/* toolbar */}
@@ -192,6 +256,9 @@ export function StaffPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="roster-search"
         />
+        <button type="button" className="roster-btn" data-testid="staff-import" onClick={openImport}>
+          {t('roster.staff.import')}
+        </button>
         <button type="button" className="roster-btn primary" data-testid="staff-add" onClick={openCreate}>
           {t('roster.staff.add')}
         </button>
@@ -282,6 +349,92 @@ export function StaffPage() {
               </tbody>
             </table>
           )}
+        </div>
+      )}
+
+      {/* CSV bulk import dialog */}
+      {importOpen && (
+        <div
+          className="roster-dialog-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !importBusy) setImportOpen(false)
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('roster.staff.importTitle')}
+            className="roster-dialog"
+            data-testid="staff-import-dialog"
+          >
+            <h3>{t('roster.staff.importTitle')}</h3>
+            <p className="hint">{t('roster.staff.importHint')}</p>
+
+            <div className="roster-dialog-actions" style={{ justifyContent: 'flex-start' }}>
+              <button
+                type="button"
+                className="roster-btn"
+                data-testid="staff-import-template"
+                onClick={downloadTemplate}
+              >
+                {t('roster.staff.importTemplate')}
+              </button>
+            </div>
+
+            <div className="field">
+              <label htmlFor="staff-import-file">{t('roster.staff.importFile')}</label>
+              <input
+                id="staff-import-file"
+                type="file"
+                accept=".csv,text/csv"
+                data-testid="staff-import-file"
+                disabled={importBusy}
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (f) void handleImportFile(f)
+                }}
+              />
+            </div>
+
+            {importErrors && importErrors.length > 0 && (
+              <div className="hint" role="alert" data-testid="staff-import-errors" style={{ color: 'var(--flow-danger)' }}>
+                {t('roster.staff.importRowErrors').replace('{count}', String(importErrors.length))}
+                <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
+                  {importErrors.slice(0, 20).map((e, i) => (
+                    <li key={i}>
+                      {t('roster.staff.importRow').replace('{row}', String(e.row))}: {e.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {importDone && (
+              <p className="hint" role="status" data-testid="staff-import-done">
+                {importDone}
+              </p>
+            )}
+
+            <div className="roster-dialog-actions">
+              <button
+                type="button"
+                className="roster-btn"
+                onClick={() => setImportOpen(false)}
+                disabled={importBusy}
+              >
+                {importRows.length === 0 ? t('common.cancel') : t('common.close')}
+              </button>
+              <button
+                type="button"
+                className="roster-btn primary"
+                data-testid="staff-import-confirm"
+                onClick={() => void handleImportConfirm()}
+                disabled={importBusy || importRows.length === 0 || (importErrors?.length ?? 0) > 0}
+              >
+                {t('roster.staff.importConfirm').replace('{count}', String(importRows.length))}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
