@@ -1,14 +1,62 @@
 export type DensityPoint = { x: number; y: number; r: number; intensity: number }
 
+/**
+ * Visual-only: fatten zone blobs and stitch corridors so the overlay reads as a
+ * continuous store heatmap. Real dwell/visit math stays on heatmap_daily.
+ */
+export function spreadHeatPoints(points: DensityPoint[]): DensityPoint[] {
+  if (points.length === 0) return []
+  const out: DensityPoint[] = []
+  let sx = 0
+  let sy = 0
+  let si = 0
+  for (const p of points) {
+    out.push({ ...p, r: Math.min(40, p.r * 2.6) })
+    sx += p.x
+    sy += p.y
+    si += p.intensity
+  }
+  const n = points.length
+  const avgI = si / n
+  out.push({
+    x: sx / n,
+    y: Math.max(18, sy / n - 6),
+    r: 52,
+    intensity: Math.max(0.1, avgI * 0.18),
+  })
+  for (let i = 0; i < points.length; i += 1) {
+    for (let j = i + 1; j < points.length; j += 1) {
+      const a = points[i]!
+      const b = points[j]!
+      const dist = Math.hypot(a.x - b.x, a.y - b.y)
+      if (dist > 58) continue
+      const steps = 4
+      for (let s = 1; s < steps; s += 1) {
+        const u = s / steps
+        out.push({
+          x: a.x + (b.x - a.x) * u,
+          y: a.y + (b.y - a.y) * u,
+          r: Math.min(30, (a.r + b.r) * 1.15),
+          intensity: (a.intensity * (1 - u) + b.intensity * u) * 0.45,
+        })
+      }
+    }
+  }
+  return out
+}
+
 type ColorStop = { t: number; r: number; g: number; b: number; a: number }
 
-/** Teal → warm ramp aligned with retail chart tokens (canvas needs hex/rgb). */
+/** Classic jet (blue → cyan → green → yellow → red). Visual-only; not a CV field. */
 const RAMP: ColorStop[] = [
-  { t: 0, r: 12, g: 111, b: 106, a: 0 },
-  { t: 0.25, r: 12, g: 111, b: 106, a: 40 },
-  { t: 0.55, r: 20, g: 160, b: 140, a: 90 },
-  { t: 0.8, r: 220, g: 140, b: 60, a: 140 },
-  { t: 1, r: 200, g: 70, b: 50, a: 180 },
+  { t: 0, r: 0, g: 0, b: 140, a: 0 },
+  { t: 0.08, r: 0, g: 0, b: 180, a: 120 },
+  { t: 0.22, r: 0, g: 80, b: 255, a: 150 },
+  { t: 0.38, r: 0, g: 210, b: 210, a: 165 },
+  { t: 0.52, r: 50, g: 200, b: 40, a: 175 },
+  { t: 0.68, r: 255, g: 230, b: 0, a: 190 },
+  { t: 0.85, r: 255, g: 110, b: 0, a: 205 },
+  { t: 1, r: 255, g: 0, b: 0, a: 220 },
 ]
 
 function lerp(a: number, b: number, t: number): number {
@@ -23,7 +71,7 @@ function sampleRamp(t: number, maxAlpha: number): [number, number, number, numbe
   const b = RAMP[i + 1]!
   const span = b.t - a.t || 1
   const u = (clamped - a.t) / span
-  const alphaScale = maxAlpha / 180
+  const alphaScale = maxAlpha / 220
   return [
     Math.round(lerp(a.r, b.r, u)),
     Math.round(lerp(a.g, b.g, u)),
@@ -78,10 +126,10 @@ export function colorizeDensity(
   for (let i = 0; i < intensity.length; i += 1) {
     if (intensity[i]! > peak) peak = intensity[i]!
   }
-  const soft = peak > 0 ? 1 / peak : 0
+  const invPeak = peak > 0 ? 1 / peak : 0
   for (let i = 0; i < intensity.length; i += 1) {
     const raw = intensity[i]!
-    const t = raw <= 0 ? 0 : 1 - Math.exp(-raw * soft * 2.2)
+    const t = raw <= 0 ? 0 : Math.min(1, raw * invPeak)
     const [r, g, b, a] = sampleRamp(t, maxAlpha)
     const o = i * 4
     outRgba[o] = r

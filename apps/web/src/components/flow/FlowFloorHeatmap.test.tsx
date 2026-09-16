@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
-import { FlowFloorHeatmap } from './FlowFloorHeatmap'
+import { FlowFloorHeatmap, shopClipPx } from './FlowFloorHeatmap'
 import type { JourneyPayload } from '@/lib/footfall/api'
 
 const payload: JourneyPayload = {
@@ -48,6 +48,9 @@ beforeEach(() => {
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
     clearRect: vi.fn(),
     putImageData: vi.fn(),
+    save: vi.fn(),
+    restore: vi.fn(),
+    fillRect: vi.fn(),
   } as unknown as CanvasRenderingContext2D)
 })
 
@@ -79,6 +82,25 @@ test('renders floorplan img and a button per zone', () => {
   expect(screen.getByTestId('flow-heat-zone-fitting_room')).toBeInTheDocument()
   expect(screen.getAllByRole('button')).toHaveLength(payload.zones.length)
   expect(screen.getByTestId('flow-heat-canvas')).toBeInTheDocument()
+  expect(screen.getByTestId('flow-heat-legend')).toBeInTheDocument()
+})
+
+test('zone name is visible black text on the label box', () => {
+  renderHeat()
+  const btn = screen.getByTestId('flow-heat-zone-fitting_room')
+  expect(btn).toHaveTextContent('試衣間')
+  expect(btn.querySelector('.flow-heat-label-name')).toHaveTextContent('試衣間')
+  expect(btn.style.width).toBe('')
+  expect(btn.style.height).toBe('')
+})
+
+test('focused zone shows area details on the name box', () => {
+  renderHeat({ focusedKey: 'fitting_room' })
+  const btn = screen.getByTestId('flow-heat-zone-fitting_room')
+  expect(btn).toHaveAttribute('aria-pressed', 'true')
+  expect(btn).toHaveTextContent('到達人次')
+  expect(btn).toHaveTextContent('50')
+  expect(btn).toHaveTextContent('平均停留')
 })
 
 test('clicking a zone calls onZoneClick with zoneKey', async () => {
@@ -86,4 +108,13 @@ test('clicking a zone calls onZoneClick with zoneKey', async () => {
   const { onZoneClick } = renderHeat()
   await user.click(screen.getByTestId('flow-heat-zone-fitting_room'))
   expect(onZoneClick).toHaveBeenCalledWith('fitting_room')
+})
+
+test('shop clip sits inside the floorplan, inset from the paper margin', () => {
+  const plot = { left: 0, top: 0, width: 1000, height: 800 }
+  const r = shopClipPx(plot)
+  expect(r.x).toBeGreaterThan(50)
+  expect(r.y).toBeGreaterThan(50)
+  expect(r.x + r.w).toBeLessThan(950)
+  expect(r.y + r.h).toBeLessThan(750)
 })

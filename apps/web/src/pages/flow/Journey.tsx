@@ -205,8 +205,6 @@ export function JourneyPage() {
                 color: 'var(--flow-muted)',
               }}
             >
-              <span>{t('journey.low')}</span>
-              <span>{t('journey.high')}</span>
               <span>{t('journey.click')}</span>
             </div>
             {focusedKey && focusedZone && focusedHeat ? (
