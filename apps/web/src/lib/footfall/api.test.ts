@@ -15,6 +15,7 @@ import {
   fetchDevices,
   fetchEntranceHourly,
   fetchHolidayAnalysis,
+  fetchJourney,
   fetchMonthDaily,
   fetchTodayHourly,
   fetchTodayUnique,
@@ -34,6 +35,7 @@ const recs: Record<string, {
   _eq: [string, unknown][]
   _gte: [string, unknown][]
   _lte: [string, unknown][]
+  _in: [string, unknown][]
 }> = {}
 
 function makeQB(
@@ -46,6 +48,7 @@ function makeQB(
       if (m === 'eq') rec._eq.push([col, val])
       if (m === 'gte') rec._gte.push([col, val])
       if (m === 'lte') rec._lte.push([col, val])
+      if (m === 'in') rec._in.push([col, val])
       return qb
     })
   }
@@ -53,6 +56,7 @@ function makeQB(
     rec._select = cols
     return qb
   })
+  qb.maybeSingle = vi.fn(() => qb)
   qb.then = (res: (v: unknown) => unknown, rej: (e: unknown) => unknown) =>
     promiseOf(state).then(res, rej)
   return qb
@@ -62,7 +66,7 @@ function makeClient(results: Record<string, { data: unknown; error: unknown }> =
   for (const k of Object.keys(recs)) delete recs[k]
   h.client = {
     from: vi.fn((table: string) => {
-      if (!recs[table]) recs[table] = { _select: '', _eq: [], _gte: [], _lte: [] }
+      if (!recs[table]) recs[table] = { _select: '', _eq: [], _gte: [], _lte: [], _in: [] }
       return makeQB(results[table] ?? { data: [], error: null }, recs[table])
     }),
   }
@@ -242,5 +246,111 @@ describe('aggregates', () => {
     expect(rows[0].holidayNameZh).toBe('勞動節')
     expect(rows[0].holidayInCount).toBe(4000)
     expect(rows[0].normalInCount).toBe(2600)
+  })
+})
+
+const JOURNEY_ZONES = [
+  {
+    id: 'z-entrance',
+    zone_key: 'entrance',
+    name_zh: '入口',
+    name_en: 'Entrance',
+    zone_type: 'entrance',
+    anchor_x: 50,
+    anchor_y: 88,
+    anchor_r: 12,
+  },
+  {
+    id: 'z-shelf-a',
+    zone_key: 'shelf_a',
+    name_zh: '貨架 A',
+    name_en: 'Shelf A',
+    zone_type: 'shelf',
+    anchor_x: 22,
+    anchor_y: 48,
+    anchor_r: 16,
+  },
+  {
+    id: 'z-shelf-b',
+    zone_key: 'shelf_b',
+    name_zh: '貨架 B',
+    name_en: 'Shelf B',
+    zone_type: 'shelf',
+    anchor_x: 52,
+    anchor_y: 42,
+    anchor_r: 14,
+  },
+  {
+    id: 'z-fitting',
+    zone_key: 'fitting_room',
+    name_zh: '試衣間',
+    name_en: 'Fitting room',
+    zone_type: 'fitting_room',
+    anchor_x: 82,
+    anchor_y: 50,
+    anchor_r: 11,
+  },
+  {
+    id: 'z-cashier',
+    zone_key: 'cashier',
+    name_zh: '收銀台',
+    name_en: 'Cashier',
+    zone_type: 'cashier',
+    anchor_x: 72,
+    anchor_y: 82,
+    anchor_r: 10,
+  },
+]
+
+describe('fetchJourney', () => {
+  it('fetchJourney selects branch floorplan, zones anchors, heatmap_daily for the HK day', async () => {
+    makeClient({
+      branches: {
+        data: {
+          floor_plan_url: '/assets/floor-plans/it-cwb-demo.png',
+          floor_plan_label_zh: '示範平面圖',
+          floor_plan_label_en: 'Demo floor plan',
+        },
+        error: null,
+      },
+      zones: { data: JOURNEY_ZONES, error: null },
+      heatmap_daily: {
+        data: [
+          { zone_id: 'z-entrance', visit_count: 100, avg_dwell_sec: 20, intensity: 1 },
+        ],
+        error: null,
+      },
+    })
+    const payload = await fetchJourney(BRANCH, '2026-09-16')
+    expect(recs.branches._select).toBe(
+      'floor_plan_url,floor_plan_label_zh,floor_plan_label_en',
+    )
+    expect(recs.zones._select).toBe(
+      'id,zone_key,name_zh,name_en,zone_type,anchor_x,anchor_y,anchor_r',
+    )
+    expect(recs.heatmap_daily._select).toBe(
+      'zone_id,visit_count,avg_dwell_sec,intensity',
+    )
+    expect(recs.heatmap_daily._eq).toContainEqual(['day', '2026-09-16'])
+    expect(payload.floorPlanUrl).toBe('/assets/floor-plans/it-cwb-demo.png')
+    expect(payload.zones).toHaveLength(5)
+    expect(payload.heat[0].zoneKey).toBe('entrance')
+  })
+
+  it('returns heat: [] when heatmap_daily is empty and does not throw', async () => {
+    makeClient({
+      branches: {
+        data: {
+          floor_plan_url: '/assets/floor-plans/it-cwb-demo.png',
+          floor_plan_label_zh: '示範平面圖',
+          floor_plan_label_en: 'Demo floor plan',
+        },
+        error: null,
+      },
+      zones: { data: JOURNEY_ZONES, error: null },
+      heatmap_daily: { data: [], error: null },
+    })
+    const payload = await fetchJourney(BRANCH, '2026-09-16')
+    expect(payload.heat).toEqual([])
   })
 })

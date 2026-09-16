@@ -354,3 +354,105 @@ export async function fetchHolidayAnalysis(branchId: string): Promise<HolidayRow
       }
     })
 }
+
+export type ZoneKey = 'entrance' | 'shelf_a' | 'shelf_b' | 'fitting_room' | 'cashier'
+
+export type ZoneRow = {
+  id: string
+  zoneKey: ZoneKey
+  nameZh: string
+  nameEn: string
+  zoneType: string
+  anchorX: number
+  anchorY: number
+  anchorR: number
+}
+
+export type HeatmapDayRow = {
+  zoneId: string
+  zoneKey: ZoneKey
+  visitCount: number
+  avgDwellSec: number
+  intensity: number
+}
+
+export type JourneyPayload = {
+  floorPlanUrl: string
+  floorPlanLabelZh: string
+  floorPlanLabelEn: string
+  zones: ZoneRow[]
+  heat: HeatmapDayRow[]
+  day: string
+}
+
+export async function fetchJourney(
+  branchId: string,
+  day: string = hkToday(),
+): Promise<JourneyPayload> {
+  const client = sb()
+  const { data: branch, error: bErr } = await client
+    .from('branches')
+    .select('floor_plan_url,floor_plan_label_zh,floor_plan_label_en')
+    .eq('id', branchId)
+    .maybeSingle()
+  if (bErr) throw mapRpcError(bErr)
+
+  const { data: zones, error: zErr } = await client
+    .from('zones')
+    .select('id,zone_key,name_zh,name_en,zone_type,anchor_x,anchor_y,anchor_r')
+    .eq('branch_id', branchId)
+  if (zErr) throw mapRpcError(zErr)
+
+  const zoneRows: ZoneRow[] = (zones ?? []).map((z: {
+    id: string
+    zone_key: ZoneKey
+    name_zh: string
+    name_en: string
+    zone_type: string
+    anchor_x: number
+    anchor_y: number
+    anchor_r: number
+  }) => ({
+    id: z.id,
+    zoneKey: z.zone_key,
+    nameZh: z.name_zh,
+    nameEn: z.name_en,
+    zoneType: z.zone_type,
+    anchorX: Number(z.anchor_x),
+    anchorY: Number(z.anchor_y),
+    anchorR: Number(z.anchor_r),
+  }))
+
+  const ids = zoneRows.map((z) => z.id)
+  let heat: HeatmapDayRow[] = []
+  if (ids.length > 0) {
+    const { data: rows, error: hErr } = await client
+      .from('heatmap_daily')
+      .select('zone_id,visit_count,avg_dwell_sec,intensity')
+      .eq('day', day)
+      .in('zone_id', ids)
+    if (hErr) throw mapRpcError(hErr)
+    const byId = new Map(zoneRows.map((z) => [z.id, z.zoneKey]))
+    heat = (rows ?? []).map((r: {
+      zone_id: string
+      visit_count: number
+      avg_dwell_sec: number
+      intensity: number
+    }) => ({
+      zoneId: r.zone_id,
+      zoneKey: byId.get(r.zone_id) as ZoneKey,
+      visitCount: r.visit_count,
+      avgDwellSec: Number(r.avg_dwell_sec),
+      intensity: Number(r.intensity),
+    }))
+  }
+
+  return {
+    floorPlanUrl: branch?.floor_plan_url ?? '',
+    floorPlanLabelZh: branch?.floor_plan_label_zh ?? '',
+    floorPlanLabelEn: branch?.floor_plan_label_en ?? '',
+    zones: zoneRows,
+    heat,
+    day,
+  }
+}
