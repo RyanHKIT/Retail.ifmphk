@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
+import { useFlowTheme } from '@/context/FlowThemeContext'
 import { FLOW_NAV } from '@/shell/nav'
 
 /**
@@ -10,6 +11,7 @@ import { FLOW_NAV } from '@/shell/nav'
  */
 export function FlowShell() {
   const { t, locale, setLocale } = useFlowLocale()
+  const { theme, setTheme } = useFlowTheme()
   const { profile, signOut } = useFlowAuth()
   const navigate = useNavigate()
 
@@ -22,7 +24,7 @@ export function FlowShell() {
     isActive ? 'active' : undefined
 
   return (
-    <div className="flow-app flow-shell">
+    <div className="flow-app flow-shell" data-theme={theme} data-testid="flow-app">
       <nav className="flow-nav" aria-label="IFMP Retail">
         <div className="flow-nav-brand">
           {t('product.name')}
@@ -50,6 +52,13 @@ export function FlowShell() {
         <header className="flow-topbar">
           <span className="flow-topbar-site">{t('site.name')}</span>
           <div className="flow-topbar-actions">
+            <button
+              type="button"
+              onClick={() => setTheme(theme === 'light' ? 'night' : 'light')}
+              data-testid="flow-theme-toggle"
+            >
+              {theme === 'light' ? t('settings.theme.night') : t('settings.theme.light')}
+            </button>
             <button
               type="button"
               onClick={() => setLocale(locale === 'zh-HK' ? 'en' : 'zh-HK')}

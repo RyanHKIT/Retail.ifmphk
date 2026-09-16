@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { test, expect, vi, beforeEach } from 'vitest'
 import { FlowAuthProvider, useFlowAuth } from '@/context/FlowAuthContext'
 import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
+import { FlowThemeProvider } from '@/context/FlowThemeContext'
 import { RequireManager } from '@/components/flow/RequireManager'
 import { LoginPage } from './Login'
 
@@ -42,14 +43,16 @@ function renderLogin() {
   return render(
     <MemoryRouter initialEntries={['/flow/login']}>
       <FlowLocaleProvider>
-        <FlowAuthProvider>
-          <Routes>
-            <Route path="/flow/login" element={<LoginPage />} />
-            <Route path="/flow" element={<RequireManager />}>
-              <Route index element={<div>FLOW HOME</div>} />
-            </Route>
-          </Routes>
-        </FlowAuthProvider>
+        <FlowThemeProvider>
+          <FlowAuthProvider>
+            <Routes>
+              <Route path="/flow/login" element={<LoginPage />} />
+              <Route path="/flow" element={<RequireManager />}>
+                <Route index element={<div>FLOW HOME</div>} />
+              </Route>
+            </Routes>
+          </FlowAuthProvider>
+        </FlowThemeProvider>
       </FlowLocaleProvider>
     </MemoryRouter>,
   )
@@ -111,14 +114,16 @@ test('RequireManager redirects unauthenticated users to login', async () => {
   render(
     <MemoryRouter initialEntries={['/flow']}>
       <FlowLocaleProvider>
-        <FlowAuthProvider>
-          <Routes>
-            <Route path="/flow/login" element={<div>LOGIN PAGE</div>} />
-            <Route path="/flow" element={<RequireManager />}>
-              <Route index element={<div>FLOW HOME</div>} />
-            </Route>
-          </Routes>
-        </FlowAuthProvider>
+        <FlowThemeProvider>
+          <FlowAuthProvider>
+            <Routes>
+              <Route path="/flow/login" element={<div>LOGIN PAGE</div>} />
+              <Route path="/flow" element={<RequireManager />}>
+                <Route index element={<div>FLOW HOME</div>} />
+              </Route>
+            </Routes>
+          </FlowAuthProvider>
+        </FlowThemeProvider>
       </FlowLocaleProvider>
     </MemoryRouter>,
   )

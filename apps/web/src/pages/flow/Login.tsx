@@ -2,9 +2,11 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
+import { useFlowTheme } from '@/context/FlowThemeContext'
 
 export function LoginPage() {
   const { t } = useFlowLocale()
+  const { theme } = useFlowTheme()
   const { signIn } = useFlowAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -30,7 +32,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flow-app flow-login">
+    <div className="flow-app flow-login" data-theme={theme}>
       <div className="flow-login-card">
         <p className="flow-login-brand">{t('product.name')}</p>
         <h1 className="flow-login-title">{t('auth.signIn')}</h1>

@@ -16,6 +16,7 @@ import { CoachPage } from '@/pages/retail/Coach'
 import { SettingsPage } from '@/pages/retail/Settings'
 import { EnergyPage } from '@/pages/retail/Energy'
 import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
+import { FlowThemeProvider } from '@/context/FlowThemeContext'
 import { FlowAuthProvider } from '@/context/FlowAuthContext'
 import { RequireManager } from '@/components/flow/RequireManager'
 import { FlowShell } from '@/components/flow/FlowShell'
@@ -169,9 +170,11 @@ export default function App() {
         path="/flow"
         element={
           <FlowLocaleProvider>
-            <FlowAuthProvider>
-              <Outlet />
-            </FlowAuthProvider>
+            <FlowThemeProvider>
+              <FlowAuthProvider>
+                <Outlet />
+              </FlowAuthProvider>
+            </FlowThemeProvider>
           </FlowLocaleProvider>
         }
       >

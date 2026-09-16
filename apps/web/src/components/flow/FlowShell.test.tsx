@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, test, expect, vi } from 'vitest'
 import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
+import { FlowThemeProvider } from '@/context/FlowThemeContext'
 import { FlowAuthProvider } from '@/context/FlowAuthContext'
 import { FlowShell } from './FlowShell'
 
@@ -18,16 +19,20 @@ vi.mock('@/lib/supabase', () => ({
   }),
 }))
 
-// locale persists to localStorage; reset so each test starts in zh-HK
-beforeEach(() => localStorage.clear())
+beforeEach(() => {
+  localStorage.clear()
+  localStorage.removeItem('flow-theme')
+})
 
 function renderShell() {
   return render(
     <MemoryRouter initialEntries={['/flow']}>
       <FlowLocaleProvider>
-        <FlowAuthProvider>
-          <FlowShell />
-        </FlowAuthProvider>
+        <FlowThemeProvider>
+          <FlowAuthProvider>
+            <FlowShell />
+          </FlowAuthProvider>
+        </FlowThemeProvider>
       </FlowLocaleProvider>
     </MemoryRouter>,
   )
@@ -57,4 +62,15 @@ test('settings link is labeled and points at /flow/settings', async () => {
     'href',
     '/flow/settings',
   )
+})
+
+test('theme toggle sets data-theme night and localStorage', async () => {
+  const userEvent = (await import('@testing-library/user-event')).default
+  const user = userEvent.setup()
+  renderShell()
+  const root = await screen.findByTestId('flow-app')
+  expect(root).toHaveAttribute('data-theme', 'light')
+  await user.click(screen.getByTestId('flow-theme-toggle'))
+  expect(root).toHaveAttribute('data-theme', 'night')
+  expect(localStorage.getItem('flow-theme')).toBe('night')
 })
