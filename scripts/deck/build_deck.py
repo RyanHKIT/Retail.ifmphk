@@ -615,6 +615,30 @@ def drop_existing_slides(prs: Presentation) -> None:
         xml_slides.remove(sld)
 
 
+def normalize_package(path: Path) -> None:
+    """Rewrite the .pptx zip with fixed entry timestamps.
+
+    PowerPoint does not care, but a zip records the wall-clock time of every
+    entry, so two builds of identical content produce different bytes. Fixing
+    the timestamps makes a rebuild byte-identical, which keeps the deck from
+    showing up as a modified file every time the generator runs.
+    """
+    import zipfile
+
+    fixed = (1980, 1, 1, 0, 0, 0)
+    with zipfile.ZipFile(path) as src:
+        entries = [(i, src.read(i.filename)) for i in src.infolist()]
+
+    temp = path.with_suffix(".tmp")
+    with zipfile.ZipFile(temp, "w", zipfile.ZIP_DEFLATED) as out:
+        for info, data in entries:
+            clone = zipfile.ZipInfo(info.filename, date_time=fixed)
+            clone.compress_type = info.compress_type
+            clone.external_attr = info.external_attr
+            out.writestr(clone, data)
+    temp.replace(path)
+
+
 def main() -> int:
     if not TEMPLATE.exists():
         print(f"missing template: {TEMPLATE}")
@@ -651,6 +675,7 @@ def main() -> int:
         slide.notes_slide.notes_text_frame.text = spec["notes"]
 
     prs.save(str(OUTPUT))
+    normalize_package(OUTPUT)
     print(f"wrote {OUTPUT}  ({len(SLIDES)} slides)")
     return 0
 
