@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CompareChart } from '@/components/footfall/OverviewWidgets'
+import { InsightBlock } from '@/components/flow/InsightBlock'
 import { WidgetCard } from '@/components/footfall/WidgetCard'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
@@ -90,6 +91,8 @@ export function ComparePage() {
       <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--flow-muted)' }}>
         {t('compare.subtitle')}
       </p>
+
+      <InsightBlock tabKey="compare" />
 
       <WidgetCard
         testId="compare-widget"

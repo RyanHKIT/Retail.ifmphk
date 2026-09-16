@@ -327,6 +327,29 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'devices.status.offline': '離線',
     'devices.status.degraded': '預警',
     'devices.status.unknown': '未知',
+
+    // ---- AI analysis + platform Q&A ----
+    'ai.insight.title': 'AI 分析',
+    'ai.insight.loading': '正在分析…',
+    'ai.insight.regenerate': '重新產生',
+    'ai.insight.error': '暫時無法產生分析。',
+    'ai.insight.notEnoughData': '資料不足，未能分析。',
+    'ai.insight.lowConfidence': '低可信度',
+    'ai.insight.lowConfidenceHint': '資料較少或期間受節日影響，請謹慎參考。',
+    'ai.insight.disclaimer': '此段文字由系統自動生成，並非量測數據。決策前請對照圖表。',
+    'ai.insight.suggestedAction': '建議行動',
+    'ai.insight.hidden': '此部署未啟用 AI 分析。',
+    'ai.chat.open': '平台問答',
+    'ai.chat.title': '平台問答',
+    'ai.chat.close': '關閉',
+    'ai.chat.placeholder': '問問這個平台如何運作…',
+    'ai.chat.send': '送出',
+    'ai.chat.thinking': '正在思考…',
+    'ai.chat.error': '暫時無法取得回覆。',
+    'ai.chat.viewTab': '前往相關頁面',
+    'ai.chat.disclaimer':
+      '此對話只解釋平台結構與指標定義，不會讀取任何實際數據。如需數字，請查看相關頁面。',
+    'ai.chat.empty': '試問：「unique_visitors 同 in_count 有咩分別？」',
   },
   en: {
     'product.name': 'IFMP Retail',
@@ -656,5 +679,30 @@ export const flowMessages: Record<FlowLocale, Record<string, string>> = {
     'devices.status.offline': 'Offline',
     'devices.status.degraded': 'Degraded',
     'devices.status.unknown': 'Unknown',
+
+    // ---- AI analysis + platform Q&A ----
+    'ai.insight.title': 'AI analysis',
+    'ai.insight.loading': 'Analysing…',
+    'ai.insight.regenerate': 'Regenerate',
+    'ai.insight.error': 'Could not generate the analysis.',
+    'ai.insight.notEnoughData': 'Not enough data to analyse.',
+    'ai.insight.lowConfidence': 'Low confidence',
+    'ai.insight.lowConfidenceHint':
+      'The period is thin or holiday-distorted. Treat with caution.',
+    'ai.insight.disclaimer':
+      'Written by a model, not measured. Check it against the charts before acting.',
+    'ai.insight.suggestedAction': 'Suggested action',
+    'ai.insight.hidden': 'AI analysis is not enabled on this deployment.',
+    'ai.chat.open': 'Platform Q&A',
+    'ai.chat.title': 'Platform Q&A',
+    'ai.chat.close': 'Close',
+    'ai.chat.placeholder': 'Ask how this platform works…',
+    'ai.chat.send': 'Send',
+    'ai.chat.thinking': 'Thinking…',
+    'ai.chat.error': 'Could not get an answer.',
+    'ai.chat.viewTab': 'Open the relevant tab',
+    'ai.chat.disclaimer':
+      'This chat explains platform structure and metric definitions only. It reads no actual data. For figures, open the relevant tab.',
+    'ai.chat.empty': 'Try: "What is the difference between unique_visitors and in_count?"',
   },
 }

@@ -10,6 +10,7 @@ import {
   YAxis,
 } from 'recharts'
 import { EntranceFootfallChart } from '@/components/footfall/OverviewWidgets'
+import { InsightBlock } from '@/components/flow/InsightBlock'
 import { WidgetCard } from '@/components/footfall/WidgetCard'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
@@ -141,6 +142,8 @@ export function EntrancesPage() {
       <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 600 }}>
         {t('entrances.title')}
       </h2>
+
+      <InsightBlock tabKey="entrances" />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <WidgetCard

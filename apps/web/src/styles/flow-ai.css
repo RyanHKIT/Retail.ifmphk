@@ -1,0 +1,392 @@
+/* ===== AI analysis block + platform Q&A (Phase 6) ===== */
+
+/*
+ * The analysis block is interpretation, not measurement. It is styled as a
+ * distinct object with an accent left rule and an explicit AI label so it can
+ * never be read as a reading from the data above it — a manager may move staff
+ * on this text.
+ */
+.ai-insight {
+  margin-bottom: 16px;
+  border: 1px solid var(--flow-line);
+  border-left: 3px solid var(--flow-accent);
+  border-radius: 10px;
+  background: var(--flow-panel);
+  padding: 14px 16px;
+}
+
+.ai-insight-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-insight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: var(--flow-accent-soft);
+  color: var(--flow-accent);
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.ai-insight-confidence {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--flow-line);
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: var(--flow-muted);
+  font-size: 11px;
+  cursor: help;
+}
+
+.ai-insight-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  border: 1px solid var(--flow-line);
+  border-radius: 6px;
+  background: var(--flow-panel);
+  color: var(--flow-muted);
+  padding: 4px 9px;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background-color var(--flow-dur-fast) var(--flow-ease-out),
+    color var(--flow-dur-fast) var(--flow-ease-out),
+    border-color var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+@media (hover: hover) {
+  .ai-insight-refresh:not(:disabled):hover {
+    background: var(--flow-hover);
+    border-color: var(--flow-accent);
+    color: var(--flow-text);
+  }
+}
+
+.ai-insight-refresh:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.ai-insight-headline {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--flow-text);
+}
+
+.ai-insight-observations {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--flow-muted);
+}
+
+.ai-insight-observations li + li {
+  margin-top: 4px;
+}
+
+.ai-insight-action {
+  margin: 12px 0 0;
+  border-radius: 8px;
+  background: var(--flow-panel-2);
+  padding: 9px 12px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--flow-text);
+}
+
+.ai-insight-action strong {
+  color: var(--flow-accent);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.ai-insight-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  border-top: 1px solid var(--flow-line);
+  padding-top: 9px;
+  font-size: 11px;
+  color: var(--flow-muted);
+  line-height: 1.5;
+}
+
+.ai-insight-foot code {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: 10.5px;
+  opacity: 0.75;
+}
+
+.ai-insight-skeleton {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Loading is a shimmer on the shape of the answer, not a spinner: it reserves
+   the space the text will occupy so the charts below do not jump. */
+.ai-insight-skeleton .line {
+  height: 11px;
+  border-radius: 4px;
+  background: var(--flow-panel-2);
+}
+
+.ai-insight-skeleton .line.wide {
+  width: 72%;
+}
+.ai-insight-skeleton .line.short {
+  width: 45%;
+}
+
+.ai-insight-error,
+.ai-insight-empty {
+  margin: 12px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  color: var(--flow-muted);
+}
+
+/* ===== Chat panel ===== */
+
+.flow-chat {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.flow-chat-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 999px;
+  background: var(--flow-accent);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+  transition:
+    transform var(--flow-dur-press) var(--flow-ease-out),
+    background-color var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+.flow-chat-trigger:active {
+  transform: scale(0.94);
+}
+
+@media (hover: hover) {
+  .flow-chat-trigger:hover {
+    background: color-mix(in srgb, var(--flow-accent) 88%, black);
+  }
+}
+
+.flow-chat-panel {
+  width: 380px;
+  max-width: calc(100vw - 40px);
+  height: 520px;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--flow-line);
+  border-radius: 12px;
+  background: var(--flow-panel);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+}
+
+.flow-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--flow-line);
+  font-size: 13px;
+}
+
+.flow-chat-head button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--flow-muted);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .flow-chat-head button:hover {
+    background: var(--flow-hover);
+    color: var(--flow-text);
+  }
+}
+
+/* Stated before the first question, so the no-numbers limitation is never a
+   surprise discovered by asking. */
+.flow-chat-disclaimer {
+  margin: 0;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--flow-line);
+  background: var(--flow-panel-2);
+  color: var(--flow-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.flow-chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow-chat-hint {
+  margin: 0;
+  color: var(--flow-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.flow-chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 92%;
+}
+
+.flow-chat-turn.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.flow-chat-bubble {
+  border-radius: 10px;
+  padding: 8px 11px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  /* Prose arrives as plain text and wraps rather than stretching the panel. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.flow-chat-turn.user .flow-chat-bubble {
+  background: var(--flow-accent);
+  color: #fff;
+}
+
+.flow-chat-turn.assistant .flow-chat-bubble {
+  background: var(--flow-panel-2);
+  color: var(--flow-text);
+}
+
+/* The answer streams in, so an empty bubble would collapse and then jump. */
+.flow-chat-turn.assistant .flow-chat-bubble:empty::after {
+  content: '…';
+  color: var(--flow-muted);
+}
+
+.flow-chat-route {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--flow-accent);
+  border-radius: 6px;
+  background: var(--flow-accent-soft);
+  color: var(--flow-accent);
+  padding: 4px 9px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.flow-chat-error {
+  margin: 0;
+  color: var(--flow-danger);
+  font-size: 12px;
+}
+
+.flow-chat-compose {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--flow-line);
+}
+
+.flow-chat-compose input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--flow-line);
+  border-radius: 8px;
+  background: var(--flow-bg);
+  color: var(--flow-text);
+  padding: 8px 10px;
+  font-size: 12.5px;
+  transition:
+    border-color var(--flow-dur-fast) var(--flow-ease-out),
+    box-shadow var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+.flow-chat-compose input:focus {
+  border-color: var(--flow-accent);
+  box-shadow: 0 0 0 3px var(--flow-accent-soft);
+}
+
+.flow-chat-compose input:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.flow-chat-compose button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  border: none;
+  border-radius: 8px;
+  background: var(--flow-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+.flow-chat-compose button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .flow-chat {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .flow-chat-panel {
+    height: min(520px, calc(100vh - 100px));
+  }
+}

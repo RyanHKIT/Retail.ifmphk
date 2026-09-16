@@ -3,6 +3,7 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
 import { useFlowTheme } from '@/context/FlowThemeContext'
+import { ChatPanel } from '@/components/flow/ChatPanel'
 import { FLOW_NAV } from '@/shell/nav'
 import { navIcon } from './navIcons'
 import { useNavCollapsed } from './useNavCollapsed'
@@ -114,6 +115,9 @@ export function FlowShell() {
           <Outlet />
         </main>
       </div>
+
+      {/* Mounted at the shell so it persists across navigation. */}
+      <ChatPanel />
     </div>
   )
 }

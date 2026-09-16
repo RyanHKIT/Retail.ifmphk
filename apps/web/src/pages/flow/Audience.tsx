@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AudienceCharts } from '@/components/footfall/OverviewWidgets'
+import { InsightBlock } from '@/components/flow/InsightBlock'
 import { WidgetCard } from '@/components/footfall/WidgetCard'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
@@ -99,6 +100,8 @@ export function AudiencePage() {
       <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--flow-muted)' }}>
         {t('audience.range')}
       </p>
+
+      <InsightBlock tabKey="audience" />
 
       <WidgetCard
         testId="audience-widget"

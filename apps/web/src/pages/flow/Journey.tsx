@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FlowFloorHeatmap, type HeatMetric } from '@/components/flow/FlowFloorHeatmap'
+import { InsightBlock } from '@/components/flow/InsightBlock'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
 import {
@@ -135,6 +136,8 @@ export function JourneyPage() {
       <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--flow-muted)' }}>
         {t('journey.subtitle')}
       </p>
+
+      <InsightBlock tabKey="journey" />
 
       <div
         role="group"

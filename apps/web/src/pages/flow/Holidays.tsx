@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { HolidayAnalysisTable } from '@/components/footfall/OverviewWidgets'
+import { InsightBlock } from '@/components/flow/InsightBlock'
 import { WidgetCard } from '@/components/footfall/WidgetCard'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
@@ -83,6 +84,8 @@ export function HolidaysPage() {
       <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--flow-muted)' }}>
         {t('holidays.note')}
       </p>
+
+      <InsightBlock tabKey="holidays" />
 
       <WidgetCard
         testId="holidays-widget"

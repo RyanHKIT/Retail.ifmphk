@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FlowFloorHeatmap } from '@/components/flow/FlowFloorHeatmap'
+import { InsightBlock } from '@/components/flow/InsightBlock'
 import {
   AudienceCharts,
   CompareChart,
@@ -201,6 +202,7 @@ export function OverviewPage() {
 
   return (
     <div className="overview-page" data-testid="overview-page">
+      <InsightBlock tabKey="overview" />
       <div className="overview-grid">
         <WidgetCard
           testId="overview-widget-hourly"

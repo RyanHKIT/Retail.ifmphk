@@ -1,3 +1,4 @@
 /* Compatibility aggregator. Chrome lives in shell/pilot-v1; surfaces stay here. */
 @import '../shell/pilot-v1/shell.css';
 @import './flow-surfaces.css';
+@import './flow-ai.css';
