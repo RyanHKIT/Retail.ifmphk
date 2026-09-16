@@ -5,11 +5,11 @@
 // Body: { tabKey: TabKey, day: 'YYYY-MM-DD', locale: 'zh-HK' | 'en' }
 //
 // The body carries no numbers. Aggregates are fetched here under the service
-// role, so a caller cannot influence the prompt content — only which tab and
+// role, so a caller cannot influence the prompt content ??only which tab and
 // which day it is about.
 
-import { complete, isAiConfigured } from '../_shared/aiClient.ts'
-import { fetchTabAggregates } from '../_shared/aggregates.ts'
+import { complete, isAiConfigured } from 'shared/aiClient.ts'
+import { fetchTabAggregates } from 'shared/aggregates.ts'
 import {
   authorize,
   digestInput,
@@ -19,14 +19,14 @@ import {
   jsonResponse,
   recordUsage,
   serviceClient,
-} from '../_shared/guards.ts'
+} from 'shared/guards.ts'
 import {
   buildInsightMessages,
   isLocale,
   isTabKey,
   parseInsight,
   PROMPT_VERSION,
-} from '../_shared/prompts.ts'
+} from 'shared/prompts.ts'
 
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 

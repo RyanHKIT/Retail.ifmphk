@@ -338,7 +338,43 @@ Not yet verified:
 - No live provider call has been made. The provider contract (OpenAI-compatible
   SSE, `response_format` support) is assumed from the provider's docs.
 
-### 10.1 Deviations from the design above
+### 10.1 Deployment notes
+
+The entrypoints import shared code through an import-map alias rather than a
+relative path:
+
+```json
+{ "imports": { "shared/": "./_shared/" } }
+```
+
+so `import { complete } from 'shared/aiClient.ts'` instead of
+`'../_shared/aiClient.ts'`. A relative `../` specifier only resolves when the
+deploy preserves the `functions/<name>/` nesting, which is true for the CLI but
+not guaranteed for the MCP deploy tool, which takes files as flat
+name/content pairs relative to the function root. The alias resolves in both,
+because it is anchored to `deno.json` rather than to the entrypoint.
+
+Deploy:
+
+```powershell
+cd apps/web
+npx supabase login
+npx supabase link --project-ref dntmvxfgqmqremdrswij
+npx supabase functions deploy ai-insight --project-ref dntmvxfgqmqremdrswij
+npx supabase functions deploy ai-ask --project-ref dntmvxfgqmqremdrswij
+npx supabase secrets set --project-ref dntmvxfgqmqremdrswij `
+  AI_BASE_URL=https://toai.hk/v1 `
+  AI_MODEL=qwen3.7-flash-2026-07-15 `
+  AI_API_KEY=<key>
+```
+
+Then `VITE_AI_ENABLED=1` in `apps/web/.env`. The key must not go there — Vite
+inlines `VITE_*` into the public bundle. Both functions deploy with
+`verify_jwt` enabled, which layers the gateway's JWT check in front of the
+function's own `authorize()`.
+
+
+### 10.2 Deviations from the design
 
 1. **Chat output shape.** §5 specified JSON. Streaming JSON to a chat UI shows
    braces forming, so the model instead emits prose, then a

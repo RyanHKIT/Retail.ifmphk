@@ -14,8 +14,8 @@
 // report a figure, and a question about live numbers is answered with a
 // definition plus a route to the tab that holds the answer.
 
-import { stream } from '../_shared/aiClient.ts'
-import { isAiConfigured } from '../_shared/aiClient.ts'
+import { stream } from 'shared/aiClient.ts'
+import { isAiConfigured } from 'shared/aiClient.ts'
 import {
   authorize,
   enforceRateLimit,
@@ -25,15 +25,15 @@ import {
   recordUsage,
   serviceClient,
   streamResponse,
-} from '../_shared/guards.ts'
+} from 'shared/guards.ts'
 import {
   buildAskMessages,
   isLocale,
   parseAskMeta,
   splitAskStream,
-} from '../_shared/prompts.ts'
-import { SCHEMA_DIGEST } from '../_shared/schemaDigest.ts'
-import type { AiMessage } from '../_shared/aiClient.ts'
+} from 'shared/prompts.ts'
+import { SCHEMA_DIGEST } from 'shared/schemaDigest.ts'
+import type { AiMessage } from 'shared/aiClient.ts'
 
 const MAX_QUESTION_LENGTH = 500
 const MAX_HISTORY_TURNS = 8
