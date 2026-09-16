@@ -16,7 +16,17 @@ import {
   YAxis,
 } from 'recharts'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
-import { CHART } from '@/lib/chartStyle'
+import {
+  AXIS_PROPS,
+  AXIS_WIDTH,
+  BAR_RADIUS_RIGHT,
+  BAR_RADIUS_UP,
+  CHART,
+  GRID_PROPS,
+  LEGEND_STYLE,
+  TOOLTIP_STYLE,
+  tickStyle,
+} from '@/lib/chartStyle'
 import type {
   AudienceRow,
   CompareSeries,
@@ -27,14 +37,6 @@ import type {
   UniqueKpi,
   WeekdayAvg,
 } from '@/lib/footfall/api'
-
-const TOOLTIP_STYLE = {
-  background: 'var(--flow-panel-2)',
-  border: '1px solid var(--flow-line)',
-  borderRadius: 8,
-  color: 'var(--flow-text)',
-  fontSize: 12,
-}
 
 const AGE_KEYS = [
   'toddler',
@@ -55,24 +57,33 @@ const WEEKDAY_KEYS = [
   'overview.weekday.sun',
 ] as const
 
-const PIE_COLORS = [CHART[1], CHART[2], CHART[3], CHART[4], '#6b7c99', '#4a5568']
+const PIE_COLORS = [CHART[1], CHART[2], CHART[3], CHART[5], CHART[6], CHART[4]]
 
 export function TodayHourlyChart({ data }: { data: HourlyPoint[] }) {
   const { t } = useFlowLocale()
   return (
     <ResponsiveContainer width="100%" height={180}>
       <AreaChart data={data}>
-        <CartesianGrid stroke="var(--flow-line)" strokeDasharray="3 3" />
-        <XAxis dataKey="hour" tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} />
-        <YAxis tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} width={36} />
+        <defs>
+          <linearGradient id="flowGradIn" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={CHART[1]} stopOpacity={0.4} />
+            <stop offset="100%" stopColor={CHART[1]} stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="flowGradOut" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={CHART[4]} stopOpacity={0.3} />
+            <stop offset="100%" stopColor={CHART[4]} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis dataKey="hour" tick={tickStyle()} {...AXIS_PROPS} />
+        <YAxis tick={tickStyle()} width={AXIS_WIDTH} {...AXIS_PROPS} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />
         <Area
           type="monotone"
           dataKey="inCount"
           name={t('overview.series.in')}
           stroke={CHART[1]}
-          fill={CHART[1]}
-          fillOpacity={0.25}
+          fill="url(#flowGradIn)"
           strokeWidth={2}
         />
         <Area
@@ -80,8 +91,7 @@ export function TodayHourlyChart({ data }: { data: HourlyPoint[] }) {
           dataKey="outCount"
           name={t('overview.series.out')}
           stroke={CHART[4]}
-          fill={CHART[4]}
-          fillOpacity={0.15}
+          fill="url(#flowGradOut)"
           strokeWidth={2}
         />
       </AreaChart>
@@ -105,13 +115,13 @@ export function EntranceFootfallChart({
   return (
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={rows}>
-        <CartesianGrid stroke="var(--flow-line)" strokeDasharray="3 3" />
-        <XAxis dataKey="name" tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} />
-        <YAxis tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} width={36} />
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis dataKey="name" tick={tickStyle()} {...AXIS_PROPS} />
+        <YAxis tick={tickStyle()} width={AXIS_WIDTH} {...AXIS_PROPS} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend wrapperStyle={{ fontSize: 11, color: 'var(--flow-muted)' }} />
-        <Bar dataKey="in" name={t('overview.series.in')} fill={CHART[1]} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="out" name={t('overview.series.out')} fill={CHART[4]} radius={[4, 4, 0, 0]} />
+        <Legend wrapperStyle={LEGEND_STYLE} />
+        <Bar dataKey="in" name={t('overview.series.in')} fill={CHART[1]} radius={BAR_RADIUS_UP} />
+        <Bar dataKey="out" name={t('overview.series.out')} fill={CHART[4]} radius={BAR_RADIUS_UP} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -126,11 +136,16 @@ export function MonthDailyChart({ data }: { data: MonthDayPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={rows}>
-        <CartesianGrid stroke="var(--flow-line)" strokeDasharray="3 3" />
-        <XAxis dataKey="day" tick={{ fill: 'var(--flow-muted)', fontSize: 10 }} interval="preserveStartEnd" />
-        <YAxis tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} width={36} />
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis
+          dataKey="day"
+          tick={tickStyle(10)}
+          interval="preserveStartEnd"
+          {...AXIS_PROPS}
+        />
+        <YAxis tick={tickStyle()} width={AXIS_WIDTH} {...AXIS_PROPS} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Bar dataKey="inCount" name={t('overview.series.in')} fill={CHART[2]} radius={[3, 3, 0, 0]} />
+        <Bar dataKey="inCount" name={t('overview.series.in')} fill={CHART[2]} radius={BAR_RADIUS_UP} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -145,11 +160,11 @@ export function WeekdayDistributionChart({ data }: { data: WeekdayAvg[] }) {
   return (
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={rows}>
-        <CartesianGrid stroke="var(--flow-line)" strokeDasharray="3 3" />
-        <XAxis dataKey="label" tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} />
-        <YAxis tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} width={36} />
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis dataKey="label" tick={tickStyle()} {...AXIS_PROPS} />
+        <YAxis tick={tickStyle()} width={AXIS_WIDTH} {...AXIS_PROPS} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Bar dataKey="avg" name={t('overview.series.avgIn')} fill={CHART[1]} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="avg" name={t('overview.series.avgIn')} fill={CHART[1]} radius={BAR_RADIUS_UP} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -223,12 +238,17 @@ export function TodayUniqueKpi({ data }: { data: UniqueKpi }) {
       <div style={{ flex: 1, minWidth: 0, height: 72 }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data.spark}>
+            <defs>
+              <linearGradient id="flowGradSpark" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CHART[1]} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={CHART[1]} stopOpacity={0} />
+              </linearGradient>
+            </defs>
             <Area
               type="monotone"
               dataKey="uniqueVisitors"
               stroke={CHART[1]}
-              fill={CHART[1]}
-              fillOpacity={0.2}
+              fill="url(#flowGradSpark)"
               strokeWidth={2}
               dot={false}
             />
@@ -265,7 +285,7 @@ export function AudienceCharts({ data }: { data: AudienceRow[] }) {
             ))}
           </Pie>
           <Tooltip contentStyle={TOOLTIP_STYLE} />
-          <Legend wrapperStyle={{ fontSize: 10, color: 'var(--flow-muted)' }} />
+          <Legend wrapperStyle={LEGEND_STYLE} />
         </PieChart>
       </ResponsiveContainer>
       <ResponsiveContainer width="100%" height="100%">
@@ -275,10 +295,16 @@ export function AudienceCharts({ data }: { data: AudienceRow[] }) {
             type="category"
             dataKey="name"
             width={48}
-            tick={{ fill: 'var(--flow-muted)', fontSize: 10 }}
+            tick={tickStyle(10)}
+            {...AXIS_PROPS}
           />
           <Tooltip contentStyle={TOOLTIP_STYLE} />
-          <Bar dataKey="value" name={t('overview.series.visitors')} fill={CHART[2]} radius={[0, 3, 3, 0]} />
+          <Bar
+            dataKey="value"
+            name={t('overview.series.visitors')}
+            fill={CHART[2]}
+            radius={BAR_RADIUS_RIGHT}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -297,11 +323,11 @@ export function CompareChart({ data }: { data: CompareSeries }) {
   return (
     <ResponsiveContainer width="100%" height={180}>
       <LineChart data={rows}>
-        <CartesianGrid stroke="var(--flow-line)" strokeDasharray="3 3" />
-        <XAxis dataKey="i" tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} />
-        <YAxis tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} width={36} />
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis dataKey="i" tick={tickStyle()} {...AXIS_PROPS} />
+        <YAxis tick={tickStyle()} width={AXIS_WIDTH} {...AXIS_PROPS} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend wrapperStyle={{ fontSize: 11, color: 'var(--flow-muted)' }} />
+        <Legend wrapperStyle={LEGEND_STYLE} />
         <Line
           type="monotone"
           dataKey="selected"

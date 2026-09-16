@@ -13,7 +13,16 @@ import { EntranceFootfallChart } from '@/components/footfall/OverviewWidgets'
 import { WidgetCard } from '@/components/footfall/WidgetCard'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
-import { CHART } from '@/lib/chartStyle'
+import {
+  AXIS_PROPS,
+  AXIS_WIDTH,
+  BAR_RADIUS_UP,
+  CHART,
+  GRID_PROPS,
+  LEGEND_STYLE,
+  TOOLTIP_STYLE,
+  tickStyle,
+} from '@/lib/chartStyle'
 import {
   fetchEntranceHourly,
   type EntranceHourly,
@@ -55,21 +64,13 @@ function TodayEntranceBars({
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={rows}>
-        <CartesianGrid stroke="var(--flow-line)" strokeDasharray="3 3" />
-        <XAxis dataKey="name" tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} />
-        <YAxis tick={{ fill: 'var(--flow-muted)', fontSize: 11 }} width={36} />
-        <Tooltip
-          contentStyle={{
-            background: 'var(--flow-panel-2)',
-            border: '1px solid var(--flow-line)',
-            borderRadius: 8,
-            color: 'var(--flow-text)',
-            fontSize: 12,
-          }}
-        />
-        <Legend wrapperStyle={{ fontSize: 11, color: 'var(--flow-muted)' }} />
-        <Bar dataKey="in" name={t('overview.series.in')} fill={CHART[1]} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="out" name={t('overview.series.out')} fill={CHART[4]} radius={[4, 4, 0, 0]} />
+        <CartesianGrid {...GRID_PROPS} />
+        <XAxis dataKey="name" tick={tickStyle()} {...AXIS_PROPS} />
+        <YAxis tick={tickStyle()} width={AXIS_WIDTH} {...AXIS_PROPS} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Legend wrapperStyle={LEGEND_STYLE} />
+        <Bar dataKey="in" name={t('overview.series.in')} fill={CHART[1]} radius={BAR_RADIUS_UP} />
+        <Bar dataKey="out" name={t('overview.series.out')} fill={CHART[4]} radius={BAR_RADIUS_UP} />
       </BarChart>
     </ResponsiveContainer>
   )

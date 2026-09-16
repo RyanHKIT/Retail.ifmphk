@@ -14,6 +14,19 @@
   --flow-accent-selection: rgba(37, 99, 235, 0.22);
   --flow-danger: #dc2626;
 
+  /* Chart series. These were previously only defined on the retired retail
+     shell, so flow charts resolved var() to nothing and painted solid black.
+     Signal Blue leads; Slate stays neutral for comparison series. */
+  --chart-1: #3b82f6;
+  --chart-2: #60a5fa;
+  --chart-3: #10b981;
+  --chart-4: #94a3b8;
+  --chart-5: #0ea5e9;
+  --chart-6: #64748b;
+  --flow-chart-grid: #eef2f7;
+  --flow-chart-tick: #94a3b8;
+  --flow-chart-line: #e2e8f0;
+
   min-height: 100vh;
   background: var(--flow-bg);
   color: var(--flow-text);
@@ -33,6 +46,16 @@
   --flow-accent-soft: rgba(59, 130, 246, 0.16);
   --flow-accent-selection: rgba(59, 130, 246, 0.34);
   --flow-danger: #e5534b;
+
+  --chart-1: #60a5fa;
+  --chart-2: #93c5fd;
+  --chart-3: #34d399;
+  --chart-4: #94a3b8;
+  --chart-5: #7dd3fc;
+  --chart-6: #cbd5e1;
+  --flow-chart-grid: #1e293b;
+  --flow-chart-tick: #64748b;
+  --flow-chart-line: #2a3550;
 }
 
 /* Motion tokens are theme-invariant. Durations stay short so the console reads
