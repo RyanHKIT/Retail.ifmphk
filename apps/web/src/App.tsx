@@ -1,20 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, Outlet, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { RetailFilterProvider } from '@/context/RetailFilterContext'
-import { RetailThemeProvider } from '@/context/RetailThemeContext'
-import { RetailLocaleProvider } from '@/context/RetailLocaleContext'
-import { DemoSpineProvider } from '@/context/DemoSpineContext'
-import { RetailShell } from '@/components/retail/RetailShell'
-import { OverviewPage } from '@/pages/retail/Overview'
-import { FootfallPage } from '@/pages/retail/Footfall'
-import { JourneyPage } from '@/pages/retail/Journey'
-import { PeoplePage } from '@/pages/retail/People'
-import { ServiceGapPage } from '@/pages/retail/ServiceGap'
-import { RosterPage } from '@/pages/retail/Roster'
-import { CoachPage } from '@/pages/retail/Coach'
-import { SettingsPage } from '@/pages/retail/Settings'
-import { EnergyPage } from '@/pages/retail/Energy'
 import { FlowLocaleProvider } from '@/context/FlowLocaleContext'
 import { FlowThemeProvider } from '@/context/FlowThemeContext'
 import { FlowAuthProvider } from '@/context/FlowAuthContext'
@@ -60,12 +46,9 @@ function HomeShell({ children }: { children: React.ReactNode }) {
           <Link className="rounded-md px-3 py-1.5 hover:bg-white" to="/">
             Home
           </Link>
-          <Link className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-white hover:opacity-90" to="/retail">
-            零售營運分析 Demo
+          <Link className="rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-white hover:opacity-90" to="/flow">
+            IFMP Retail（pilot）
           </Link>
-          <a className="rounded-md px-3 py-1.5 hover:bg-white" href="http://127.0.0.1:5173/" target="_blank" rel="noreferrer">
-            Current app :5173
-          </a>
         </nav>
       </header>
       {children}
@@ -106,16 +89,10 @@ function HomePage() {
           backend (<code>:3000</code> by default).
         </p>
         <Link
-          to="/retail"
+          to="/flow"
           className="mt-4 inline-flex items-center rounded-xl bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-white hover:opacity-90"
         >
-          開啟 I.T 零售營運分析 Demo →
-        </Link>
-        <Link
-          to="/flow"
-          className="mt-4 inline-flex items-center rounded-xl border border-[var(--color-line)] px-5 py-3 text-sm font-semibold hover:bg-white"
-        >
-          IFMP Retail（pilot）→
+          開啟 IFMP Retail（pilot）→
         </Link>
         <div
           className={cn(
@@ -143,30 +120,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route
-        path="/retail"
-        element={
-          <RetailLocaleProvider>
-            <RetailThemeProvider>
-              <RetailFilterProvider>
-                <DemoSpineProvider>
-                  <RetailShell />
-                </DemoSpineProvider>
-              </RetailFilterProvider>
-            </RetailThemeProvider>
-          </RetailLocaleProvider>
-        }
-      >
-        <Route index element={<OverviewPage />} />
-        <Route path="footfall" element={<FootfallPage />} />
-        <Route path="journey" element={<JourneyPage />} />
-        <Route path="people" element={<PeoplePage />} />
-        <Route path="service-gap" element={<ServiceGapPage />} />
-        <Route path="roster" element={<RosterPage />} />
-        <Route path="coach" element={<CoachPage />} />
-        <Route path="energy" element={<EnergyPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-      </Route>
+      {/* The retail demo was removed once /flow superseded it. Keep old links
+          and bookmarks alive instead of rendering a blank page. */}
+      <Route path="/retail/*" element={<Navigate to="/flow" replace />} />
       <Route
         path="/flow"
         element={

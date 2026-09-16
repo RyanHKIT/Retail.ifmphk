@@ -17,21 +17,25 @@ rg "from '@/shell/pilot-v1'" apps/web/src/pages apps/web/src/lib
 rg "Inter|38BDF8|0B0F17" apps/web/src/shell/pilot-v1
 # No competitor references
 rg "优衣库|Uniqlo" apps/web/src supabase/migrations/20260916000009_flow_roster_demo_seed.sql
-# /retail untouched this phase
-git diff -- apps/web/src/pages/retail apps/web/src/retail.css
+# The retail demo is removed; nothing may still import it
+rg "pages/retail|components/retail|api/retail|retail\.css|Retail[A-Z]|DemoSpine" apps/web/src
 ```
 
 Expected: first two produce no output; third only the "Never 优衣库" comment; fourth empty.
+
+The former `/retail` demo was deleted once `/flow` superseded it. `/flow` had no
+import dependency on it (`chartStyle.ts` and `journeyMetrics.ts` are shared and
+were kept). Legacy `/retail` and `/retail/*` links redirect to `/flow`.
 
 Run from `apps/web`:
 
 ```powershell
 npx tsc --noEmit --project tsconfig.json --ignoreDeprecations 6.0
-npx vitest run src/lib/roster/api.test.ts src/lib/footfall/api.test.ts src/pages/flow/Overview.test.tsx src/pages/flow/Settings.test.tsx src/components/flow/FlowShell.test.tsx src/pages/flow/roster/WeekBoard.test.tsx
+npx vitest run src/lib/roster/api.test.ts src/lib/footfall/api.test.ts src/pages/flow/Overview.test.tsx src/pages/flow/Settings.test.tsx src/components/flow/FlowShell.test.tsx src/pages/flow/roster/WeekBoard.test.tsx src/App.test.tsx
 npx vite build
 ```
 
-Expected: `tsc` exits 0; 6 test files pass; build succeeds.
+Expected: `tsc` exits 0; 7 test files pass; build succeeds.
 
 ## 2. Seeded demo IDs
 
