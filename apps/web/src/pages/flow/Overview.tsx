@@ -201,13 +201,7 @@ export function OverviewPage() {
 
   return (
     <div className="overview-page" data-testid="overview-page">
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          gap: 16,
-        }}
-      >
+      <div className="overview-grid">
         <WidgetCard
           testId="overview-widget-hourly"
           title={t('overview.widget.hourly')}
@@ -349,21 +343,14 @@ export function OverviewPage() {
         </WidgetCard>
       </div>
 
-      <p
-        data-testid="overview-honesty"
-        style={{
-          marginTop: 16,
-          fontSize: 12,
-          color: 'var(--flow-muted)',
-          lineHeight: 1.5,
-        }}
-      >
+      <div className="overview-honesty" data-testid="overview-honesty">
+        <strong>{t('overview.honestyLabel')}</strong>{' '}
         {FLOW_DEMO_DAY
           ? t('overview.honesty').replaceAll('{day}', FLOW_DEMO_DAY)
           : t('overview.honesty')
-              .replace(' — 定格於 {day}', '')
-              .replace(' frozen at {day}', '')}
-      </p>
+              .replaceAll(' — 定格於 {day}', '')
+              .replaceAll(' frozen at {day}', '')}
+      </div>
     </div>
   )
 }

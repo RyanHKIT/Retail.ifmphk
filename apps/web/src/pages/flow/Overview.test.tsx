@@ -275,11 +275,12 @@ describe('OverviewPage', () => {
     expect(screen.getByTestId('overview-heatmap-link')).toHaveAttribute('href', '/flow/journey')
     expect(screen.queryAllByLabelText('載入中…')).toHaveLength(0)
     const honesty = screen.getByTestId('overview-honesty')
-    expect(honesty).toHaveTextContent('示例流量（匿名同級店舖） — 定格於 2026-09-16')
-    // both locales repeat the {day} token; every occurrence must be substituted
+    expect(honesty).toHaveTextContent('示範數據聲明：')
+    expect(honesty).toHaveTextContent('定格於 2026-09-16')
+    // every {day} occurrence must be substituted
     expect(honesty).not.toHaveTextContent('{day}')
     expect(honesty).toHaveTextContent(
-      'Sample traffic frozen at 2026-09-16 (anonymized comparable store)',
+      'Sample traffic frozen at 2026-09-16; roster and floor plan are demo data.',
     )
   })
 

@@ -800,3 +800,41 @@ table.roster-grid td {
   line-height: 1.5;
 }
 
+/* ===== Overview widgets (Phase 5) ===== */
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.overview-honesty {
+  margin-top: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--flow-line);
+  background: var(--flow-panel);
+  padding: 14px 16px;
+  color: var(--flow-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.overview-honesty strong {
+  color: var(--flow-text);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .roster-grid {
+    grid-template-columns: 140px repeat(7, 1fr);
+  }
+
+  .roster-grid .roster-cell.employee {
+    font-size: 11px;
+  }
+}
+
