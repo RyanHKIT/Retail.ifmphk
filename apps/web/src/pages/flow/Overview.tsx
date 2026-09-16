@@ -132,8 +132,9 @@ export function OverviewPage() {
   const loadAudience = useCallback(() => {
     if (!branchId) return
     const day = hkToday()
+    const start = `${day.slice(0, 7)}-01`
     return loadCard(setAudience, () =>
-      fetchAudience(branchId, { start: day, end: day }),
+      fetchAudience(branchId, { start, end: day }),
     )
   }, [branchId, loadCard])
 
