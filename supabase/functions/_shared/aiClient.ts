@@ -27,6 +27,18 @@ export interface AiConfig {
   model: string
   maxTokens: number
   timeoutMs: number
+  /**
+   * Ask the provider to skip hidden reasoning.
+   *
+   * qwen3.7-flash spends thousands of tokens on internal reasoning before it
+   * writes a single visible character: 10,497 characters of reasoning to produce
+   * a 317 character answer, in 50.7 seconds against a 30 second timeout. Every
+   * insight call failed on that budget. With reasoning suppressed the same call
+   * takes 3.0 seconds and 147 tokens, and the answer is the same shape.
+   */
+  disableThinking: boolean
+  /** Provider-specific escape hatch, e.g. 'none' or 'low'. Empty means unset. */
+  reasoningEffort: string
 }
 
 export class AiNotConfiguredError extends Error {
@@ -47,6 +59,12 @@ export class AiUpstreamError extends Error {
 
 /** Defaults are deliberately conservative: this is a summary task, not a chat. */
 const DEFAULT_MAX_TOKENS = 700
+/**
+ * Sizing note: this budget assumes reasoning is suppressed. With reasoning on,
+ * the model can burn thousands of tokens before it emits anything, so raise
+ * AI_TIMEOUT_MS well above this if AI_DISABLE_THINKING is switched off, or the
+ * call cannot finish inside the function's wall clock.
+ */
 const DEFAULT_TIMEOUT_MS = 30_000
 
 export function readAiConfig(): AiConfig {
@@ -71,6 +89,9 @@ export function readAiConfig(): AiConfig {
     model: model!,
     maxTokens: Number.isFinite(maxTokens) && maxTokens > 0 ? maxTokens : DEFAULT_MAX_TOKENS,
     timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : DEFAULT_TIMEOUT_MS,
+    // On by default: the alternative is a timeout, not a slower answer.
+    disableThinking: (Deno.env.get('AI_DISABLE_THINKING') ?? 'true') !== 'false',
+    reasoningEffort: Deno.env.get('AI_REASONING_EFFORT')?.trim() ?? '',
   }
 }
 
@@ -100,6 +121,15 @@ function body(
   messages: AiMessage[],
   opts: { stream: boolean; json: boolean; temperature: number },
 ): string {
+  const reasoning = config.disableThinking
+    ? {
+        // Qwen's chat template switch. Providers that do not know it ignore an
+        // unknown field rather than rejecting the request.
+        enable_thinking: false,
+        ...(config.reasoningEffort ? { reasoning_effort: config.reasoningEffort } : {}),
+      }
+    : {}
+
   return JSON.stringify({
     model: config.model,
     messages,
@@ -109,6 +139,7 @@ function body(
     // Requested, not required. Providers that ignore it still work, because
     // the caller parses the text defensively rather than trusting JSON mode.
     ...(opts.json ? { response_format: { type: 'json_object' } } : {}),
+    ...reasoning,
   })
 }
 

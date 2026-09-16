@@ -220,19 +220,13 @@ export function splitAskStream(accumulated: string): {
   }
 
   // No delimiter yet. Hold back a trailing partial match so a delimiter split
-  // across two chunks never leaks to the user as literal text.
+  // across two chunks never leaks to the user as literal text. Withholding the
+  // longest possible partial (length - 1) is also the tightest bound available,
+  // since no shorter suffix can extend into the delimiter without passing
+  // through this one first.
   const holdBack = ASK_DELIMITER.length - 1
   const safeLength = Math.max(0, accumulated.length - holdBack)
-  let emitted = accumulated.slice(0, safeLength)
-
-  // A shorter suffix that could still grow into the delimiter is also held.
-  for (let length = 1; length <= holdBack && length <= accumulated.length; length++) {
-    const suffix = accumulated.slice(accumulated.length - length)
-    if (ASK_DELIMITER.startsWith(suffix)) {
-      const candidate = accumulated.slice(0, accumulated.length - length)
-      if (candidate.length < emitted.length) emitted = candidate
-    }
-  }
+  const emitted = accumulated.slice(0, safeLength)
 
   return { prose: accumulated, metadata: null, emitted }
 }
