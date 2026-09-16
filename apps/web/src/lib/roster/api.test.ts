@@ -23,9 +23,12 @@ import {
   createTemplate,
   deleteTemplate,
   fetchAudit,
+  fetchEmployees,
   fetchManagedBranchId,
   fetchMonthAssignments,
+  fetchPolicies,
   fetchSwaps,
+  fetchTemplates,
   fetchWeekData,
   isoWeekInfo,
   mapRpcError,
@@ -382,5 +385,23 @@ describe('staff / templates / policies CRUD', () => {
       expect.objectContaining({ employee_id: 'e1', max_hours_per_week: 40 }),
       expect.objectContaining({ onConflict: 'employee_id' }),
     )
+  })
+
+  it('fetchEmployees / fetchTemplates / fetchPolicies scope by branch', async () => {
+    h.results.employees = { data: [EMP], error: null }
+    h.results.shift_templates = { data: [], error: null }
+    h.results.hour_policies = { data: [], error: null }
+
+    expect(await fetchEmployees('b1')).toEqual([EMP])
+    const empQb = (h.client.from as any).mock.results[0].value
+    expect(empQb.eq).toHaveBeenCalledWith('branch_id', 'b1')
+    expect(empQb.order).toHaveBeenCalledWith('is_active', { ascending: false })
+
+    await fetchTemplates('b1')
+    await fetchPolicies('b1')
+    const calls = (h.client.from as any).mock.results.map((r: any) => r.value)
+    expect(calls[1].eq).toHaveBeenCalledWith('branch_id', 'b1')
+    expect(calls[1].order).toHaveBeenCalledWith('start_time')
+    expect(calls[2].eq).toHaveBeenCalledWith('employees.branch_id', 'b1')
   })
 })

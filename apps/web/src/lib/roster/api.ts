@@ -302,6 +302,42 @@ export async function fetchAudit(options: {
   return (data ?? []) as AuditLogRow[]
 }
 
+// ---------- shared read wrappers for leaf pages (T6–T10) ----------
+
+/** All employees of a branch, active first then by zh name. */
+export async function fetchEmployees(branchId: string): Promise<EmployeeRow[]> {
+  const { data, error } = await sb()
+    .from('employees')
+    .select('*')
+    .eq('branch_id', branchId)
+    .order('is_active', { ascending: false })
+    .order('name_zh')
+  if (error) throw mapRpcError(error)
+  return (data ?? []) as EmployeeRow[]
+}
+
+/** All shift templates of a branch ordered by start time. */
+export async function fetchTemplates(branchId: string): Promise<ShiftTemplateRow[]> {
+  const { data, error } = await sb()
+    .from('shift_templates')
+    .select('*')
+    .eq('branch_id', branchId)
+    .order('start_time')
+  if (error) throw mapRpcError(error)
+  return (data ?? []) as ShiftTemplateRow[]
+}
+
+/** All hour policies visible to the branch (join scopes to branch). */
+export async function fetchPolicies(branchId: string): Promise<HourPolicyRow[]> {
+  const { data, error } = await sb()
+    .from('hour_policies')
+    .select('*, employees!inner(branch_id)')
+    .eq('employees.branch_id', branchId)
+    .order('employee_id')
+  if (error) throw mapRpcError(error)
+  return (data ?? []) as unknown as HourPolicyRow[]
+}
+
 // ---------- staff registry CRUD ----------
 
 export interface NewEmployee {
