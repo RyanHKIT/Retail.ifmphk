@@ -61,6 +61,10 @@ vi.mock('@/context/FlowAuthContext', () => ({
   }),
 }))
 
+vi.mock('@/lib/footfall/api', () => ({
+  hkToday: () => '2026-09-16',
+}))
+
 vi.mock('@/lib/roster/api', () => {
   // pure helpers the board imports must behave like the real ones
   const addDays = (isoDate: string, days: number) => {
@@ -79,9 +83,25 @@ vi.mock('@/lib/roster/api', () => {
     )
     return { year, weekNumber }
   }
+  const mondayOf = (isoDate: string) => {
+    const dow = (new Date(`${isoDate}T00:00:00Z`).getUTCDay() + 6) % 7
+    return addDays(isoDate, -dow)
+  }
+  const pickRosterWeekStart = (existingStarts: string[], today: string) => {
+    const monday = mondayOf(today)
+    if (existingStarts.includes(monday)) return monday
+    const past = existingStarts.filter((s) => s <= monday).sort()
+    if (past.length > 0) return past[past.length - 1]
+    const future = [...existingStarts].sort()
+    if (future.length > 0) return future[0]
+    return monday
+  }
   return {
     addDays,
     isoWeekInfo,
+    mondayOf,
+    pickRosterWeekStart,
+    fetchRosterWeekStarts: vi.fn(async () => ['2026-09-07', '2026-09-14']),
     RosterError: class extends Error {
       code: string
       constructor(code: string) {

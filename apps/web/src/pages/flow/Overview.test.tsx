@@ -70,6 +70,7 @@ vi.mock('@/lib/roster/api', () => ({
 }))
 
 vi.mock('@/lib/footfall/api', () => ({
+  FLOW_DEMO_DAY: '2026-09-16',
   hkToday: () => '2026-09-16',
   fetchTodayHourly: vi.fn(() => {
     h.state.hourly = h.deferred()
@@ -274,7 +275,7 @@ describe('OverviewPage', () => {
     expect(screen.getByTestId('overview-heatmap-link')).toHaveAttribute('href', '/flow/journey')
     expect(screen.queryAllByLabelText('載入中…')).toHaveLength(0)
     expect(screen.getByTestId('overview-honesty')).toHaveTextContent(
-      '示例流量（匿名同級店舖）',
+      '示例流量（匿名同級店舖） — 定格於 2026-09-16',
     )
   })
 

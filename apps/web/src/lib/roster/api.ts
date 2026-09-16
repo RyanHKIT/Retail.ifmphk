@@ -78,6 +78,41 @@ export function addDays(isoDate: string, days: number): string {
   return d.toISOString().slice(0, 10)
 }
 
+/** ISO Monday (YYYY-MM-DD) of the week that contains `isoDate`. */
+export function mondayOf(isoDate: string): string {
+  const dow = (new Date(`${isoDate}T00:00:00Z`).getUTCDay() + 6) % 7
+  return addDays(isoDate, -dow)
+}
+
+/**
+ * Demo landing week: prefer the week covering `today`, else the latest
+ * seeded week_start <= that Monday, else the earliest seed, else Monday.
+ */
+export function pickRosterWeekStart(
+  existingStarts: string[],
+  today: string,
+): string {
+  const monday = mondayOf(today)
+  if (existingStarts.includes(monday)) return monday
+  const past = existingStarts.filter((s) => s <= monday).sort()
+  if (past.length > 0) return past[past.length - 1]
+  const future = [...existingStarts].sort()
+  if (future.length > 0) return future[0]
+  return monday
+}
+
+export async function fetchRosterWeekStarts(
+  branchId: string,
+): Promise<string[]> {
+  const { data, error } = await sb()
+    .from('roster_weeks')
+    .select('week_start')
+    .eq('branch_id', branchId)
+    .order('week_start', { ascending: true })
+  if (error) throw mapRpcError(error)
+  return (data ?? []).map((r: { week_start: string }) => r.week_start)
+}
+
 // ---------- week bundle ----------
 
 export interface WeekBundle {

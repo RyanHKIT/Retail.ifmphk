@@ -32,6 +32,7 @@ import {
   fetchWeekData,
   isoWeekInfo,
   mapRpcError,
+  pickRosterWeekStart,
   publishWeek,
   removeAssignment,
   reviewSwap,
@@ -142,6 +143,28 @@ describe('isoWeekInfo', () => {
     expect(isoWeekInfo('2026-01-05')).toEqual({ year: 2026, weekNumber: 2 })
     expect(isoWeekInfo('2024-12-30')).toEqual({ year: 2025, weekNumber: 1 })
     expect(isoWeekInfo('2026-09-14')).toEqual({ year: 2026, weekNumber: 38 })
+  })
+})
+
+describe('pickRosterWeekStart', () => {
+  it('uses this Monday when that week exists', () => {
+    expect(
+      pickRosterWeekStart(['2026-09-07', '2026-09-14'], '2026-09-16'),
+    ).toBe('2026-09-14')
+  })
+
+  it('falls back to latest week_start <= this Monday', () => {
+    expect(
+      pickRosterWeekStart(['2026-09-07', '2026-09-14'], '2026-10-01'),
+    ).toBe('2026-09-14')
+  })
+
+  it('uses earliest seeded week if all are in the future', () => {
+    expect(pickRosterWeekStart(['2026-09-14'], '2026-09-01')).toBe('2026-09-14')
+  })
+
+  it('returns this Monday when nothing is seeded', () => {
+    expect(pickRosterWeekStart([], '2026-09-16')).toBe('2026-09-14')
   })
 })
 

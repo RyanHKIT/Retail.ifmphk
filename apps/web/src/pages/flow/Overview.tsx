@@ -15,6 +15,7 @@ import { WidgetCard } from '@/components/footfall/WidgetCard'
 import { useFlowAuth } from '@/context/FlowAuthContext'
 import { useFlowLocale } from '@/context/FlowLocaleContext'
 import {
+  FLOW_DEMO_DAY,
   fetchAudience,
   fetchCompare,
   fetchEntranceHourly,
@@ -357,7 +358,9 @@ export function OverviewPage() {
           lineHeight: 1.5,
         }}
       >
-        {t('overview.honesty')}
+        {FLOW_DEMO_DAY
+          ? t('overview.honesty').replace('{day}', FLOW_DEMO_DAY)
+          : t('overview.honesty').replace(' — 定格於 {day}', '').replace(' frozen at {day}', '')}
       </p>
     </div>
   )

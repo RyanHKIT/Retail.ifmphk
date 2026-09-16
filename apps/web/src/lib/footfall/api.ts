@@ -9,7 +9,25 @@ function sb() {
   return createFlowSupabase()
 }
 
+/**
+ * Demo clock. Keep this in sync with the seeded demo data so the
+ * pilot always shows data for 2026-09-16 regardless of wall-clock time.
+ * Remove or set to null after pilot.
+ */
+export const FLOW_DEMO_DAY = '2026-09-16'
+
 export function hkToday(now: Date = new Date()): string {
+  if (FLOW_DEMO_DAY) return FLOW_DEMO_DAY
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Hong_Kong',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
+}
+
+/** Actual HK calendar day for non-demo use (e.g. auth/session logging). */
+export function hkCalendarDay(now: Date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Hong_Kong',
     year: 'numeric',

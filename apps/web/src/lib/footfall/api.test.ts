@@ -80,9 +80,15 @@ beforeEach(() => {
 const BRANCH = 'a0000000-0000-4000-8000-000000000001'
 
 describe('HK-day helpers', () => {
-  it('hkToday uses Asia/Hong_Kong calendar day', () => {
-    expect(hkToday(new Date('2026-09-15T15:59:00Z'))).toBe('2026-09-15')
-    expect(hkToday(new Date('2026-09-15T16:00:00Z'))).toBe('2026-09-16')
+  it('hkToday is pinned by FLOW_DEMO_DAY for the pilot', () => {
+    expect(hkToday()).toBe('2026-09-16')
+    expect(hkToday(new Date('2025-01-01T00:00:00Z'))).toBe('2026-09-16')
+  })
+
+  it('hkCalendarDay uses Asia/Hong_Kong calendar day', async () => {
+    const { hkCalendarDay } = await import('./api')
+    expect(hkCalendarDay(new Date('2026-09-15T15:59:00Z'))).toBe('2026-09-15')
+    expect(hkCalendarDay(new Date('2026-09-15T16:00:00Z'))).toBe('2026-09-16')
   })
 
   it('hkDayBounds are +08:00 exclusive end', () => {
@@ -124,8 +130,8 @@ describe('fetchTodayHourly', () => {
     const qb = recs.footfall_hourly
     expect(qb._select).toBe('hour_start,in_count,out_count,unique_visitors')
     expect(qb._eq).toContainEqual(['branch_id', BRANCH])
-    expect(qb._gte).toContainEqual(['hour_start', '2026-09-15T00:00:00+08:00'])
-    expect(qb._lte).toContainEqual(['hour_start', '2026-09-15T23:59:59+08:00'])
+    expect(qb._gte).toContainEqual(['hour_start', '2026-09-16T00:00:00+08:00'])
+    expect(qb._lte).toContainEqual(['hour_start', '2026-09-16T23:59:59+08:00'])
     expect(rows[0]).toEqual({
       hour: 10,
       inCount: 312,

@@ -19,14 +19,17 @@ import {
   copyWeek,
   fetchManagedBranchId,
   fetchMonthAssignments,
+  fetchRosterWeekStarts,
   fetchWeekData,
   isoWeekInfo,
+  pickRosterWeekStart,
   publishWeek,
   removeAssignment,
   unpublishWeek,
   RosterError,
   type WeekBundle,
 } from '@/lib/roster/api'
+import { hkToday } from '@/lib/footfall/api'
 import { detectConflicts, type Conflict } from '@/lib/roster/conflicts'
 import type { AssignmentRow, Station } from '@/lib/roster/types'
 
@@ -41,12 +44,6 @@ interface UndoAction {
   rows: { employeeId: string; templateId: string; workDate: string; notes: string }[]
   /** create-undo deletes these assignment ids; delete-undo ignores them. */
   ids?: string[]
-}
-
-function weekStartOfToday(): string {
-  const now = new Date()
-  const dow = (now.getUTCDay() + 6) % 7
-  return addDays(now.toISOString().slice(0, 10), -dow)
 }
 
 function monthStartOfToday(): string {
@@ -67,7 +64,7 @@ export function WeekBoardPage() {
   // view state
   const [viewMode, setViewMode] = useState<ViewMode>('week')
   const [groupBy, setGroupBy] = useState<GroupBy>('station')
-  const [weekStart, setWeekStart] = useState<string>(weekStartOfToday)
+  const [weekStart, setWeekStart] = useState<string | null>(null)
 
   // data state
   const [branchId, setBranchId] = useState<string | null>(null)
@@ -92,13 +89,15 @@ export function WeekBoardPage() {
   const lastLoadedKey = useRef<string | null>(null)
 
   // ---- derived ----
+  const safeWeekStart = weekStart ?? '2026-09-14'
+
   const weekDates = useMemo(
-    () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
-    [weekStart],
+    () => Array.from({ length: 7 }, (_, i) => addDays(safeWeekStart, i)),
+    [safeWeekStart],
   )
-  const { year, weekNumber } = useMemo(() => isoWeekInfo(weekStart), [weekStart])
-  const prevWeekStart = useMemo(() => addDays(weekStart, -7), [weekStart])
-  const monthAnchor = weekStart.slice(0, 8) + '01'
+  const { year, weekNumber } = useMemo(() => isoWeekInfo(safeWeekStart), [safeWeekStart])
+  const prevWeekStart = useMemo(() => addDays(safeWeekStart, -7), [safeWeekStart])
+  const monthAnchor = safeWeekStart.slice(0, 8) + '01'
 
   const stations = useMemo<Station[]>(() => {
     const s = new Set<Station>(['樓面', '試衣', '收銀'])
@@ -114,14 +113,14 @@ export function WeekBoardPage() {
   const conflicts = useMemo<Conflict[]>(() => {
     if (!bundle) return []
     return detectConflicts({
-      weekStart,
+      weekStart: safeWeekStart,
       assignments,
       templates,
       employees,
       policies: bundle.policies,
       availability: bundle.availability,
     })
-  }, [bundle, weekStart, assignments, templates, employees])
+  }, [bundle, safeWeekStart, assignments, templates, employees])
 
   const hardConflicts = conflicts.filter((c) => c.severity === 'hard')
   const softConflicts = conflicts.filter((c) => c.severity === 'soft')
@@ -181,9 +180,16 @@ export function WeekBoardPage() {
     let cancelled = false
     void (async () => {
       const id = await fetchManagedBranchId(profile.id)
-      if (!cancelled) {
-        setBranchId(id)
-        setBranchResolved(true)
+      if (cancelled) return
+      setBranchId(id)
+      setBranchResolved(true)
+      if (id) {
+        const starts = await fetchRosterWeekStarts(id)
+        if (!cancelled) {
+          setWeekStart(pickRosterWeekStart(starts, hkToday()))
+        }
+      } else {
+        setWeekStart(null)
       }
     })()
     return () => {
@@ -194,14 +200,17 @@ export function WeekBoardPage() {
   useEffect(() => {
     // Clear undo only when the viewed week/month actually changes — mutations
     // refresh via loadWeek() directly and must keep the undo stack.
-    const key = viewMode === 'week' ? `w:${weekStart}` : `m:${monthAnchor}`
+    const key = viewMode === 'week' ? `w:${safeWeekStart}` : `m:${monthAnchor}`
     if (lastLoadedKey.current !== key) {
       lastLoadedKey.current = key
       setUndoStack([]) // week switch clears undo (assignments belong to week)
     }
-    if (viewMode === 'week') void loadWeek(weekStart)
-    else void loadMonth(monthAnchor)
-  }, [viewMode, weekStart, monthAnchor, loadWeek, loadMonth])
+    if (viewMode === 'week') {
+      if (weekStart) void loadWeek(safeWeekStart)
+    } else {
+      void loadMonth(monthAnchor)
+    }
+  }, [viewMode, weekStart, safeWeekStart, monthAnchor, loadWeek, loadMonth])
 
   // ---- undo plumbing ----
   function pushUndo(a: UndoAction) {
@@ -228,7 +237,7 @@ export function WeekBoardPage() {
         )
       }
       setUndoStack((s) => s.slice(0, -1))
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
     } finally {
@@ -257,7 +266,7 @@ export function WeekBoardPage() {
         rows: rows.map((r) => ({ ...r, workDate: addOpen.date })),
       })
       setAddOpen(null)
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
     } finally {
@@ -284,7 +293,7 @@ export function WeekBoardPage() {
         ],
       })
       setDeleteConfirm(null)
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
     } finally {
@@ -299,7 +308,7 @@ export function WeekBoardPage() {
     try {
       await publishWeek(bundle.week.id)
       setPublishOpen(null)
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setPublishOpen(null)
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
@@ -314,7 +323,7 @@ export function WeekBoardPage() {
     setActionError(null)
     try {
       await unpublishWeek(bundle.week.id)
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
     } finally {
@@ -344,7 +353,7 @@ export function WeekBoardPage() {
       const prev = await fetchWeekData(branchId, prevWeekStart)
       await copyWeek(prev.week.id, bundle.week.id)
       setCopyWeekOpen(null)
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setCopyWeekOpen(null)
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
@@ -383,7 +392,7 @@ export function WeekBoardPage() {
         })),
       })
       setCopyDay(null)
-      await loadWeek(weekStart)
+      await loadWeek(safeWeekStart)
     } catch (err) {
       setActionError(err instanceof RosterError ? t(`roster.error.${err.code}`) : t('common.error'))
     } finally {
@@ -423,7 +432,7 @@ export function WeekBoardPage() {
               : t('roster.weekNumber')
                   .replace('{{year}}', String(year))
                   .replace('{{week}}', String(weekNumber))}
-            {viewMode === 'week' && bundle ? ` · ${weekStart}` : ''}
+            {viewMode === 'week' && bundle ? ` · ${safeWeekStart}` : ''}
           </span>
         </div>
 
@@ -469,7 +478,7 @@ export function WeekBoardPage() {
             onClick={() =>
               viewMode === 'week'
                 ? setWeekStart(prevWeekStart)
-                : setWeekStart(shiftMonth(weekStart, -1))
+                : setWeekStart(shiftMonth(safeWeekStart, -1))
             }
             aria-label={t('roster.prevWeek')}
           >
@@ -480,7 +489,7 @@ export function WeekBoardPage() {
             onClick={() =>
               viewMode === 'month'
                 ? setWeekStart(monthStartOfToday())
-                : setWeekStart(weekStartOfToday())
+                : setWeekStart(pickRosterWeekStart([safeWeekStart], hkToday()))
             }
           >
             {viewMode === 'month' ? t('roster.thisMonth') : t('roster.thisWeek')}
@@ -489,8 +498,8 @@ export function WeekBoardPage() {
             type="button"
             onClick={() =>
               viewMode === 'week'
-                ? setWeekStart(addDays(weekStart, 7))
-                : setWeekStart(shiftMonth(weekStart, 1))
+                ? setWeekStart(addDays(safeWeekStart, 7))
+                : setWeekStart(shiftMonth(safeWeekStart, 1))
             }
             aria-label={t('roster.nextWeek')}
           >
@@ -519,7 +528,7 @@ export function WeekBoardPage() {
             <button
               type="button"
               className="roster-icon-btn"
-              onClick={() => void loadWeek(weekStart)}
+              onClick={() => void loadWeek(safeWeekStart)}
               disabled={loading}
             >
               {t('roster.refresh')}
@@ -572,7 +581,7 @@ export function WeekBoardPage() {
             type="button"
             className="roster-btn"
             onClick={() =>
-              viewMode === 'week' ? void loadWeek(weekStart) : void loadMonth(monthAnchor)
+              viewMode === 'week' ? void loadWeek(safeWeekStart) : void loadMonth(monthAnchor)
             }
           >
             {t('common.retry')}
