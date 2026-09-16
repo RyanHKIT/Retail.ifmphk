@@ -23,6 +23,11 @@ import { LoginPage } from '@/pages/flow/Login'
 import { OverviewPlaceholder } from '@/pages/flow/OverviewPlaceholder'
 import { FlowStubPage } from '@/pages/flow/FlowStubPage'
 import { WeekBoardPage } from '@/pages/flow/roster/WeekBoard'
+import { StaffPage } from '@/pages/flow/roster/Staff'
+import { TemplatesPage } from '@/pages/flow/roster/Templates'
+import { PoliciesPage } from '@/pages/flow/roster/Policies'
+import { SwapsPage } from '@/pages/flow/roster/Swaps'
+import { AuditPage } from '@/pages/flow/roster/Audit'
 
 type Health = {
   ok?: boolean
@@ -169,6 +174,11 @@ export default function App() {
           <Route element={<FlowShell />}>
             <Route index element={<OverviewPlaceholder />} />
             <Route path="roster" element={<WeekBoardPage />} />
+            <Route path="roster/staff" element={<StaffPage />} />
+            <Route path="roster/templates" element={<TemplatesPage />} />
+            <Route path="roster/policies" element={<PoliciesPage />} />
+            <Route path="roster/swaps" element={<SwapsPage />} />
+            <Route path="roster/audit" element={<AuditPage />} />
             <Route path="*" element={<FlowStubPage />} />
           </Route>
         </Route>
