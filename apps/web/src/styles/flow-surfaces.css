@@ -69,6 +69,27 @@
   color: var(--flow-text);
 }
 
+@media (hover: hover) {
+  .roster-btn:not(:disabled):hover,
+  .roster-icon-btn:not(:disabled):hover {
+    background: var(--flow-hover);
+    border-color: var(--flow-accent);
+    color: var(--flow-text);
+  }
+
+  /* Primary and danger keep their fill; the wash would muddy the label. */
+  .roster-btn.primary:not(:disabled):hover {
+    background: color-mix(in srgb, var(--flow-accent) 88%, black);
+    border-color: color-mix(in srgb, var(--flow-accent) 88%, black);
+    color: #fff;
+  }
+
+  .roster-btn.danger:not(:disabled):hover {
+    background: var(--flow-hover);
+    color: var(--flow-danger);
+  }
+}
+
 .roster-btn {
   background: var(--flow-panel-2);
   border: 1px solid var(--flow-line);
@@ -555,7 +576,7 @@ table.roster-grid td {
 }
 
 .roster-emp-list label:hover {
-  background: var(--flow-panel-2);
+  background: var(--flow-hover);
 }
 
 .roster-emp-list label.checked {
@@ -964,36 +985,86 @@ table.roster-grid td {
   box-shadow: 0 0 0 2px var(--flow-panel), 0 0 0 4px var(--flow-accent);
 }
 
-/* ===== Swap approval (Phase 5) ===== */
+/* ===== Data table (roster pages) ===== */
 
-.roster-swap-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.roster-swap-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/*
+ * Shared table language. Header is a micro-label row rather than a heavy band;
+ * rows separate with a hairline so the eye tracks across columns. Deliberately
+ * no vertical rules — they chop the row into unrelated cells.
+ */
+.roster-table-wrap {
   border: 1px solid var(--flow-line);
   border-radius: 10px;
   background: var(--flow-panel);
-  padding: 14px 16px;
+  overflow-x: auto;
 }
 
-/*
- * Field/value pairs flow into as many columns as fit, so a wide screen shows
- * the whole request on one line instead of a cramped stack.
- */
-.roster-swap-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 4px 24px;
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Promoted from 12px: the previous card list was too small to scan. */
+  font-size: 13px;
 }
 
-.roster-swap-row .roster-dialog-actions {
-  margin-top: 0;
+.roster-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 14px;
+  background: var(--flow-panel-2);
+  border-bottom: 1px solid var(--flow-line);
+  color: var(--flow-muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.roster-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--flow-line);
+  color: var(--flow-text);
+  vertical-align: middle;
+}
+
+.roster-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.roster-table tbody tr {
+  transition: background-color var(--flow-dur-fast) var(--flow-ease-out);
+}
+
+@media (hover: hover) {
+  .roster-table tbody tr:hover {
+    background: var(--flow-hover);
+  }
+}
+
+/* Long free text wraps instead of stretching the table off-screen. */
+.roster-table-prose {
+  min-width: 220px;
+  max-width: 360px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+.roster-table-nowrap {
+  white-space: nowrap;
+}
+
+.roster-table-actions-col {
+  text-align: right;
+}
+
+.roster-table-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 @media (max-width: 900px) {

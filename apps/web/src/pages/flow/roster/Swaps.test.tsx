@@ -259,9 +259,18 @@ describe('Swaps (Task 9 contract)', () => {
     await awaitList()
     await userEvent.click(screen.getByRole('button', { name: '全部動作' }))
 
+    // Review metadata is carried by dedicated columns, so the label lives on
+    // the header and the row holds only values.
+    expect(
+      screen.getByRole('columnheader', { name: '處理時間' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('columnheader', { name: '審批備註' }),
+    ).toBeInTheDocument()
+
     const approved = rowById('sw3')
-    expect(approved).toHaveTextContent('處理時間')
     expect(approved).toHaveTextContent('同意')
+    expect(approved).toHaveTextContent('2026-09-15')
     expect(
       within(approved).queryByRole('button', { name: '批准' }),
     ).toBeNull()
@@ -270,7 +279,18 @@ describe('Swaps (Task 9 contract)', () => {
     ).toBeNull()
   })
 
-  it('shows the reviewed-at label after a successful review', async () => {
+  it('pending rows keep empty review cells and expose both actions', async () => {
+    renderSwaps()
+    await awaitList()
+
+    // Pending view: no review columns, so sw1 is compact and actionable.
+    expect(screen.queryByRole('columnheader', { name: '處理時間' })).toBeNull()
+    const pending = rowById('sw1')
+    expect(within(pending).getByRole('button', { name: '批准' })).toBeInTheDocument()
+    expect(within(pending).getByRole('button', { name: '拒絕' })).toBeInTheDocument()
+  })
+
+  it('shows the reviewed-at column after a successful review', async () => {
     renderSwaps()
     await awaitList()
 
@@ -282,11 +302,14 @@ describe('Swaps (Task 9 contract)', () => {
     await waitFor(() => expect(h.state.calls.review).toHaveLength(1))
 
     // sw1 was pending → after reload it turns approved, visible under the
-    // all-statuses filter with the reviewed-at label
+    // all-statuses filter alongside the reviewed-at column.
     await userEvent.click(screen.getByRole('button', { name: '全部動作' }))
     await waitFor(() => {
+      expect(
+        screen.getByRole('columnheader', { name: '處理時間' }),
+      ).toBeInTheDocument()
       const row = rowById('sw1')
-      expect(row).toHaveTextContent('處理時間')
+      expect(row).toHaveTextContent('2026-09-16')
     })
   })
 

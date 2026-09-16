@@ -161,6 +161,13 @@ export function SwapsPage() {
         </div>
       </div>
 
+      {/* Explains the approval model: what queued means, and the two different
+          consequences of approving (shift exchange vs. bid close). */}
+      <div className="roster-page-intro" data-testid="swaps-intro">
+        <strong>{t('roster.intro.label')}</strong>
+        {t('roster.swaps.intro')}
+      </div>
+
       {/* error / loading */}
       {loadError && (
         <div className="roster-error-banner" role="alert">
@@ -185,68 +192,82 @@ export function SwapsPage() {
       ) : filtered.length === 0 ? (
         <div className="roster-empty-hint">{t('roster.swaps.empty')}</div>
       ) : (
-        <div className="roster-swap-list">
-          {filtered.map((s) => {
-            const pending = s.status === 'pending'
-            return (
-              <div key={s.id} className="roster-swap-row" data-testid="swap-row" data-id={s.id}>
-                <div className="roster-badges">
-                  {statusBadge(s.status)}
-                  {s.is_open_bid && (
-                    <span className="roster-badge" data-testid="swap-open-bid">
-                      {t('roster.swaps.openBid')}
-                    </span>
-                  )}
-                  {s.reviewed_at && (
-                    <span className="roster-sub">
-                      {t('roster.swaps.reviewedAt')}: {fmtDateTime(s.reviewed_at)}
-                    </span>
-                  )}
-                </div>
-
-                <div className="roster-swap-fields">
-                  <span className="roster-sub">
-                    {t('roster.swaps.requester')}: {empName(s.requester_employee_id)}
-                  </span>
-                  <span className="roster-sub">
-                    {t('roster.swaps.target')}:{' '}
-                    {s.is_open_bid
-                      ? `— (${t('roster.swaps.openBid')})`
-                      : empName(s.target_employee_id) || '—'}
-                  </span>
-                  {s.reason && (
-                    <span className="roster-sub">
-                      {t('roster.swaps.reason')}: {s.reason}
-                    </span>
-                  )}
-                  {s.review_notes && (
-                    <span className="roster-sub">
-                      {t('roster.swaps.notes')}: {s.review_notes}
-                    </span>
-                  )}
-                </div>
-
-                {pending && (
-                  <div className="roster-dialog-actions">
-                    <button
-                      type="button"
-                      className="roster-btn danger"
-                      onClick={() => openReview(s, false)}
-                    >
-                      {t('roster.swaps.reject')}
-                    </button>
-                    <button
-                      type="button"
-                      className="roster-btn primary"
-                      onClick={() => openReview(s, true)}
-                    >
-                      {t('roster.swaps.approve')}
-                    </button>
-                  </div>
+        <div className="roster-table-wrap">
+          <table className="roster-table" data-testid="swaps-table">
+            <thead>
+              <tr>
+                <th scope="col">{t('roster.swaps.status')}</th>
+                <th scope="col">{t('roster.swaps.requester')}</th>
+                <th scope="col">{t('roster.swaps.target')}</th>
+                <th scope="col">{t('roster.swaps.reason')}</th>
+                {filter === 'all' && (
+                  <th scope="col">{t('roster.swaps.reviewedAt')}</th>
                 )}
-              </div>
-            )
-          })}
+                {filter === 'all' && (
+                  <th scope="col">{t('roster.swaps.notes')}</th>
+                )}
+                <th scope="col" className="roster-table-actions-col">
+                  {t('roster.table.actions')}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((s) => {
+                const pending = s.status === 'pending'
+                return (
+                  <tr key={s.id} data-testid="swap-row" data-id={s.id}>
+                    <td>
+                      <div className="roster-badges">
+                        {statusBadge(s.status)}
+                        {s.is_open_bid && (
+                          <span className="roster-badge" data-testid="swap-open-bid">
+                            {t('roster.swaps.openBid')}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>{empName(s.requester_employee_id)}</td>
+                    <td>
+                      {s.is_open_bid
+                        ? `— (${t('roster.swaps.openBid')})`
+                        : empName(s.target_employee_id) || '—'}
+                    </td>
+                    <td className="roster-table-prose">{s.reason || '—'}</td>
+                    {filter === 'all' && (
+                      <td className="roster-table-nowrap">
+                        {s.reviewed_at ? fmtDateTime(s.reviewed_at) : '—'}
+                      </td>
+                    )}
+                    {filter === 'all' && (
+                      <td className="roster-table-prose">{s.review_notes || '—'}</td>
+                    )}
+                    <td>
+                      {pending ? (
+                        <div className="roster-table-row-actions">
+                          <button
+                            type="button"
+                            className="roster-btn primary"
+                            onClick={() => openReview(s, true)}
+                          >
+                            {t('roster.swaps.approve')}
+                          </button>
+                          <button
+                            type="button"
+                            className="roster-btn danger"
+                            onClick={() => openReview(s, false)}
+                          >
+                            {t('roster.swaps.reject')}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="roster-sub">—</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
