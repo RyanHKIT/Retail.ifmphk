@@ -317,3 +317,43 @@ that the provider speaks OpenAI-compatible SSE.
 - Tests: prompt builders, the cache-key and digest logic, `guards.ts` rejection
   paths, and the insight block's states. Provider calls are mocked — no test
   makes a live request.
+
+## 10. Build status
+
+Implemented and verified:
+
+- Migration applied to the Supabase project (`dntmvxfgqmqremdrswij`). Both
+  `ai_insights` and `ai_usage` have RLS enabled with policies, and neither
+  appears in the security advisor's `rls_enabled_no_policy` list.
+- Client, analysis block, and chat panel built: `tsc` clean, 161 tests passing,
+  production build clean. With `VITE_AI_ENABLED` unset the block and the panel
+  both render nothing, which is the intended degradation and is covered by test.
+
+Not yet verified:
+
+- **The Deno functions have never been executed.** Neither `deno` nor the
+  `supabase` CLI is on PATH in the build environment, so the shared modules and
+  both endpoints have not been parsed, type-checked, or run. Deployment is their
+  first real validation. Treat any bug there as un-surfaced rather than absent.
+- No live provider call has been made. The provider contract (OpenAI-compatible
+  SSE, `response_format` support) is assumed from the provider's docs.
+
+### 10.1 Deviations from the design above
+
+1. **Chat output shape.** §5 specified JSON. Streaming JSON to a chat UI shows
+   braces forming, so the model instead emits prose, then a
+   `<<<META>>>` line, then the metadata JSON. The endpoint streams the prose and
+   holds the trailer back, including when the delimiter is split across two
+   chunks. The metadata still parses into the same `suggestedRoute` and
+   `definitionRefs` fields.
+2. **`force` flag.** Not in the original design. Without it the cache-first path
+   would make the UI's regenerate control a no-op.
+3. **Schema-qualified helpers.** The design's policy examples followed the
+   existing migrations' unqualified `get_user_role(...)`. That fails:
+   `search_path` is `"$user", public, extensions`, which excludes `private`. The
+   policies use `private.get_user_role` and `private.user_manages_branch`.
+4. **No function tests.** §9 called for tests of `prompts.ts` and `guards.ts`.
+   Those need a Deno runtime, which is unavailable here, so only the React
+   surface is tested. The prompt builders and the delimiter hold-back are the
+   highest-value untested code in this change.
+
