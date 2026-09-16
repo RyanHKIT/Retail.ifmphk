@@ -1,0 +1,22 @@
+{
+  "data": {
+    "STORE1": [
+      {
+        "uuid": "dev-1",
+        "title": "Cam A",
+        "code": "0250000001",
+        "status": 2,
+        "onLine": false,
+        "newlySendDate": "2026-09-15T12:00:00"
+      },
+      {
+        "uuid": "dev-2",
+        "title": "Cam B",
+        "code": "0250000002",
+        "status": 0,
+        "onLine": true,
+        "newlySendDate": "2026-09-15T12:01:00"
+      }
+    ]
+  }
+}

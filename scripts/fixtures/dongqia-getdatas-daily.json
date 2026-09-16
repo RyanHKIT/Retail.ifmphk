@@ -1,0 +1,43 @@
+{
+  "data": [
+    {
+      "code": "STORE1",
+      "title": "sample store",
+      "objType": "1",
+      "dataList": [
+        {
+          "date": "2026-09-14T00:00:00",
+          "inSum": 2100,
+          "inNoDupSum": 1720,
+          "passbySum": 3300,
+          "outSum": 2050,
+          "sexManSum": 820,
+          "sexWomanSum": 910,
+          "sexUnknownSum": 40,
+          "ageToddlerSum": 30,
+          "ageTeenagerSum": 70,
+          "ageYouthSum": 740,
+          "ageMiddleAgedSum": 520,
+          "ageElderlySum": 190,
+          "ageUnknownSum": 12
+        },
+        {
+          "date": "2026-09-15T00:00:00",
+          "inSum": 2000,
+          "inNoDupSum": 1650,
+          "passbySum": 3100,
+          "outSum": 1900,
+          "sexManSum": 800,
+          "sexWomanSum": 900,
+          "sexUnknownSum": 50,
+          "ageToddlerSum": 40,
+          "ageTeenagerSum": 80,
+          "ageYouthSum": 700,
+          "ageMiddleAgedSum": 500,
+          "ageElderlySum": 200,
+          "ageUnknownSum": 10
+        }
+      ]
+    }
+  ]
+}

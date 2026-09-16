@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "code": "STORE1",
+      "title": "sample store",
+      "objType": "1",
+      "dataList": [
+        {
+          "date": "2026-09-15T10:00:00",
+          "inSum": 312,
+          "inNoDupSum": 280,
+          "passbySum": 540,
+          "outSum": 298
+        },
+        {
+          "date": "2026-09-15T11:00:00",
+          "inSum": 190,
+          "inNoDupSum": 170,
+          "passbySum": 320,
+          "outSum": 175
+        }
+      ]
+    }
+  ]
+}

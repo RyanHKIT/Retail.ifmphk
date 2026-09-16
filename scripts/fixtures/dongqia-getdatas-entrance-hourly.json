@@ -1,0 +1,46 @@
+{
+  "data": [
+    {
+      "code": "GATE_MAIN",
+      "title": "Main Entrance",
+      "objType": "2",
+      "dataList": [
+        {
+          "date": "2026-09-15T10:00:00",
+          "inSum": 210,
+          "outSum": 200,
+          "passbySum": 0,
+          "inNoDupSum": 0
+        },
+        {
+          "date": "2026-09-15T11:00:00",
+          "inSum": 130,
+          "outSum": 120,
+          "passbySum": 0,
+          "inNoDupSum": 0
+        }
+      ]
+    },
+    {
+      "code": "GATE_SIDE",
+      "title": "Side Entrance",
+      "objType": "2",
+      "dataList": [
+        {
+          "date": "2026-09-15T10:00:00",
+          "inSum": 102,
+          "outSum": 98,
+          "passbySum": 0,
+          "inNoDupSum": 0
+        },
+        {
+          "date": "2026-09-15T11:00:00",
+          "inSum": 60,
+          "outSum": 55,
+          "passbySum": 0,
+          "inNoDupSum": 0
+        }
+      ]
+    }
+  ]
+}

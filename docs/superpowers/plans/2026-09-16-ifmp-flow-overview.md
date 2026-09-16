@@ -5,11 +5,13 @@
 > **Vendor:** 客流管家 Open API `oapi.dongqia.cn` (docs v1.0.3)
 > **Data path (locked 2026-09-16):** T1 importer + vendor-shaped JSON fixtures; T2 SQL seed is the pilot numeric SoT (no purchased Open API app). T8 live pull **deferred**. Age CHECK → DongQia 5+unknown.
 
-## Execution strategy (model usage — infra plan §"model+key")
+## Execution strategy (model usage)
 
-- **T1–T3 (ETL contract, age-group migration, api layer): `glm-5.3`** — wrong mapping wastes all widget work.
-- **T4–T7 (widget components + pages): `glm-5.3-flash`** — stable TS/SQL contracts by then, **strictly sequential subagent commits** (Phase 2 lesson: parallel commits raced the git index).
-- **T8–T9 (live pull / review / smoke): `glm-5.3`** — column-name audit + credential handling + full regression.
+**2026-09-16 substitute:** glm provider crashed. Phase 3 uses Cursor **Grok 4.6** wherever the infra plan said `glm-5.3`, and Cursor **Auto** wherever it said `glm-5.3-flash`. Same spend split: mapping/review on the strong model, widget pages on Auto.
+
+- **T1–T3 (ETL contract, age-group migration, api layer): Grok 4.6** — wrong mapping wastes all widget work.
+- **T4–T7 (widget components + pages): Auto** — stable TS/SQL contracts by then, **strictly sequential subagent commits** (Phase 2 lesson: parallel commits raced the git index). Subagents: `inherit` (Auto).
+- **T8–T9 (deferral note / review / smoke): Grok 4.6** — column-name audit + full regression. T8 is a skip with a written deferral, not a live pull.
 
 Do **not** put `DONGQIA_*` or `service_role` in client code or git.
 
@@ -37,7 +39,7 @@ Do **not** put `DONGQIA_*` or `service_role` in client code or git.
 
 ## Tasks
 
-### T1 — DongQia ETL importer + fixture (`glm-5.3`)
+### T1 — DongQia ETL importer + fixture (Grok 4.6)
 
 - [ ] Document API field map in `docs/flow-pilot-phase3.md` (spec §3.1 table). Env var **names** only — no values.
 - [ ] Vendor-shaped JSON fixtures covering entity hourly, entity daily, entrance hourly, devices.
@@ -45,37 +47,37 @@ Do **not** put `DONGQIA_*` or `service_role` in client code or git.
 - [ ] Dry-run against fixtures asserts per-table counts.
 - [ ] Commit: `feat(flow): DongQia Open API footfall ETL importer`
 
-### T2 — Age-group align + sample seed (`glm-5.3`)
+### T2 — Age-group align + sample seed (Grok 4.6)
 
 - [ ] Migration: drop/replace `audience_daily.age_group` CHECK to `toddler|teenager|youth|middle_aged|elderly|unknown` (spec §3.3 A).
 - [ ] Seed migration: generate_series 16 months (2025-05-01 → yesterday), magnitudes ~2k–4k/day, weekend ×1.35, HK-holiday ×1.5, lunch+after-work peaks, two-gate 70/30, DongQia age skew toward youth, gender 45/55. **No RNG** — deterministic arithmetic. `devices` 3 rows.
 - [ ] Verify via MCP `execute_sql`.
 - [ ] Commit: `feat(flow): DongQia age buckets + 16-month sample seed`
 
-### T3 — Footfall api layer + tests (`glm-5.3`)
+### T3 — Footfall api layer + tests (Grok 4.6)
 
 - [ ] Before writing: print column list from `20260915000002` + T2 alter; every `.select()` string must match.
 - [ ] HK-day helpers; 8 fetchers + `fetchDevices` per spec §4.
 - [ ] `api.test.ts` mocked-supabase; `tsc --noEmit` green.
 - [ ] Commit: `feat(flow): footfall read api layer with HK-day logic`
 
-### T4 — Overview widgets 1–8 (`glm-5.3-flash`, subagent)
+### T4 — Overview widgets 1–8 (Auto, subagent)
 
 - [ ] `WidgetCard` + 8 presentational widgets (recharts, `t()`, honesty footnote).
 - [ ] `Overview.tsx` + test; `branchResolved` gate.
 - [ ] Commit: `feat(flow): overview 主控台 widgets 1-8`
 
-### T5 — 出入口 + 客群畫像 (`glm-5.3-flash`, subagent)
+### T5 — 出入口 + 客群畫像 (Auto, subagent)
 
 - [ ] `Entrances.tsx` (+test), `Audience.tsx` (+test), i18n.
 - [ ] Commit: `feat(flow): entrances + audience drill pages`
 
-### T6 — 同期對比 + 節假日 (`glm-5.3-flash`, subagent)
+### T6 — 同期對比 + 節假日 (Auto, subagent)
 
 - [ ] `Compare.tsx` (+test), `Holidays.tsx` (+test), i18n.
 - [ ] Commit: `feat(flow): compare + holidays drill pages`
 
-### T7 — 設備 + App routes (`glm-5.3-flash`, subagent)
+### T7 — 設備 + App routes (Auto, subagent)
 
 - [ ] `Devices.tsx` (+test); wire 5 stub routes in `App.tsx`; no `/retail` touch.
 - [ ] Commit: `feat(flow): devices page + wire overview drill routes`
@@ -86,7 +88,7 @@ Do **not** put `DONGQIA_*` or `service_role` in client code or git.
 - [ ] When a real `appID`/`appSecret` exists: dry-run live → upsert → rerun 0 new rows; document in a follow-up, no secrets in git.
 - [ ] This phase: confirm widgets run on T2 seed; note deferral in `docs/flow-pilot-phase3.md`.
 
-### T9 — Review + regression + smoke (`glm-5.3`)
+### T9 — Review + regression + smoke (Grok 4.6)
 
 - [ ] Column-name audit vs DDL.
 - [ ] Full `npx vitest run` + `tsc --noEmit`.

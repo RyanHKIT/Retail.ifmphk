@@ -41,8 +41,8 @@ Optimise for **return on investment**: correct once, minimal rework — not the 
 | Phase 1 escalate (RLS, Auth gate, hard migration debug) | **`qwen3.8-max`** (preferred — same gateway key as Auto) or `glm-5.3` | Prefer **no key switch** (max); switch to 5.3 key only if max unavailable |
 | Phase 2 week board / conflicts / publish | `glm-5.3` | **5.3 key** for that slice |
 | Phase 2 leaf CRUD pages | `glm-5.3-flash` | **Flash key** |
-| Phase 3 ETL / field mapping | `glm-5.3` | **5.3 key** until mapping verified |
-| Phase 3 chart widgets | `glm-5.3-flash` | **Flash key** |
+| Phase 3 ETL / field mapping | **Grok 4.6** (was `glm-5.3`; glm provider crashed 2026-09-16) | Mapping lock — no glm key |
+| Phase 3 chart widgets | **Auto** (was `glm-5.3-flash`) | Widget pages after contract stable |
 | Phase 4 heatmap UX / interaction | `glm-5.3` | **5.3 key** |
 | Phase 4 wiring after UX locked | `glm-5.3-flash` | **Flash key** |
 | Normal chat | Auto | No change (whatever Auto uses) |
@@ -79,7 +79,7 @@ Flash is ~10× cheaper than full `glm-5.3`. Prefer Flash when the plan already c
 | Phase | Mode | Model + key | Notes |
 |-------|------|-------------|--------|
 | **2 — Roster manager UI** | Hybrid: inline for week board core; subagents OK for leaf CRUD pages | Start phase on **5.3 key** for board/conflicts/publish; switch to **Flash key** for staff/templates/policies/audit | Optional **one** high-cost review of board+publish only — not per-task. **Remind model+key at phase start.** |
-| **3 — 主控台** | Inline or light subagents after ETL contract locked | Start on **5.3 key** for Uniqlo→Supabase mapping; switch to **Flash key** for widgets | Wrong mapping wastes all widget work — spend here. **Remind at phase start.** |
+| **3 — 主控台** | Inline or light subagents after ETL contract locked | **Grok 4.6** for Uniqlo/DongQia→Supabase mapping; **Auto** for widgets (glm substitute 2026-09-16) | Wrong mapping wastes all widget work — spend here. **Remind at phase start.** |
 | **4 — Journey heatmap** | Open Design for visual world first; then Cursor implement | Start implement on **5.3 key** (UX); switch to **Flash key** for wiring | Do not skin legacy `/retail/journey`. **Remind at phase start.** |
 | Open Design / 員工 / cutover | Separate plans | Flash key for mechanical work; 5.3 key if deploy/auth edge cases | Auto OK for planning chat |
 
@@ -632,7 +632,7 @@ Write each as its own `docs/superpowers/plans/YYYY-MM-DD-*.md`. Carry forward th
 ### Phase 3 — 主控台 (widgets 1–8)
 
 - **Scope:** Uniqlo-period traffic ETL → Supabase (display as I.T. Causeway Bay); overview + drill routes for mandated footfall widgets.
-- **Execution:** **`glm-5.3`** locks field mapping / ETL first. **Flash** builds charts once TypeScript/SQL contracts are stable. Light subagents OK for parallel widget pages.
+- **Execution:** **Grok 4.6** locks field mapping / ETL first. **Auto** builds charts once TypeScript/SQL contracts are stable. Sequential subagents for widget pages (glm substitute 2026-09-16).
 - **Avoid:** Building eight charts before the import schema is verified.
 
 ### Phase 4 — Journey heatmap
