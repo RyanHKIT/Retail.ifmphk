@@ -3,7 +3,7 @@
 > **Spec:** `docs/superpowers/specs/2026-09-16-ifmp-flow-overview-design.md`
 > **Prior handoff:** `docs/superpowers/handoffs/2026-09-16-flow-phase2-handoff.md`
 > **Vendor:** 客流管家 Open API `oapi.dongqia.cn` (docs v1.0.3)
-> **Data path:** T1 importer + JSON fixtures first; T2 SQL seed unblocks widgets; T8 live pull when operator credentials arrive.
+> **Data path (locked 2026-09-16):** T1 importer + vendor-shaped JSON fixtures; T2 SQL seed is the pilot numeric SoT (no purchased Open API app). T8 live pull **deferred**. Age CHECK → DongQia 5+unknown.
 
 ## Execution strategy (model usage — infra plan §"model+key")
 
@@ -80,13 +80,11 @@ Do **not** put `DONGQIA_*` or `service_role` in client code or git.
 - [ ] `Devices.tsx` (+test); wire 5 stub routes in `App.tsx`; no `/retail` touch.
 - [ ] Commit: `feat(flow): devices page + wire overview drill routes`
 
-### T8 — Live DongQia pull (`glm-5.3`, blocked on credentials)
+### T8 — Live DongQia pull (**deferred** — no purchased Open API app)
 
-- [ ] Operator supplies `DONGQIA_*` into local `.env.local` (not git).
-- [ ] Dry-run live, then upsert, then rerun → 0 new rows.
-- [ ] MCP `execute_sql` confirms non-zero `footfall_*` / `audience_daily` / `devices`.
-- [ ] If credentials delayed: skip; widgets already run on T2 seed. Document in phase3 doc.
-- [ ] Commit: `docs(flow): phase3 ETL live-pull notes` (no secrets)
+- [ ] Skip in this phase. Demo web login (`DONGQIA` @ keliu.dongqia.com) is UI reference only, not Token credentials.
+- [ ] When a real `appID`/`appSecret` exists: dry-run live → upsert → rerun 0 new rows; document in a follow-up, no secrets in git.
+- [ ] This phase: confirm widgets run on T2 seed; note deferral in `docs/flow-pilot-phase3.md`.
 
 ### T9 — Review + regression + smoke (`glm-5.3`)
 

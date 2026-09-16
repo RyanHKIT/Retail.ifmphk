@@ -1,7 +1,7 @@
 # IFMP Retail (pilot) — Phase 3 Design Spec: 主控台 (Overview widgets 1–8 + ETL)
 
 > **Date:** 2026-09-16
-> **Status:** Draft — awaiting product-owner approval (§3 credentials + age-bucket)
+> **Status:** Approved 2026-09-16 — age buckets = DongQia 5+unknown; live API pull deferred (demo login only, no purchased Open API app)
 > **Parent spec:** `docs/superpowers/specs/2026-09-15-ifmp-flow-design.md` (§4.2 tables, §5 widget mandate, §4.3 data strategy)
 > **Plan:** `docs/superpowers/plans/2026-09-16-ifmp-flow-overview.md`
 > **Vendor API:** 客流管家云平台 Open API `oapi.dongqia.cn` (docs: `http://cloud.keliuguanjia.com/#/views/develop/doc`, v1.0.3 2025-08-02)
@@ -82,29 +82,30 @@ Timezone: vendor store `TimeZone` is China Standard Time (UTC+8) for 北京优�
 
 Known honesty limit: `calendar_days` is **HK holidays**; traffic is **Beijing-period**. Holiday widget overlays HK labels on Beijing numbers — do not claim a true HK holiday effect. Footnote covers this.
 
-### 3.2 Credentials (blocked until operator provides)
+### 3.2 Credentials (locked 2026-09-16)
 
-ETL needs, all in `.env.local` / CI secret store — **never committed**:
+Operator has **not purchased** 客流管家. Available today:
 
-- `DONGQIA_APP_ID`
-- `DONGQIA_APP_SECRET`
-- `DONGQIA_ORG_CODE` (组织编号)
-- `DONGQIA_STORE_CODE` (实体编号 — 北京优衣库)
-- `DONGQIA_ENTRANCE_CODES` (出入口编号 list, mapped to our `entrances.id`)
-- `SUPABASE_SERVICE_ROLE_KEY` (existing; writes only)
+| What | Role |
+|---|---|
+| 演示账号 `DONGQIA` @ `https://keliu.dongqia.com/` | Human UI reference (widget shapes / labels). Password stays with operator — **never paste into git or chat**. |
+| Open API `appID` / `appSecret` / 组织·实体·出入口编号 | **Not issued.** Token endpoint cannot be called for real traffic. |
 
-Public vendor docs include example `appID`/`appSecret` strings. Treat as documentation dummies. **Do not copy them into this repo.** Use the operator's own application credentials from 客流管家云平台.
+Web login ≠ Open API. `POST /api/Token` wants an application pair from the developer portal, not the demo username/password.
 
-Until credentials arrive: T1 builds the importer + recorded JSON fixtures (from vendor example shapes); T2 loads a deterministic SQL seed so widgets can be built. First live pull is T8.
+Until a purchased app exists:
 
-### 3.3 Age buckets (decision required)
+- T1 still ships the importer against **documented JSON shapes** (fixtures only, no live Token call in CI).
+- T2 deterministic SQL seed is the **numeric SoT for this pilot** (Uniqlo-plausible magnitudes, honesty footnote on).
+- T8 live pull is **deferred** to a later phase / ops task.
 
-Phase 1 CHECK: `'0-17','18-24','25-34','35-44','45-54','55+'`.
+Env var **names** (for when an app is purchased; values never in git): `DONGQIA_APP_ID`, `DONGQIA_APP_SECRET`, `DONGQIA_ORG_CODE`, `DONGQIA_STORE_CODE`, `DONGQIA_ENTRANCE_CODES`, plus existing `SUPABASE_SERVICE_ROLE_KEY`.
 
-DongQia: `ageToddlerSum` 幼儿, `ageTeenagerSum` 儿童, `ageYouthSum` 青年, `ageMiddleAgedSum` 中年, `ageElderlySum` 老人, `ageUnknownSum` 未知. Exact year ranges are **not in the vendor doc**.
+Public vendor docs include example `appID`/`appSecret` strings. Treat as documentation dummies. **Do not copy them into this repo.**
 
-- **A (recommended):** migrate CHECK to DongQia keys `toddler|teenager|youth|middle_aged|elderly|unknown`. UI labels 幼兒 / 兒童 / 青年 / 中年 / 長者 / 未知 — no invented year ranges.
-- **B:** lossy-map 5 buckets onto the 6 Western bands (youth split across 18–24 and 25–34 would be fabricated). Rejected unless product insists on the original bands.
+### 3.3 Age buckets (locked: A)
+
+Phase 1 CHECK (`'0-17'`…`'55+'`) is replaced. Persist DongQia keys `toddler|teenager|youth|middle_aged|elderly|unknown`. UI: 幼兒 / 兒童 / 青年 / 中年 / 長者 / 未知. Do **not** invent year ranges (vendor doc does not publish them).
 
 ### 3.4 Importer
 
